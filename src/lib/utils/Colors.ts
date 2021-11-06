@@ -21,7 +21,7 @@ export const colors: { [key: string]: MineColor } = {
     'default': new MineColor(
         new ShapeColor('#c8c3bc', '#52585c'),
         new ShapeColor('#c8c3bc', '#52585c'),
-        new ShapeColor('#800', '#300'),
+        new ShapeColor('#880', '#330'),
         new ShapeColor('#800', '#300'),
         new ShapeColor('#c8c3bc', '#313538'),
     ),

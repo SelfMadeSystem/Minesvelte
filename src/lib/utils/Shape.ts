@@ -101,11 +101,14 @@ export class ShapeInfo {
     }
 
     public getState(hovering: boolean): string {
+        if (this.isRevealed) {
+            if (this.hasMine) {
+                return "exploded";
+            }
+            return "revealed";
+        }
         if (this.isFlagged) {
             return "flagged";
-        }
-        if (this.isRevealed) {
-            return "revealed";
         }
         if (hovering) {
             return "hovering";
@@ -117,7 +120,9 @@ export class ShapeInfo {
 export class Shape {
     public contacts: Shape[] = [];
     public callback: (shape: Shape) => void = () => { };
-    constructor(public readonly grid: Grid, public readonly points: ShapePoint[], public readonly shapeInfo: ShapeInfo = new ShapeInfo()) {
+    public readonly shapeInfo: ShapeInfo = new ShapeInfo()
+    constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
+        this.shapeInfo.hasMine = hasMine;
         this.shapeInfo.callback = () => this.callback(this);
     }
 
@@ -138,7 +143,9 @@ export class Shape {
         lines.push(new Line(this.grid, prev, first));
         return lines;
     }
-
+    public get number() {
+        return this.contacts.filter(s => s.shapeInfo.hasMine).length;
+    }
     private uptadingContacts: boolean = false;
 
     updateContacts() {
@@ -146,13 +153,26 @@ export class Shape {
             return;
         }
         this.uptadingContacts = true;
-        this._updateContacts();
+        var prevContacts = this._updateContacts();
         this.contacts.forEach(s => s._updateContacts());
+        prevContacts.forEach(s => s._updateContacts());
         this.uptadingContacts = false;
     }
 
     _updateContacts() {
-        this.contacts = this.grid.info.shapes.filter(s => s !== this && this.isAdjacent(s));
+        var prevContacts = this.contacts;
+        this.contacts = this.grid.info.shapes.filter(s => s !== this && this.isCorner(s));
+        this.callback(this);
+        return prevContacts.filter(s => !this.contacts.includes(s));
+    }
+
+    reveal() {
+        if (this.shapeInfo.isRevealed) return;
+        this.shapeInfo.isRevealed = true;
+        if (!this.shapeInfo.hasMine && this.number === 0) {
+            this.contacts.forEach(s => s.reveal());
+        }
+        this.callback(this);
     }
 
     isAdjacent(other: Shape) {
@@ -160,7 +180,9 @@ export class Shape {
     }
 
     isCorner(other: Shape) { // includes adjacent
-        return this._isCorner(this.lines, other.lines);
+        const otherPoints = other.getPoints();
+        return this.getPoints().some(p => otherPoints.some(p2 => p.x === p2.x && p.y === p2.y));
+        // return this._isCorner(this.lines, other.lines);
     }
 
     _isAdjacent(self: Line[], them: Line[]) {
@@ -182,15 +204,15 @@ export class Shape {
         }))
     }
 
-    _isCorner(self: Line[], them: Line[]) {
-        return self.some(l1 => {
-            const points = this.grid.getAllInLinePoint(l1.p1, l1.p2);
-            return them.some(l2 => points.some(p => equals(p, l2.p1) || equals(p, l2.p2)))
-        }) || them.some(l1 => {
-            const points = this.grid.getAllInLinePoint(l1.p1, l1.p2);
-            return self.some(l2 => points.some(p => equals(p, l2.p1) || equals(p, l2.p2)))
-        });
-    }
+    // _isCorner(self: Line[], them: Line[]) {
+    //     return self.some(l1 => {
+    //         const points = this.grid.getAllInLinePoint(l1.p1, l1.p2);
+    //         return them.some(l2 => points.some(p => equals(p, l2.p1) || equals(p, l2.p2)))
+    //     }) || them.some(l1 => {
+    //         const points = this.grid.getAllInLinePoint(l1.p1, l1.p2);
+    //         return self.some(l2 => points.some(p => equals(p, l2.p1) || equals(p, l2.p2)))
+    //     });
+    // }
 
     getPoints() {
         var points: Point[] = [];

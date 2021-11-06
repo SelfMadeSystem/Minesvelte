@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { afterUpdate } from "svelte";
     import { moveShapePoint, Shape } from "../utils/Shape";
     import {
         getMousePoint,
@@ -7,12 +8,17 @@
         Point,
     } from "../utils/Grid";
     import { getShapeColorByState } from "../utils/Colors";
+    import Vec from "../utils/Vec";
     export var grid: Grid;
     export var shape: Shape;
     var clicking = false;
     var dragging = -1;
     var clickPoint: Point;
-    
+    var path: SVGPathElement;
+
+    var pathPosition: Vec;
+    var num: number;
+
     $: pointsStr = shape.toString();
     $: color = getShapeColorByState(
         shape.shapeInfo.color,
@@ -22,15 +28,64 @@
         grid.info;
         pointsStr = shape.toString();
     }
+    function updatePath() {
+        if (path) {
+            pathPosition = new Vec(
+                path.getBBox().x + path.getBBox().width / 2,
+                path.getBBox().y + path.getBBox().height / 2
+            );
+        }
+        num = shape.number;
+    }
     shape.callback = () => {
         color = getShapeColorByState(
             shape.shapeInfo.color,
             shape.shapeInfo.getState(false)
         );
-    }
+        updatePath();
+    };
+
+    afterUpdate(() => {
+        updatePath();
+    });
 
     function onMouseDown(e: MouseEvent) {
         switch (e.button) {
+            case 0:
+                if (e.shiftKey) {
+                    clicking = true;
+                    e.preventDefault();
+                    e.stopPropagation();
+                    clickPoint = getMousePoint(e.clientX, e.clientY, grid);
+                    var d = mouseDistFromClosestPoint(
+                        e.clientX,
+                        e.clientY,
+                        grid,
+                        shape.points
+                    );
+                    if (d < 0.5) {
+                        dragging = shape.points.findIndex(
+                            (p) => p.x === clickPoint.x && p.y === clickPoint.y
+                        );
+                    } else {
+                        dragging = -1;
+                    }
+                    break;
+                }
+                if (shape.shapeInfo.isRevealed) {
+                    shape.shapeInfo.isRevealed = false;
+                    return;
+                }
+                shape.reveal();
+                break;
+            case 2:
+                shape.shapeInfo.isFlagged = !shape.shapeInfo.isFlagged;
+                break;
+            case 1:
+                shape.shapeInfo.hasMine = !shape.shapeInfo.hasMine;
+                break;
+        }
+        /* switch (e.button) {
             case 0:
                 clicking = true;
                 e.preventDefault();
@@ -52,7 +107,7 @@
                 break;
             case 2:
                 if (e.altKey) {
-                    console.log(shape.contacts)
+                    console.log(shape.contacts);
                 } else {
                     shape.shapeInfo.isFlagged = true;
                     shape.contacts.forEach((c) => {
@@ -67,7 +122,7 @@
                 console.log(shape.shapeInfo.getState(false));
                 e.preventDefault();
                 e.stopPropagation();
-        }
+        } */
     }
 
     function onMouseUp(e: MouseEvent) {
@@ -102,20 +157,39 @@
         }
         pointsStr = shape.toString();
         shape.updateContacts();
+        shape.contacts.forEach((c) => {
+            c.callback(c);
+        });
     }
 </script>
 
-<path
-    fill-rule="evenodd"
-    d={pointsStr}
-    fill={color.fill}
-    stroke={color.stroke}
-    stroke-width="4"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-    on:mousedown={onMouseDown}
-    on:mouseup={onMouseUp}
-/>
+<g>
+    <path
+        bind:this={path}
+        fill-rule="evenodd"
+        d={pointsStr}
+        fill={color.fill}
+        stroke={color.stroke}
+        stroke-width="4"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        on:mousedown={onMouseDown}
+        on:mouseup={onMouseUp}
+    />
+    {#if path && pathPosition && shape.shapeInfo.isRevealed && !shape.shapeInfo.isFlagged && !shape.shapeInfo.hasMine}
+        <text
+            x={pathPosition.x}
+            y={pathPosition.y}
+            text-anchor="middle"
+            dominant-baseline="central"
+            font-size="24"
+            font-family="monospace"
+            fill={color.stroke}
+        >
+            {num}
+        </text>
+    {/if}
+</g>
 
 <svelte:window on:mousemove={onMouseMove} />
 

@@ -9,7 +9,7 @@
     import Vec from "./utils/Vec";
     var shapes: Sh[] = [];
 
-    var grid = new SquareGrid(
+    var grid = new HexGrid(
         {},
         {
             size: 50,
@@ -18,14 +18,8 @@
         }
     );
 
-    for (let x = -5; x <= 5; x++) {
-        for (let y = -5; y <= 5; y++) {
-            grid.getPoint(x, y);
-        }
-    }
-
-    function sh(points: ShapePoint[]) {
-        return new Sh(grid, points);
+    function sh(points: ShapePoint[], hasMine: boolean = false) {
+        return new Sh(grid, points, hasMine);
     }
 
     // shapes.push(sh([
@@ -39,16 +33,28 @@
     //     lineTo(1, 3),
     // ]));
 
-    for (let x = -3; x <= 2; x++) {
-        for (let y = -3; y <= 2; y++) {
+    var gridSize = 15;
+    var halfGridSize = Math.floor(gridSize / 2);
+
+    for (let i = 0; i < gridSize * 2 - 1; i++) {
+        for (let j = Math.max(0, gridSize - i - 1); j < gridSize * 2 - Math.max(1, i - gridSize + 2); j++) {
+            let x = (i - halfGridSize * 1.5) * 2 + j - halfGridSize * 2;
+            let y = j - i - halfGridSize;
             shapes.push(
-                sh([moveTo(x, y), lineTo(x + 1, y), lineTo(x + 1, y + 1), lineTo(x, y + 1)])
+                sh([
+                    moveTo(x, y),
+                    lineTo(x + 1, y),
+                    lineTo(x + 1, y + 1),
+                    lineTo(x, y + 2),
+                    lineTo(x - 1, y + 2),
+                    lineTo(x - 1, y + 1),
+                ], Math.random() < 0.125)
             );
         }
     }
 
     if (shapes) {
-        shapes.forEach(s => s._updateContacts());
+        shapes.forEach((s) => s._updateContacts());
     }
 
     var mousePoint: Point = {
@@ -61,10 +67,7 @@
         mousePoint = getMousePoint(clientX, clientY, grid);
         if (!scrolling) return;
         grid.info.offset = grid.info.offset.add(
-            new Vec(
-                e.movementX / grid.info.size,
-                e.movementY / grid.info.size,
-            )
+            new Vec(e.movementX / grid.info.size, e.movementY / grid.info.size)
         );
     }
 
@@ -88,7 +91,11 @@
     }
 </script>
 
-<svelte:window on:mousemove={onMouseMove} on:mousedown={onMouseDown} on:mouseup={onMouseUp}/>
+<svelte:window
+    on:mousemove={onMouseMove}
+    on:mousedown={onMouseDown}
+    on:mouseup={onMouseUp}
+/>
 
 <Canvas>
     <g id="grid">
@@ -96,11 +103,8 @@
     </g>
     <g id="shapes">
         {#each shapes as shape}
-        <!-- remove this nonsense -->
-            <Shape
-                {grid}
-                {shape}
-            />
+            <!-- remove this nonsense -->
+            <Shape {grid} {shape} />
         {/each}
     </g>
     <!-- <g id="owo">
