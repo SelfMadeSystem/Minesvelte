@@ -5,5 +5,5 @@
 </script>
 
 {#each $grid as point}
-    <Dot {grid} {point} fill={grid.isAjacentPointNum(point, 0, 0) ? "red" : "green"}/>
+    <Dot {grid} {point} fill={"green"}/>
 {/each}

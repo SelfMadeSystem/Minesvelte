@@ -47,7 +47,7 @@ class MTP implements ShapePoint {
 }
 
 export function lineTo(x: number, y: number) {
-    return lineToPoint({x, y});
+    return lineToPoint({ x, y });
 }
 
 export function lineToPoint(point: Point): ShapePoint {
@@ -55,7 +55,7 @@ export function lineToPoint(point: Point): ShapePoint {
 };
 
 export function moveTo(x: number, y: number) {
-    return moveToPoint({x, y});
+    return moveToPoint({ x, y });
 }
 
 export function moveToPoint(point: Point): ShapePoint {
@@ -63,11 +63,40 @@ export function moveToPoint(point: Point): ShapePoint {
 }
 
 export class ShapeInfo {
+    public get isRevealed(): boolean {
+        return this._isRevealed;
+    }
+    public set isRevealed(value: boolean) {
+        this._isRevealed = value;
+        this.callback(this);
+    }
+    public get isFlagged(): boolean {
+        return this._isFlagged;
+    }
+    public set isFlagged(value: boolean) {
+        this._isFlagged = value;
+        this.callback(this);
+    }
+    public get hasMine(): boolean {
+        return this._hasMine;
+    }
+    public set hasMine(value: boolean) {
+        this._hasMine = value;
+        this.callback(this);
+    }
+    public get color(): string {
+        return this._color;
+    }
+    public set color(value: string) {
+        this._color = value;
+        this.callback(this);
+    }
     constructor(
-        public color: string = "default",
-        public hasMine: boolean = false,
-        public isFlagged: boolean = false,
-        public isRevealed: boolean = false,
+        private _color: string = "default",
+        private _hasMine: boolean = false,
+        private _isFlagged: boolean = false,
+        private _isRevealed: boolean = false,
+        public callback: (info: ShapeInfo) => void = () => { },
     ) {
     }
 
@@ -87,7 +116,9 @@ export class ShapeInfo {
 
 export class Shape {
     public contacts: Shape[] = [];
+    public callback: (shape: Shape) => void = () => { };
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], public readonly shapeInfo: ShapeInfo = new ShapeInfo()) {
+        this.shapeInfo.callback = () => this.callback(this);
     }
 
     public get lines(): Line[] {
@@ -108,16 +139,20 @@ export class Shape {
         return lines;
     }
 
-    private uptadingContacts: boolean;
+    private uptadingContacts: boolean = false;
 
     updateContacts() {
         if (this.uptadingContacts) {
             return;
         }
         this.uptadingContacts = true;
-        this.contacts = this.grid.info.shapes.filter(s => s !== this && this.isAdjacent(s));
-        this.contacts.forEach(s => s.updateContacts());
+        this._updateContacts();
+        this.contacts.forEach(s => s._updateContacts());
         this.uptadingContacts = false;
+    }
+
+    _updateContacts() {
+        this.contacts = this.grid.info.shapes.filter(s => s !== this && this.isAdjacent(s));
     }
 
     isAdjacent(other: Shape) {

@@ -12,14 +12,21 @@
     var clicking = false;
     var dragging = -1;
     var clickPoint: Point;
+    
     $: pointsStr = shape.toString();
     $: color = getShapeColorByState(
         shape.shapeInfo.color,
         shape.shapeInfo.getState(false)
     );
     $: {
-        grid.info
+        grid.info;
         pointsStr = shape.toString();
+    }
+    shape.callback = () => {
+        color = getShapeColorByState(
+            shape.shapeInfo.color,
+            shape.shapeInfo.getState(false)
+        );
     }
 
     function onMouseDown(e: MouseEvent) {

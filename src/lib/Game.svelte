@@ -28,20 +28,19 @@
         return new Sh(grid, points);
     }
 
-    shapes.push(sh([
-        moveTo(0, 0),
-        lineTo(4, 0),
-        lineTo(4, 4),
-        lineTo(0, 4),
-        moveTo(1, 1),
-        lineTo(3, 1),
-        lineTo(3, 3),
-        lineTo(1, 3),
-    ]));
+    // shapes.push(sh([
+    //     moveTo(0, 0),
+    //     lineTo(4, 0),
+    //     lineTo(4, 4),
+    //     lineTo(0, 4),
+    //     moveTo(1, 1),
+    //     lineTo(3, 1),
+    //     lineTo(3, 3),
+    //     lineTo(1, 3),
+    // ]));
 
-    for (let x = -1; x <= 1; x++) {
-        for (let y = -1; y <= 1; y++) {
-            if (y == 0 && x == y) continue;
+    for (let x = -3; x <= 2; x++) {
+        for (let y = -3; y <= 2; y++) {
             shapes.push(
                 sh([moveTo(x, y), lineTo(x + 1, y), lineTo(x + 1, y + 1), lineTo(x, y + 1)])
             );
@@ -49,7 +48,7 @@
     }
 
     if (shapes) {
-        shapes.forEach(s => s.updateContacts());
+        shapes.forEach(s => s._updateContacts());
     }
 
     var mousePoint: Point = {
@@ -104,10 +103,10 @@
             />
         {/each}
     </g>
-    <g id="owo">
+    <!-- <g id="owo">
         {#each shapes[0].getPoints() as point }
             <Dot {grid} {point} fill="red" />
         {/each}
-        <Dot {grid} point={mousePoint} fill={"purple"} />
-    </g>
+    </g> -->
+    <Dot {grid} point={mousePoint} fill={"purple"} />
 </Canvas>
