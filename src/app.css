@@ -1,0 +1,9 @@
+body {
+    padding: 0;
+    overflow: hidden;
+    background-color: #131516;
+}
+
+svg {
+    pointer-events: none;
+}
