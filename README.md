@@ -1,3 +1,3 @@
 # Minesvelte
 
-(Tametsi)[http://www.griptopgames.com] clone made in svelte.
+[Tametsi](http://www.griptopgames.com) clone made in svelte.
