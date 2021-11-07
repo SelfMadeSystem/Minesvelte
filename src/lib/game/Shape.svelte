@@ -80,7 +80,7 @@
                     }
                     return;
                 }
-                shape.reveal();
+                if (shape.shapeInfo.getState(false) == "normal") shape.reveal();
                 break;
             case 2:
                 shape.shapeInfo.isFlagged = !shape.shapeInfo.isFlagged;
