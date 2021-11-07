@@ -9,7 +9,7 @@
     import Vec from "./utils/Vec";
     var shapes: Sh[] = [];
 
-    var grid = new HexGrid(
+    var grid = new SquareGrid(
         {},
         {
             size: 50,
@@ -18,8 +18,8 @@
         }
     );
 
-    grid.generateTriangleGrid(10);
-    grid.setMineRatio(0.1);
+    grid.generateOctogonGrid(5);
+    grid.setMineRatio(0.25);
 
     if (shapes) {
         shapes.forEach((s) => s._updateContacts());

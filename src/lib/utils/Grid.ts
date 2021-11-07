@@ -180,6 +180,7 @@ export abstract class Grid {
         return points;
     }
 
+    // Todo: Make a "pattern" class that can be used to make a grid with a pattern of shapes.
     public abstract generateDefaultGrid(size: number): void;
 
     public setRandomMines(count: number) {
@@ -224,14 +225,51 @@ export class SquareGrid extends Grid {
                             lineTo(x + 1, y),
                             lineTo(x + 1, y + 1),
                             lineTo(x, y + 1),
-                        ],
-                        Math.random() < 0.125
+                        ]
                     )
                 );
             }
         }
     }
 
+    public generateOctogonGrid(gridSize: number) {
+        let halfGridSize = Math.floor(gridSize / 2);
+        let max = halfGridSize + gridSize%2;
+        for (let i = -halfGridSize; i < max; i++) {
+            for (let j = -halfGridSize; j < max; j++) {
+                let x = i * 3;
+                let y = j * 3;
+                this.info.shapes.push(
+                    new Shape(
+                        this,
+                        [
+                            moveTo(x, y),
+                            lineTo(x + 1, y),
+                            lineTo(x + 2, y + 1),
+                            lineTo(x + 2, y + 2),
+                            lineTo(x + 1, y + 3),
+                            lineTo(x, y + 3),
+                            lineTo(x - 1, y + 2),
+                            lineTo(x - 1, y + 1),
+                        ]
+                    ),
+                );
+                if (i < max - 1 && j > -halfGridSize) {
+                    this.info.shapes.push(
+                        new Shape(
+                            this,
+                            [
+                                moveTo(x + 1, y),
+                                lineTo(x + 2, y + 1),
+                                lineTo(x + 3, y),
+                                lineTo(x + 2, y - 1),
+                            ]
+                        ),
+                    );
+                }
+            }
+        }
+    }
 }
 
 const sqrt3over2 = Math.sqrt(3) / 2;
@@ -272,8 +310,7 @@ export class HexGrid extends Grid {
                             lineTo(x, y + 2),
                             lineTo(x - 1, y + 2),
                             lineTo(x - 1, y + 1),
-                        ],
-                        Math.random() < 0.125
+                        ]
                     )
                 );
             }
@@ -281,7 +318,6 @@ export class HexGrid extends Grid {
     }
 
     public generateTriangleGrid(gridSize: number) {
-        let halfGridSize = Math.floor(gridSize / 2);
         for (let i = 1; i < gridSize * 2 - 1; i++) {
             for (
                 let y = 0;
@@ -301,8 +337,7 @@ export class HexGrid extends Grid {
                                 lineTo(x, y + 1),
                                 lineTo(x - 1, y + 1),
                             ])
-                        ],
-                        Math.random() < 0.125
+                        ]
                     )
                 );
             }
