@@ -72,9 +72,9 @@
                     }
                     break;
                 }
-                if (shape.shapeInfo.isRevealed) {
-                    if (shape.contacts.filter((c) => c.shapeInfo.isFlagged).length == shape.number) {
-                        shape.contacts.filter((c) => !c.shapeInfo.isFlagged).forEach((c) => {
+                if (shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine) {
+                    if (shape.contacts.filter((c) => c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed)).length == shape.number) {
+                        shape.contacts.filter((c) => !(c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed))).forEach((c) => {
                             c.reveal();
                         });
                     }
