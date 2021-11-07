@@ -2,6 +2,7 @@ import Vec from "./Vec";
 import { gcd } from "./Math";
 import type { GridInfo } from "./GridInfo";
 import { winSize } from "../stores";
+import { lineTo, moveTo, Shape } from "./Shape";
 
 export interface Point {
     x: number;
@@ -178,6 +179,24 @@ export abstract class Grid {
         }
         return points;
     }
+
+    public abstract generateDefaultGrid(size: number): void;
+
+    public setRandomMines(count: number) {
+        const shapes = [...this.info.shapes];
+        const mines: Shape[] = [];
+        for (let i = 0; i < count; i++) {
+            const index = Math.floor(Math.random() * shapes.length);
+            const point = shapes[index];
+            shapes.splice(index, 1);
+            mines.push(point);
+        }
+        mines.forEach(point => point.shapeInfo.hasMine = true);
+    }
+
+    public setMineRatio(ratio: number) {
+        this.setRandomMines(Math.floor(this.info.shapes.length * ratio));
+    }
 }
 
 export class SquareGrid extends Grid {
@@ -192,6 +211,27 @@ export class SquareGrid extends Grid {
     public isAjacent(x: number, y: number, x2: number, y2: number): boolean {
         return (x === x2 && Math.abs(y - y2) === 1) || (y === y2 && Math.abs(x - x2) === 1);
     }
+
+    public generateDefaultGrid(gridSize: number) {
+        let halfGridSize = Math.floor(gridSize / 2);
+        for (let x = -halfGridSize; x < halfGridSize + gridSize%2; x++) {
+            for (let y = -halfGridSize; y < halfGridSize + gridSize%2; y++) {
+                this.info.shapes.push(
+                    new Shape(
+                        this,
+                        [
+                            moveTo(x, y),
+                            lineTo(x + 1, y),
+                            lineTo(x + 1, y + 1),
+                            lineTo(x, y + 1),
+                        ],
+                        Math.random() < 0.125
+                    )
+                );
+            }
+        }
+    }
+
 }
 
 const sqrt3over2 = Math.sqrt(3) / 2;
@@ -210,5 +250,62 @@ export class HexGrid extends Grid {
         const dx = x - x2;
         const dy = y - y2;
         return (dx === 0 && dy === 1) || (dx === 1 && dy === 0) || (dx === 0 && dy === -1) || (dx === -1 && dy === 0) || (dx === -1 && dy === 1) || (dx === 1 && dy === -1);
+    }
+
+    public generateDefaultGrid(gridSize: number) {
+        let halfGridSize = Math.floor(gridSize / 2);
+        for (let i = 0; i < gridSize * 2 - 1; i++) {
+            for (
+                let j = Math.max(0, gridSize - i - 1);
+                j < gridSize * 2 - Math.max(1, i - gridSize + 2);
+                j++
+            ) {
+                let x = (i - halfGridSize * 1.5) * 2 + j - halfGridSize * 2;
+                let y = j - i - halfGridSize;
+                this.info.shapes.push(
+                    new Shape(
+                        this,
+                        [
+                            moveTo(x, y),
+                            lineTo(x + 1, y),
+                            lineTo(x + 1, y + 1),
+                            lineTo(x, y + 2),
+                            lineTo(x - 1, y + 2),
+                            lineTo(x - 1, y + 1),
+                        ],
+                        Math.random() < 0.125
+                    )
+                );
+            }
+        }
+    }
+
+    public generateTriangleGrid(gridSize: number) {
+        let halfGridSize = Math.floor(gridSize / 2);
+        for (let i = 1; i < gridSize * 2 - 1; i++) {
+            for (
+                let y = 0;
+                y < gridSize - i / 2 - 1;
+                y++
+            ) {
+                let x = Math.floor(i / 2);
+                this.info.shapes.push(
+                    new Shape(
+                        this,
+                        [
+                            moveTo(x, y),
+                            ...(i % 2 ? [
+                                lineTo(x + 1, y),
+                                lineTo(x, y + 1),
+                            ] : [
+                                lineTo(x, y + 1),
+                                lineTo(x - 1, y + 1),
+                            ])
+                        ],
+                        Math.random() < 0.125
+                    )
+                );
+            }
+        }
     }
 }

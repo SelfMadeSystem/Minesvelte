@@ -73,7 +73,11 @@
                     break;
                 }
                 if (shape.shapeInfo.isRevealed) {
-                    shape.shapeInfo.isRevealed = false;
+                    if (shape.contacts.filter((c) => c.shapeInfo.isFlagged).length == shape.number) {
+                        shape.contacts.filter((c) => !c.shapeInfo.isFlagged).forEach((c) => {
+                            c.reveal();
+                        });
+                    }
                     return;
                 }
                 shape.reveal();
@@ -176,7 +180,7 @@
         on:mousedown={onMouseDown}
         on:mouseup={onMouseUp}
     />
-    {#if path && pathPosition && shape.shapeInfo.isRevealed && !shape.shapeInfo.isFlagged && !shape.shapeInfo.hasMine}
+    {#if path && pathPosition && shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine}
         <text
             x={pathPosition.x}
             y={pathPosition.y}

@@ -4,7 +4,7 @@
     import Grid from "./game/Grid.svelte";
     import { getMousePoint, HexGrid, Point, SquareGrid } from "./utils/Grid";
     import Shape from "./game/Shape.svelte";
-    import { Shape as Sh, moveTo, lineTo, ShapePoint } from "./utils/Shape";
+    import type { Shape as Sh } from "./utils/Shape";
     import Dot from "./game/Dot.svelte";
     import Vec from "./utils/Vec";
     var shapes: Sh[] = [];
@@ -18,40 +18,8 @@
         }
     );
 
-    function sh(points: ShapePoint[], hasMine: boolean = false) {
-        return new Sh(grid, points, hasMine);
-    }
-
-    // shapes.push(sh([
-    //     moveTo(0, 0),
-    //     lineTo(4, 0),
-    //     lineTo(4, 4),
-    //     lineTo(0, 4),
-    //     moveTo(1, 1),
-    //     lineTo(3, 1),
-    //     lineTo(3, 3),
-    //     lineTo(1, 3),
-    // ]));
-
-    var gridSize = 15;
-    var halfGridSize = Math.floor(gridSize / 2);
-
-    for (let i = 0; i < gridSize * 2 - 1; i++) {
-        for (let j = Math.max(0, gridSize - i - 1); j < gridSize * 2 - Math.max(1, i - gridSize + 2); j++) {
-            let x = (i - halfGridSize * 1.5) * 2 + j - halfGridSize * 2;
-            let y = j - i - halfGridSize;
-            shapes.push(
-                sh([
-                    moveTo(x, y),
-                    lineTo(x + 1, y),
-                    lineTo(x + 1, y + 1),
-                    lineTo(x, y + 2),
-                    lineTo(x - 1, y + 2),
-                    lineTo(x - 1, y + 1),
-                ], Math.random() < 0.125)
-            );
-        }
-    }
+    grid.generateTriangleGrid(10);
+    grid.setMineRatio(0.1);
 
     if (shapes) {
         shapes.forEach((s) => s._updateContacts());
