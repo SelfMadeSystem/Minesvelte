@@ -9,7 +9,7 @@
     import Vec from "./utils/Vec";
     var shapes: Sh[] = [];
 
-    var grid = new HexGrid(
+    var grid = new SquareGrid(
         {},
         new GridInfo(
             50,
@@ -18,7 +18,7 @@
         )
     );
 
-    grid.generateTriangleGrid(12);
+    grid.generateOctogonGrid(12);
     grid.setMineRatio(0.16);
 
     if (shapes) {

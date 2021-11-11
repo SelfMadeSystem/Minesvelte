@@ -1,6 +1,6 @@
 import Vec from "./Vec";
 import { gcd } from "./Math";
-import { winSize } from "../stores";
+import { windowSize } from "../stores";
 import { lineTo, moveTo, Shape } from "./Shape";
 
 export interface Point {
@@ -9,8 +9,8 @@ export interface Point {
 }
 
 export function getMousePoint(x: number, y: number, grid: Grid): Point {
-    const relativeX = x - winSize.width / 2;
-    const relativeY = y - winSize.height / 2;
+    const relativeX = x - windowSize.width / 2;
+    const relativeY = y - windowSize.height / 2;
     const vec1 = grid.applyFromVector(new Vec(relativeX, relativeY));
     const { x: a, y: b } = grid.fromVectorPoint({
         x: vec1.x,
@@ -25,8 +25,8 @@ export function mouseDistFromClosestPoint(
     grid: Grid,
     points?: Point[]
 ): number {
-    const relativeX = x - winSize.width / 2;
-    const relativeY = y - winSize.height / 2;
+    const relativeX = x - windowSize.width / 2;
+    const relativeY = y - windowSize.height / 2;
     const vec1 = grid.applyFromVector(new Vec(relativeX, relativeY));
     const { x: a, y: b } = grid.fromVectorPoint({
         x: vec1.x,
@@ -36,7 +36,7 @@ export function mouseDistFromClosestPoint(
         const closestPoint = points.reduce(
             (prev, curr) =>
                 Math.hypot(a - curr.x, b - curr.y) <
-                Math.hypot(a - prev.x, b - prev.y)
+                    Math.hypot(a - prev.x, b - prev.y)
                     ? curr
                     : prev,
             { x: 0, y: 0 }
@@ -53,8 +53,8 @@ export class GridInfo {
         public offset: Vec,
         public shapes: Shape[],
         public callbacks: ((gridInfo: GridInfo) => void)[] = [],
-    ) {}
-    
+    ) { }
+
     getShapeCountWithMines(): number {
         return this.shapes.reduce((prev, curr) => prev + (curr.shapeInfo.hasMine ? 1 : 0), 0);
     }
@@ -131,7 +131,7 @@ export abstract class Grid {
     }
 
     public applyToNumX(n: number): number {
-        return ( + this.info.offset.x) * this.info.size;
+        return (+ this.info.offset.x) * this.info.size;
     }
 
     public applyToNumY(n: number): number {
@@ -139,7 +139,7 @@ export abstract class Grid {
     }
 
     public applyFromVector(vec: Vec): Vec {
-        return vec.scale(1/this.info.size).sub(this.info.offset);
+        return vec.scale(1 / this.info.size).sub(this.info.offset);
     }
 
     public applyFromNumX(n: number): number {
@@ -231,8 +231,8 @@ export class SquareGrid extends Grid {
 
     public generateDefaultGrid(gridSize: number) {
         let halfGridSize = Math.floor(gridSize / 2);
-        for (let x = -halfGridSize; x < halfGridSize + gridSize%2; x++) {
-            for (let y = -halfGridSize; y < halfGridSize + gridSize%2; y++) {
+        for (let x = -halfGridSize; x < halfGridSize + gridSize % 2; x++) {
+            for (let y = -halfGridSize; y < halfGridSize + gridSize % 2; y++) {
                 this.info.shapes.push(
                     new Shape(
                         this,
@@ -250,7 +250,7 @@ export class SquareGrid extends Grid {
 
     public generateOctogonGrid(gridSize: number) {
         let halfGridSize = Math.floor(gridSize / 2);
-        let max = halfGridSize + gridSize%2;
+        let max = halfGridSize + gridSize % 2;
         for (let i = -halfGridSize; i < max; i++) {
             for (let j = -halfGridSize; j < max; j++) {
                 let x = i * 3;
@@ -294,10 +294,10 @@ export class HexGrid extends Grid {
     public toVector(x: number, y: number): Vec {
         return new Vec(x * sqrt3over2, -y - x * 0.5);
     }
-    
+
     public fromVector(x: number, y: number): Vec {
         var newX = x / sqrt3over2;
-        return new Vec(newX, -y-newX*0.5);
+        return new Vec(newX, -y - newX * 0.5);
     }
 
     public isAjacent(x: number, y: number, x2: number, y2: number): boolean {

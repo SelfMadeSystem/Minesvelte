@@ -72,7 +72,6 @@
                 }
                 if (shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine) {
                     var a = shape.contacts.filter((c) => c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed));
-                    console.log(a);
                     if (a.length == shape.number) {
                         shape.contacts.filter((c) => !(c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed))).forEach((c) => {
                             c.reveal();
