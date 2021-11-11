@@ -6,13 +6,13 @@
     import type { Shape as Sh } from "./utils/Shape";
     import Dot from "./game/Dot.svelte";
     import type { Point } from "./utils/Vec";
-    var grid = new SquareGrid();
+    var grid = new HexGrid();
 
     var shapes: Sh[] = grid.shapes;
 
     grid.tranformMatrix.scale(50, 50);
 
-    grid.generateDefaultGrid(1);
+    grid.generateTriangleGrid(20);
     grid.setMineRatio(0.16);
 
     if (shapes) {

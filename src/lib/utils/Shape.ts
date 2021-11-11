@@ -10,20 +10,14 @@ export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     return shapePoint;
 }
 
-interface ShapePoint extends Point {
-    move: boolean;
-    updated: boolean;
-    toString: (grid: Grid) => string;
-}
-
-abstract class TP implements ShapePoint {
+abstract class ShapePoint implements Point {
     private _x: number;
     public get x(): number {
         return this._x;
     }
     public set x(value: number) {
         this._x = value;
-        this.updated = true;
+        this.shape.hasChanged = true;
     }
     private _y: number;
     public get y(): number {
@@ -31,21 +25,21 @@ abstract class TP implements ShapePoint {
     }
     public set y(value: number) {
         this._y = value;
-        this.updated = true;
+        this.shape.hasChanged = true;
     }
-    public updated = true;
+    shape: Shape;
     public readonly abstract move: boolean;
 
     constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
+        this._x = x;
+        this._y = y;
     }
 
     public abstract toString(grid: Grid): string;
 }
 
 // LineToPoint
-class LTP extends TP {
+class LTP extends ShapePoint {
     public readonly move = false;
     public toString(grid: Grid) {
         const { x, y } = grid.applyMatrix(grid.toVector(this));
@@ -54,7 +48,7 @@ class LTP extends TP {
 }
 
 // MoveToPiont
-class MTP extends TP {
+class MTP extends ShapePoint {
     public readonly move = true;
     public toString(grid: Grid) {
         const { x, y } = grid.applyMatrix(grid.toVector(this));
@@ -68,7 +62,7 @@ export function lineTo(x: number, y: number) {
 
 export function lineToPoint(point: Point): ShapePoint {
     return new LTP(point.x, point.y);
-};
+}
 
 export function moveTo(x: number, y: number) {
     return moveToPoint({ x, y });
@@ -138,9 +132,11 @@ export class Shape {
     public contacts: Shape[] = [];
     public callback: (shape: Shape) => void = () => { };
     public readonly shapeInfo: ShapeInfo = new ShapeInfo()
+    hasChanged = true;
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         this.shapeInfo.hasMine = hasMine;
         this.shapeInfo.callback = () => this.callback(this);
+        this.points.forEach(p => p.shape = this);
         this.getPoints();
     }
 
@@ -226,12 +222,14 @@ export class Shape {
     private prevPoints: GridPoint[] = [];
 
     getPoints() {
+        if (!this.hasChanged) {
+            return this.prevPoints;
+        }
         var points: GridPoint[] = [];
         const lines = this.lines;
         for (let i = 0; i < lines.length; i++) {
             const element = lines[i];
             points.push(...this.grid.getAllInLine(element.p1, element.p2));
-            console.log(element, this.grid.getAllInLine(element.p1, element.p2));
         }
         this.prevPoints.forEach(p => {
             if (!points.some(p2 => equals(p, p2))) {
