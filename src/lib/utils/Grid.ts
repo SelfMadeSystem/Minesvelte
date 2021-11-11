@@ -1,18 +1,23 @@
-import Vec from "./Vec";
+import Vec from "../utils/Vec";
+import type { Point } from "../utils/Vec";
 import { gcd } from "./Math";
 import { windowSize } from "../stores";
 import { lineTo, moveTo, Shape } from "./Shape";
+import { Matrix2D } from "./Matrix2D";
 
-export interface Point {
-    x: number;
-    y: number;
+export class GridPoint implements Point {
+    constructor(
+        public readonly x: number,
+        public readonly y: number,
+        public readonly shapes: Shape[] = []) {
+    }
 }
 
 export function getMousePoint(x: number, y: number, grid: Grid): Point {
     const relativeX = x - windowSize.width / 2;
     const relativeY = y - windowSize.height / 2;
-    const vec1 = grid.applyFromVector(new Vec(relativeX, relativeY));
-    const { x: a, y: b } = grid.fromVectorPoint({
+    const vec1 = grid.applyInverseMatrix(new Vec(relativeX, relativeY));
+    const { x: a, y: b } = grid.fromVector({
         x: vec1.x,
         y: vec1.y,
     });
@@ -27,8 +32,8 @@ export function mouseDistFromClosestPoint(
 ): number {
     const relativeX = x - windowSize.width / 2;
     const relativeY = y - windowSize.height / 2;
-    const vec1 = grid.applyFromVector(new Vec(relativeX, relativeY));
-    const { x: a, y: b } = grid.fromVectorPoint({
+    const vec1 = grid.applyInverseMatrix(new Vec(relativeX, relativeY));
+    const { x: a, y: b } = grid.fromVector({
         x: vec1.x,
         y: vec1.y,
     });
@@ -41,41 +46,35 @@ export function mouseDistFromClosestPoint(
                     : prev,
             { x: 0, y: 0 }
         );
-        return grid.fromVector(a - closestPoint.x, b - closestPoint.y).length();
+        return grid.fromVector({x: a - closestPoint.x, y: b - closestPoint.y}).length();
     } else {
-        return grid.fromVector(a - relativeX, b - relativeY).length();
+        return grid.fromVector({x: a - relativeX, y: b - relativeY}).length();
     }
 }
 
-export class GridInfo {
-    constructor(
-        public size: number,
-        public offset: Vec,
-        public shapes: Shape[],
-        public callbacks: ((gridInfo: GridInfo) => void)[] = [],
-    ) { }
-
-    getShapeCountWithMines(): number {
+/*
+getShapeCountWithMines(): number {
         return this.shapes.reduce((prev, curr) => prev + (curr.shapeInfo.hasMine ? 1 : 0), 0);
     }
 
     getFlaggedShapeCount(): number {
         return this.shapes.reduce((prev, curr) => prev + (curr.shapeInfo.isFlagged ? 1 : 0), 0);
     }
-}
+*/
 
 export abstract class Grid {
-    protected _grid: { [key: number]: { [key: number]: Point } };
-    public info: GridInfo;
-    // No width or height. This grid is infinite in both directions.
+    protected _grid: { [key: number]: { [key: number]: GridPoint } };
+    protected _allPoints: GridPoint[] = [];
+    public shapes: Shape[] = [];
+    public callbacks: ((grid: Grid) => void)[] = [];
+    public tranformMatrix: Matrix2D = Matrix2D.identity();
     private _subs: ((point: Point[]) => void)[] = [];
 
-    constructor(grid?: { [key: number]: { [key: number]: Point } }, info?: GridInfo) {
-        this._grid = grid || {} as { [key: number]: { [key: number]: Point } };
-        this.info = info || {} as GridInfo;
+    constructor(grid?: { [key: number]: { [key: number]: GridPoint } }) {
+        this._grid = grid || {} as { [key: number]: { [key: number]: GridPoint } };
     }
 
-    protected callAll() {
+    protected notify() {
         const pts = this.getAllPoints();
         this._subs.forEach(sub => sub(pts));
     }
@@ -93,93 +92,55 @@ export abstract class Grid {
         }
     }
 
-    public getAllPoints(): Point[] {
-        const points: Point[] = [];
-        for (let x in this._grid) {
-            for (let y in this._grid[x]) {
-                points.push(this._grid[x][y]);
-            }
-        }
-        return points;
+    public getAllPoints(): GridPoint[] {
+        return this._allPoints;
     }
 
-    public getPoint(x: number, y: number): Point {
+    public getPoint(x: number, y: number): GridPoint {
         let col = this._grid[x];
         if (col) {
             let pnt = col[y];
             if (pnt) {
-                return pnt as Point;
-            } else {
-                col[y] = { x, y };
-                this.callAll();
-                return col[y];
+                return pnt;
             }
         } else {
             col = this._grid[x] = {};
-            col[y] = { x, y };
-            this.callAll();
-            return col[y];
         }
+        col[y] = new GridPoint(x, y);
+        this._allPoints.push(col[y]);
+        this.notify();
+        return col[y];
     }
 
     public fromMousePos(x: number, y: number): Point {
-        return this.fromVectorPoint(this.applyFromVector(new Vec(x, y)));
+        return this.fromVector(this.applyInverseMatrix(new Vec(x, y)));
     }
 
-    public applyToVector(vec: Vec): Vec {
-        return vec.add(this.info.offset).scale(this.info.size);
+    public applyMatrix(vec: Point): Point {
+        return this.tranformMatrix.apply(vec);
     }
 
-    public applyFromVector(vec: Vec): Vec {
-        return vec.scale(1 / this.info.size).sub(this.info.offset);
+    public applyInverseMatrix(vec: Point): Point {
+        return this.tranformMatrix.applyInverse(vec);
     }
 
-    public applyFromNumX(n: number): number {
-        return n / this.info.size - this.info.offset.x;
-    }
+    public abstract fromVector({x, y}: Point): Vec;
 
-    public applyFromNumY(n: number): number {
-        return n / this.info.size - this.info.offset.y;
-    }
+    public abstract toVector({x, y}: Point): Vec;
 
-    public fromVectorPoint(point: Point): Vec {
-        return this.fromVector(point.x, point.y);
-    }
+    public abstract isAdjacent({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): boolean;
 
-    public abstract fromVector(x: number, y: number): Vec;
-
-    public toVectorPoint(point: Point): Vec {
-        return this.toVector(point.x, point.y);
-    }
-
-    public abstract toVector(x: number, y: number): Vec;
-
-    public isAjacentPoint(p1: Point, p2: Point): boolean {
-        return this.isAjacent(p1.x, p1.y, p2.x, p2.y);
-    }
-
-    public isAjacentPointNum(p1: Point, x2: number, y2: number): boolean {
-        return this.isAjacent(p1.x, p1.y, x2, y2);
-    }
-
-    public abstract isAjacent(x: number, y: number, x2: number, y2: number): boolean;
-
-
-    public getAllInLinePoint(p1: Point, p2: Point): Point[] {
-        return this.getAllInLine(p1.x, p1.y, p2.x, p2.y);
-    }
-
-    public getAllInLine(x: number, y: number, x2: number, y2: number): Point[] {
-        const points: Point[] = [];
-        const dx = Math.abs(x2 - x);
-        const dy = Math.abs(y2 - y);
-        const sx = x < x2 ? 1 : -1;
-        const sy = y < y2 ? 1 : -1;
+    public getAllInLine({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): GridPoint[] {
+        const points: GridPoint[] = [];
+        const dx = Math.abs(x1 - x2);
+        const dy = Math.abs(y1 - y2);
+        const sx = x1 < x2 ? 1 : -1;
+        const sy = y1 < y2 ? 1 : -1;
         const dxyGCD = gcd(dx, dy);
         const dx2 = dx / dxyGCD;
         const dy2 = dy / dxyGCD;
-        let x3 = x;
-        let y3 = y;
+        let x3 = x1;
+        let y3 = y1;
         for (let i = 0; i <= dxyGCD; i++) {
             points.push(this.getPoint(x3, y3));
             x3 += dx2 * sx;
@@ -192,7 +153,7 @@ export abstract class Grid {
     public abstract generateDefaultGrid(size: number): void;
 
     public setRandomMines(count: number) {
-        const shapes = [...this.info.shapes];
+        const shapes = [...this.shapes];
         const mines: Shape[] = [];
         for (let i = 0; i < count; i++) {
             const index = Math.floor(Math.random() * shapes.length);
@@ -204,28 +165,28 @@ export abstract class Grid {
     }
 
     public setMineRatio(ratio: number) {
-        this.setRandomMines(Math.floor(this.info.shapes.length * ratio));
+        this.setRandomMines(Math.floor(this.shapes.length * ratio));
     }
 }
 
 export class SquareGrid extends Grid {
-    public toVector(x: number, y: number): Vec {
+    public toVector({x, y}: Point): Vec {
         return new Vec(x, -y);
     }
 
-    public fromVector(x: number, y: number): Vec {
+    public fromVector({x, y}: Point): Vec {
         return new Vec(x, -y);
     }
 
-    public isAjacent(x: number, y: number, x2: number, y2: number): boolean {
-        return (x === x2 && Math.abs(y - y2) === 1) || (y === y2 && Math.abs(x - x2) === 1);
+    public isAdjacent({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): boolean {
+        return (x1 === x2 && Math.abs(y1 - y2) === 1) || (y1 === y2 && Math.abs(x1 - x2) === 1);
     }
 
     public generateDefaultGrid(gridSize: number) {
         let halfGridSize = Math.floor(gridSize / 2);
         for (let x = -halfGridSize; x < halfGridSize + gridSize % 2; x++) {
             for (let y = -halfGridSize; y < halfGridSize + gridSize % 2; y++) {
-                this.info.shapes.push(
+                this.shapes.push(
                     new Shape(
                         this,
                         [
@@ -247,7 +208,7 @@ export class SquareGrid extends Grid {
             for (let j = -halfGridSize; j < max; j++) {
                 let x = i * 3;
                 let y = j * 3;
-                this.info.shapes.push(
+                this.shapes.push(
                     new Shape(
                         this,
                         [
@@ -263,7 +224,7 @@ export class SquareGrid extends Grid {
                     ),
                 );
                 if (i < max - 1 && j > -halfGridSize) {
-                    this.info.shapes.push(
+                    this.shapes.push(
                         new Shape(
                             this,
                             [
@@ -283,18 +244,18 @@ export class SquareGrid extends Grid {
 const sqrt3over2 = Math.sqrt(3) / 2;
 
 export class HexGrid extends Grid {
-    public toVector(x: number, y: number): Vec {
+    public toVector({x, y}: Point): Vec {
         return new Vec(x * sqrt3over2, -y - x * 0.5);
     }
 
-    public fromVector(x: number, y: number): Vec {
+    public fromVector({x, y}: Point): Vec {
         var newX = x / sqrt3over2;
         return new Vec(newX, -y - newX * 0.5);
     }
 
-    public isAjacent(x: number, y: number, x2: number, y2: number): boolean {
-        const dx = x - x2;
-        const dy = y - y2;
+    public isAdjacent({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): boolean {
+        const dx = x1 - x2;
+        const dy = y1 - y2;
         return (dx === 0 && dy === 1) || (dx === 1 && dy === 0) || (dx === 0 && dy === -1) || (dx === -1 && dy === 0) || (dx === -1 && dy === 1) || (dx === 1 && dy === -1);
     }
 
@@ -308,7 +269,7 @@ export class HexGrid extends Grid {
             ) {
                 let x = (i - halfGridSize * 1.5) * 2 + j - halfGridSize * 2;
                 let y = j - i - halfGridSize;
-                this.info.shapes.push(
+                this.shapes.push(
                     new Shape(
                         this,
                         [
@@ -333,7 +294,7 @@ export class HexGrid extends Grid {
                 y++
             ) {
                 let x = Math.floor(i / 2);
-                this.info.shapes.push(
+                this.shapes.push(
                     new Shape(
                         this,
                         [

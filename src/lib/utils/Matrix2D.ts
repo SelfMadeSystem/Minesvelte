@@ -1,4 +1,7 @@
+import type { Point } from "./Vec";
+
 export class Matrix2D {
+    private callbacks: ((Matrix2D: Matrix2D) => void)[] = [];
     constructor(
         public a: number = 1,
         public b: number = 0,
@@ -7,6 +10,19 @@ export class Matrix2D {
         public tx: number = 0,
         public ty: number = 0
     ) { }
+
+    subscribe(callback: (Matrix2D: Matrix2D) => void) {
+        this.callbacks.push(callback);
+        callback(this);
+        return () => {
+            this.callbacks = this.callbacks.filter(c => c !== callback);
+        }
+    }
+
+    notify() {
+        this.callbacks.forEach(c => c(this));
+    }
+
     set(a: number, b: number, c: number, d: number, tx: number, ty: number) {
         this.a = a;
         this.b = b;
@@ -14,6 +30,7 @@ export class Matrix2D {
         this.d = d;
         this.tx = tx;
         this.ty = ty;
+        this.notify();
         return this;
     }
 
@@ -32,6 +49,7 @@ export class Matrix2D {
     translate(x: number, y: number) {
         this.tx += x;
         this.ty += y;
+        this.notify();
         return this;
     }
 
@@ -42,6 +60,7 @@ export class Matrix2D {
         this.b *= y;
         this.tx *= x;
         this.ty *= y;
+        this.notify();
         return this;
     }
 
@@ -58,14 +77,41 @@ export class Matrix2D {
         this.d = c1 * sin + this.d * cos;
         this.tx = tx1 * cos - this.ty * sin;
         this.ty = tx1 * sin + this.ty * cos;
+        this.notify();
         return this;
     }
-    
+
     apply(pos: { x: number, y: number }) {
         return {
             x: this.a * pos.x + this.c * pos.y + this.tx,
             y: this.b * pos.x + this.d * pos.y + this.ty
         };
+    }
+
+    applyInverse(pos: { x: number, y: number }) {
+        const id = 1 / (this.a * this.d + this.c * -this.b);
+        return {
+            x: (this.d * pos.x - this.c * pos.y + this.ty * this.c - this.tx * this.d) * id,
+            y: (this.a * pos.y - this.b * pos.x + this.tx * this.b - this.ty * this.a) * id
+        };
+    }
+
+    getTranslate(): Point {
+        return {
+            x: this.tx,
+            y: this.ty
+        };
+    }
+
+    getScale(): Point {
+        return {
+            x: Math.sqrt(this.a * this.a + this.b * this.b),
+            y: Math.sqrt(this.c * this.c + this.d * this.d)
+        };
+    }
+
+    getRotation() {
+        return Math.atan2(this.b, this.a);
     }
 
     toCSS() {

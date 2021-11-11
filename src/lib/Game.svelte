@@ -1,24 +1,18 @@
 <script lang="ts">
-    import { windowSize } from "./stores";
     import Canvas from "./Canvas.svelte";
     import Grid from "./game/Grid.svelte";
-    import { getMousePoint, GridInfo, HexGrid, Point, SquareGrid } from "./utils/Grid";
+    import { getMousePoint, HexGrid, SquareGrid } from "./utils/Grid";
     import Shape from "./game/Shape.svelte";
     import type { Shape as Sh } from "./utils/Shape";
     import Dot from "./game/Dot.svelte";
-    import Vec from "./utils/Vec";
-    var shapes: Sh[] = [];
+    import type { Point } from "./utils/Vec";
+    var grid = new SquareGrid();
 
-    var grid = new SquareGrid(
-        {},
-        new GridInfo(
-            50,
-            new Vec(0, 0),
-            shapes,
-        )
-    );
+    var shapes: Sh[] = grid.shapes;
 
-    grid.generateOctogonGrid(12);
+    grid.tranformMatrix.scale(50, 50);
+
+    grid.generateDefaultGrid(1);
     grid.setMineRatio(0.16);
 
     if (shapes) {
@@ -31,17 +25,15 @@
     };
 
     function onMouseMove(e: MouseEvent) {
-        const { clientX, clientY } = e;
+        const { clientX, clientY, movementX, movementY } = e;
         mousePoint = getMousePoint(clientX, clientY, grid);
         if (!scrolling) return;
-        grid.info.offset = grid.info.offset.add(
-            new Vec(e.movementX / grid.info.size, e.movementY / grid.info.size)
-        );
+        grid.tranformMatrix.translate(movementX, movementY);
     }
 
     function onMouseWheel(e: WheelEvent) {
         var delta = e.deltaY || e.detail || (e as any).wheelDelta;
-        grid.info.size *= Math.pow(1.001, delta);
+        grid.tranformMatrix.scale(1 + delta / 1000, 1 + delta / 1000);
     }
 
     document.addEventListener("mousewheel", onMouseWheel, false);
@@ -81,7 +73,15 @@
         {/each}
     </g> -->
     <Dot {grid} point={mousePoint} fill={"purple"} />
-    <text x="99%" y="-99%" class="text-3xl font-semibold" fill="white" stroke="black" dominant-baseline="hanging" text-anchor="end">
+    <text
+        x="99%"
+        y="-99%"
+        class="text-3xl font-semibold"
+        fill="white"
+        stroke="black"
+        dominant-baseline="hanging"
+        text-anchor="end"
+    >
         <!-- {grid.info.getShapeCountWithMines() - gsid} -->
     </text>
 </Canvas>

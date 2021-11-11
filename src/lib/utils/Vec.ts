@@ -1,8 +1,13 @@
-export class Vec {
+export interface Point {
+    x: number;
+    y: number;
+}
+
+export class Vec implements Point {
     constructor(public readonly x = 0, public readonly y = 0) {
     }
 
-    public static from(x: number, y: number): Vec {
+    public static from({x, y}: Point): Vec {
         return new Vec(x, y);
     }
 

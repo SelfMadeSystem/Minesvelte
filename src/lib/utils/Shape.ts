@@ -1,7 +1,8 @@
 import { inverseAngle, toDeg, wrapAngle, approx } from "./Math";
 import { equals } from "./ObjectUtils";
-import type { Grid, Point } from "./Grid";
+import type { Grid, GridPoint } from "./Grid";
 import Vec from "./Vec";
+import type { Point } from "./Vec";
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -9,40 +10,55 @@ export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     return shapePoint;
 }
 
-export interface ShapePoint extends Point {
+interface ShapePoint extends Point {
     move: boolean;
+    updated: boolean;
     toString: (grid: Grid) => string;
 }
 
-class LTP implements ShapePoint {
-    public x: number;
-    public y: number;
-    public move: boolean = false;
+abstract class TP implements ShapePoint {
+    private _x: number;
+    public get x(): number {
+        return this._x;
+    }
+    public set x(value: number) {
+        this._x = value;
+        this.updated = true;
+    }
+    private _y: number;
+    public get y(): number {
+        return this._y;
+    }
+    public set y(value: number) {
+        this._y = value;
+        this.updated = true;
+    }
+    public updated = true;
+    public readonly abstract move: boolean;
 
     constructor(x: number, y: number) {
         this.x = x;
         this.y = y;
     }
 
+    public abstract toString(grid: Grid): string;
+}
+
+// LineToPoint
+class LTP extends TP {
+    public readonly move = false;
     public toString(grid: Grid) {
-        const { x, y } = grid.applyToVector(grid.toVector(this.x, this.y));
+        const { x, y } = grid.applyMatrix(grid.toVector(this));
         return `L ${x},${y}`;
     }
 }
 
-class MTP implements ShapePoint {
-    public x: number;
-    public y: number;
-    public move: boolean = true;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-
+// MoveToPiont
+class MTP extends TP {
+    public readonly move = true;
     public toString(grid: Grid) {
-        const { x, y } = grid.applyToVector(grid.toVector(this.x, this.y));
-        return `M ${x},${y}`;
+        const { x, y } = grid.applyMatrix(grid.toVector(this));
+        return `Z M ${x},${y}`;
     }
 }
 
@@ -125,6 +141,7 @@ export class Shape {
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         this.shapeInfo.hasMine = hasMine;
         this.shapeInfo.callback = () => this.callback(this);
+        this.getPoints();
     }
 
     public get lines(): Line[] {
@@ -162,7 +179,7 @@ export class Shape {
 
     _updateContacts() {
         var prevContacts = this.contacts;
-        this.contacts = this.grid.info.shapes.filter(s => s !== this && this.isCorner(s));
+        this.contacts = this.grid.shapes.filter(s => s !== this && this.isCorner(s));
         this.callback(this);
         return prevContacts.filter(s => !this.contacts.includes(s));
     }
@@ -181,8 +198,9 @@ export class Shape {
     }
 
     isCorner(other: Shape) { // includes adjacent
-        const otherPoints = other.getPoints();
-        return this.getPoints().some(p => otherPoints.some(p2 => p.x === p2.x && p.y === p2.y));
+        return this.getPoints().some(p => p.shapes.includes(other));
+        // const otherPoints = other.getPoints();
+        // return this.getPoints().some(p => otherPoints.some(p2 => p.x === p2.x && p.y === p2.y));
         // return this._isCorner(this.lines, other.lines);
     }
 
@@ -191,8 +209,8 @@ export class Shape {
             if (!(approx(l2.rotation, l1.rotation) || approx(l2.rotation, inverseAngle(l1.rotation)))) {
                 return false;
             }
-            const points1 = this.grid.getAllInLinePoint(l1.p1, l1.p2);
-            const points2 = this.grid.getAllInLinePoint(l2.p1, l2.p2);
+            const points1 = this.grid.getAllInLine(l1.p1, l1.p2);
+            const points2 = this.grid.getAllInLine(l2.p1, l2.p2);
             let found = false;
             return points1.some(p => points2.some(p2 => {
                 if (equals(p, p2)) {
@@ -205,23 +223,27 @@ export class Shape {
         }))
     }
 
-    // _isCorner(self: Line[], them: Line[]) {
-    //     return self.some(l1 => {
-    //         const points = this.grid.getAllInLinePoint(l1.p1, l1.p2);
-    //         return them.some(l2 => points.some(p => equals(p, l2.p1) || equals(p, l2.p2)))
-    //     }) || them.some(l1 => {
-    //         const points = this.grid.getAllInLinePoint(l1.p1, l1.p2);
-    //         return self.some(l2 => points.some(p => equals(p, l2.p1) || equals(p, l2.p2)))
-    //     });
-    // }
+    private prevPoints: GridPoint[] = [];
 
     getPoints() {
-        var points: Point[] = [];
+        var points: GridPoint[] = [];
         const lines = this.lines;
         for (let i = 0; i < lines.length; i++) {
             const element = lines[i];
-            points.push(...this.grid.getAllInLinePoint(element.p1, element.p2));
+            points.push(...this.grid.getAllInLine(element.p1, element.p2));
+            console.log(element, this.grid.getAllInLine(element.p1, element.p2));
         }
+        this.prevPoints.forEach(p => {
+            if (!points.some(p2 => equals(p, p2))) {
+                p.shapes.splice(p.shapes.indexOf(this), 1);
+            }
+        });
+        points.forEach(p => {
+            if (!p.shapes.includes(this)) {
+                p.shapes.push(this);
+            }
+        });
+        this.prevPoints = points;
         return points;
     }
 
@@ -238,7 +260,7 @@ export class Shape {
     }
 
     toString() {
-        return this.points.map(p => (p.move ? 'z ' : '') + p.toString(this.grid)).join(' ').slice(2) + ' z';
+        return this.points.map(p => p.toString(this.grid)).join(' ').slice(2) + ' z';
     }
 }
 

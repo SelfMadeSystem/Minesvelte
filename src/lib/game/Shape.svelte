@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { afterUpdate } from "svelte";
+    import { afterUpdate, tick } from "svelte";
     import { moveShapePoint, Shape } from "../utils/Shape";
     import {
         getMousePoint,
         Grid,
-        mouseDistFromClosestPoint,
-        Point,
+        mouseDistFromClosestPoint
     } from "../utils/Grid";
     import { getShapeColorByState } from "../utils/Colors";
-    import type Vec from "../utils/Vec";
+    import Vec from "../utils/Vec";
+    import type { Point } from "../utils/Vec";
     export var grid: Grid;
     export var shape: Shape;
     var clicking = false;
@@ -25,16 +25,18 @@
         shape.shapeInfo.getState(false)
     );
     $: {
-        grid.info;
+        grid;
         pointsStr = shape.toString();
     }
     function updatePath() {
         if (path) {
-            var c = shape.getCenter();
-            pathPosition = grid.applyToVector(grid.toVector(c.x, c.y));
+            pathPosition = Vec.from(grid.applyMatrix(grid.toVector(shape.getCenter())));
         }
+        pointsStr = shape.toString();
         num = shape.number;
     }
+
+    grid.tranformMatrix.subscribe(updatePath);
     shape.callback = () => {
         color = getShapeColorByState(
             shape.shapeInfo.color,
