@@ -2,24 +2,24 @@
     import { windowSize } from "./stores";
     import Canvas from "./Canvas.svelte";
     import Grid from "./game/Grid.svelte";
-    import { getMousePoint, HexGrid, Point, SquareGrid } from "./utils/Grid";
+    import { getMousePoint, GridInfo, HexGrid, Point, SquareGrid } from "./utils/Grid";
     import Shape from "./game/Shape.svelte";
     import type { Shape as Sh } from "./utils/Shape";
     import Dot from "./game/Dot.svelte";
     import Vec from "./utils/Vec";
     var shapes: Sh[] = [];
 
-    var grid = new SquareGrid(
+    var grid = new HexGrid(
         {},
-        {
-            size: 50,
-            offset: new Vec(0, 0),
+        new GridInfo(
+            50,
+            new Vec(0, 0),
             shapes,
-        }
+        )
     );
 
-    grid.generateOctogonGrid(5);
-    grid.setMineRatio(0.25);
+    grid.generateTriangleGrid(12);
+    grid.setMineRatio(0.16);
 
     if (shapes) {
         shapes.forEach((s) => s._updateContacts());
@@ -81,4 +81,7 @@
         {/each}
     </g> -->
     <Dot {grid} point={mousePoint} fill={"purple"} />
+    <text x="99%" y="-99%" class="text-3xl font-semibold" fill="white" stroke="black" dominant-baseline="hanging" text-anchor="end">
+        <!-- {grid.info.getShapeCountWithMines() - gsid} -->
+    </text>
 </Canvas>

@@ -71,9 +71,10 @@ export class ShapeInfo {
         this.callback(this);
     }
     public get isFlagged(): boolean {
-        return this._isFlagged;
+        return this._isFlagged && !this.isRevealed;
     }
     public set isFlagged(value: boolean) {
+        if (this.isRevealed) { return; }
         this._isFlagged = value;
         this.callback(this);
     }
@@ -222,6 +223,18 @@ export class Shape {
             points.push(...this.grid.getAllInLinePoint(element.p1, element.p2));
         }
         return points;
+    }
+
+    getCenter() {
+        var center = { x: this.points[0].x, y: this.points[0].y }
+        for (let i = 1; i < this.points.length; i++) {
+            var p = this.points[i];
+            center.x += p.x;
+            center.y += p.y;
+        }
+        center.x /= this.points.length;
+        center.y /= this.points.length;
+        return center;
     }
 
     toString() {

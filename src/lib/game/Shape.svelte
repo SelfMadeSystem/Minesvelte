@@ -8,7 +8,7 @@
         Point,
     } from "../utils/Grid";
     import { getShapeColorByState } from "../utils/Colors";
-    import Vec from "../utils/Vec";
+    import type Vec from "../utils/Vec";
     export var grid: Grid;
     export var shape: Shape;
     var clicking = false;
@@ -30,10 +30,8 @@
     }
     function updatePath() {
         if (path) {
-            pathPosition = new Vec(
-                path.getBBox().x + path.getBBox().width / 2,
-                path.getBBox().y + path.getBBox().height / 2
-            );
+            var c = shape.getCenter();
+            pathPosition = grid.applyToVector(grid.toVector(c.x, c.y));
         }
         num = shape.number;
     }
@@ -73,7 +71,9 @@
                     break;
                 }
                 if (shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine) {
-                    if (shape.contacts.filter((c) => c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed)).length == shape.number) {
+                    var a = shape.contacts.filter((c) => c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed));
+                    console.log(a);
+                    if (a.length == shape.number) {
                         shape.contacts.filter((c) => !(c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed))).forEach((c) => {
                             c.reveal();
                         });

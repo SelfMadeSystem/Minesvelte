@@ -1,6 +1,5 @@
 import Vec from "./Vec";
 import { gcd } from "./Math";
-import type { GridInfo } from "./GridInfo";
 import { winSize } from "../stores";
 import { lineTo, moveTo, Shape } from "./Shape";
 
@@ -45,6 +44,23 @@ export function mouseDistFromClosestPoint(
         return grid.fromVector(a - closestPoint.x, b - closestPoint.y).length();
     } else {
         return grid.fromVector(a - relativeX, b - relativeY).length();
+    }
+}
+
+export class GridInfo {
+    constructor(
+        public size: number,
+        public offset: Vec,
+        public shapes: Shape[],
+        public callbacks: ((gridInfo: GridInfo) => void)[] = [],
+    ) {}
+    
+    getShapeCountWithMines(): number {
+        return this.shapes.reduce((prev, curr) => prev + (curr.shapeInfo.hasMine ? 1 : 0), 0);
+    }
+
+    getFlaggedShapeCount(): number {
+        return this.shapes.reduce((prev, curr) => prev + (curr.shapeInfo.isFlagged ? 1 : 0), 0);
     }
 }
 
