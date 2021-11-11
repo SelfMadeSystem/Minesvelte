@@ -1,9 +1,5 @@
 <script lang="ts">
-    import { windowSize } from "./stores";
     import Canvas from "./Canvas.svelte";
-
-    export var borderSize = 25;
-    export var borderColor = "red";
 </script>
 
 <Canvas>

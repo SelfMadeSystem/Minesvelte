@@ -130,14 +130,6 @@ export abstract class Grid {
         return vec.add(this.info.offset).scale(this.info.size);
     }
 
-    public applyToNumX(n: number): number {
-        return (+ this.info.offset.x) * this.info.size;
-    }
-
-    public applyToNumY(n: number): number {
-        return (n + this.info.offset.y) * this.info.size;
-    }
-
     public applyFromVector(vec: Vec): Vec {
         return vec.scale(1 / this.info.size).sub(this.info.offset);
     }
