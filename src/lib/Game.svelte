@@ -6,27 +6,28 @@
     import type { Shape as Sh } from "./utils/Shape";
     import Dot from "./game/Dot.svelte";
     import type { Point } from "./utils/Vec";
-    var grid = new HexGrid();
+    var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
 
     grid.tranformMatrix.scale(50, 50);
 
-    grid.generateTriangleGrid(20);
+    grid.generateDefaultGrid(20);
     grid.setMineRatio(0.16);
+    grid.centerOnScreen();
 
     if (shapes) {
         shapes.forEach((s) => s._updateContacts());
     }
 
-    var mousePoint: Point = {
-        x: 0,
-        y: 0,
-    };
+    // var mousePoint: Point = {
+    //     x: 0,
+    //     y: 0,
+    // };
 
     function onMouseMove(e: MouseEvent) {
         const { clientX, clientY, movementX, movementY } = e;
-        mousePoint = getMousePoint(clientX, clientY, grid);
+        // mousePoint = getMousePoint(clientX, clientY, grid);
         if (!scrolling) return;
         grid.tranformMatrix.translate(movementX, movementY);
     }
@@ -72,7 +73,7 @@
             <Dot {grid} {point} fill="red" />
         {/each}
     </g> -->
-    <Dot {grid} point={mousePoint} fill={"purple"} />
+    <!-- <Dot {grid} point={mousePoint} fill={"purple"} /> -->
     <text
         x="99%"
         y="-99%"

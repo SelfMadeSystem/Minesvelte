@@ -1,5 +1,4 @@
 import { inverseAngle, toDeg, wrapAngle, approx } from "./Math";
-import { equals } from "./ObjectUtils";
 import type { Grid, GridPoint } from "./Grid";
 import Vec from "./Vec";
 import type { Point } from "./Vec";
@@ -168,8 +167,7 @@ export class Shape {
         }
         this.uptadingContacts = true;
         var prevContacts = this._updateContacts();
-        this.contacts.forEach(s => s._updateContacts());
-        prevContacts.forEach(s => s._updateContacts());
+        new Set([...this.contacts, ...prevContacts]).forEach(s => s._updateContacts());
         this.uptadingContacts = false;
     }
 
@@ -209,7 +207,7 @@ export class Shape {
             const points2 = this.grid.getAllInLine(l2.p1, l2.p2);
             let found = false;
             return points1.some(p => points2.some(p2 => {
-                if (equals(p, p2)) {
+                if (p.x === p2.x && p.y === p2.y) {
                     if (found) {
                         return true;
                     }
@@ -223,6 +221,7 @@ export class Shape {
 
     getPoints() {
         if (!this.hasChanged) {
+            this.hasChanged = false;
             return this.prevPoints;
         }
         var points: GridPoint[] = [];
@@ -232,7 +231,7 @@ export class Shape {
             points.push(...this.grid.getAllInLine(element.p1, element.p2));
         }
         this.prevPoints.forEach(p => {
-            if (!points.some(p2 => equals(p, p2))) {
+            if (!points.some(p2 => p.x === p2.x && p.y === p2.y)) {
                 p.shapes.splice(p.shapes.indexOf(this), 1);
             }
         });

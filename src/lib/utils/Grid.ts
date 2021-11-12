@@ -46,9 +46,9 @@ export function mouseDistFromClosestPoint(
                     : prev,
             { x: 0, y: 0 }
         );
-        return grid.fromVector({x: a - closestPoint.x, y: b - closestPoint.y}).length();
+        return grid.fromVector({ x: a - closestPoint.x, y: b - closestPoint.y }).length();
     } else {
-        return grid.fromVector({x: a - relativeX, y: b - relativeY}).length();
+        return grid.fromVector({ x: a - relativeX, y: b - relativeY }).length();
     }
 }
 
@@ -68,7 +68,7 @@ export abstract class Grid {
     public shapes: Shape[] = [];
     public callbacks: ((grid: Grid) => void)[] = [];
     public tranformMatrix: Matrix2D = Matrix2D.identity();
-    private _subs: ((point: Point[]) => void)[] = [];
+    private _subs: ((point: GridPoint[]) => void)[] = [];
 
     constructor(grid?: { [key: number]: { [key: number]: GridPoint } }) {
         this._grid = grid || {} as { [key: number]: { [key: number]: GridPoint } };
@@ -124,13 +124,48 @@ export abstract class Grid {
         return this.tranformMatrix.applyInverse(vec);
     }
 
-    public abstract fromVector({x, y}: Point): Vec;
+    // Todo: Cache this
+    public getMinMax(): {min: Point, max: Point} {
+        return this._allPoints.reduce(
+            (prev, curr) => ({
+                min: { x: Math.min(prev.min.x, curr.x), y: Math.min(prev.min.y, curr.y) },
+                max: { x: Math.max(prev.max.x, curr.x), y: Math.max(prev.max.y, curr.y) },
+            }),
+            { min: { x: Infinity, y: Infinity }, max: { x: -Infinity, y: -Infinity } }
+        );
+    }
 
-    public abstract toVector({x, y}: Point): Vec;
+    public getMinMaxAsVector(): {min: Point, max: Point} {
+        const { min, max } = this.getMinMax();
+        return {
+            min: this.toVector(min),
+            max: this.toVector(max),
+        };
+    }
 
-    public abstract isAdjacent({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): boolean;
+    public getCenter(): Point {
+        const { min, max } = this.getMinMaxAsVector();
+        return { x: (min.x + max.x) / 2, y: (min.y + max.y) / 2 };
+    }
 
-    public getAllInLine({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): GridPoint[] {
+    public getScale(): number {
+        const { min, max } = this.getMinMaxAsVector();
+        return Math.max(max.x - min.x, max.y - min.y);
+    }
+
+    public centerOnScreen() {
+        const { x, y } = this.getCenter();
+        const scale = this.getScale();
+        this.tranformMatrix.identity().translate(-x, -y).scaleBoth(1 / Math.pow(scale, 0.8) * Math.min(windowSize.width, windowSize.height) * 0.5);
+    }
+
+    public abstract toVector({ x, y }: Point): Vec;
+
+    public abstract fromVector({ x, y }: Point): Vec;
+
+    public abstract isAdjacent({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): boolean;
+
+    public getAllInLine({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): GridPoint[] {
         const points: GridPoint[] = [];
         const dx = Math.abs(x1 - x2);
         const dy = Math.abs(y1 - y2);
@@ -170,15 +205,15 @@ export abstract class Grid {
 }
 
 export class SquareGrid extends Grid {
-    public toVector({x, y}: Point): Vec {
+    public toVector({ x, y }: Point): Vec {
         return new Vec(x, -y);
     }
 
-    public fromVector({x, y}: Point): Vec {
+    public fromVector({ x, y }: Point): Vec {
         return new Vec(x, -y);
     }
 
-    public isAdjacent({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): boolean {
+    public isAdjacent({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): boolean {
         return (x1 === x2 && Math.abs(y1 - y2) === 1) || (y1 === y2 && Math.abs(x1 - x2) === 1);
     }
 
@@ -244,16 +279,16 @@ export class SquareGrid extends Grid {
 const sqrt3over2 = Math.sqrt(3) / 2;
 
 export class HexGrid extends Grid {
-    public toVector({x, y}: Point): Vec {
+    public toVector({ x, y }: Point): Vec {
         return new Vec(x * sqrt3over2, -y - x * 0.5);
     }
 
-    public fromVector({x, y}: Point): Vec {
+    public fromVector({ x, y }: Point): Vec {
         var newX = x / sqrt3over2;
         return new Vec(newX, -y - newX * 0.5);
     }
 
-    public isAdjacent({x: x1, y: y1}: Point, {x: x2, y: y2}: Point): boolean {
+    public isAdjacent({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): boolean {
         const dx = x1 - x2;
         const dy = y1 - y2;
         return (dx === 0 && dy === 1) || (dx === 1 && dy === 0) || (dx === 0 && dy === -1) || (dx === -1 && dy === 0) || (dx === -1 && dy === 1) || (dx === 1 && dy === -1);

@@ -64,6 +64,10 @@ export class Matrix2D {
         return this;
     }
 
+    scaleBoth(amount: number) {
+        return this.scale(amount, amount);
+    }
+
     rotate(angle: number) {
         const cos = Math.cos(angle);
         const sin = Math.sin(angle);
