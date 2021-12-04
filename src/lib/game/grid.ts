@@ -66,8 +66,10 @@ export abstract class Grid {
     protected _grid: { [key: number]: { [key: number]: GridPoint } };
     protected _allPoints: GridPoint[] = [];
     public shapes: Shape[] = [];
+    public transformScaleAdjust: ValueNotifier<number> = new ValueNotifier(1);
     public transformScale: ValueNotifier<number> = new ValueNotifier(1);
     public transformPosition: ValueNotifier<Point> = new ValueNotifier(new Vec());
+    public transformPositionAdjust: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public notifyNewPoint: Notifier<{ newPoint: Point, grid: Grid }> = new Notifier();
 
     constructor(grid?: { [key: number]: { [key: number]: GridPoint } }) {
@@ -98,29 +100,39 @@ export abstract class Grid {
     }
 
     public fromMousePos(x: number, y: number): Point {
-        return this.fromVector(this.inverseTransform(new Vec(x, y)));
+        const widthOrHeight = windowSize.width > windowSize.height;
+        const rX = widthOrHeight ? windowSize.width - windowSize.height : 0;
+        const rY = widthOrHeight ? 0 : windowSize.height - windowSize.width;
+        return this.fromVector(
+            this.inverseScale(
+                new Vec(x, y)
+                    .sub(this.transformPosition.value)
+                    .sub(new Vec(rX, rY))
+                    .scale(1 / (widthOrHeight ? windowSize.height : windowSize.width * 100))
+            )
+        ).sub(this.transformPositionAdjust.value);
     }
 
     public scale(point: Point): Point {
-        return Vec.from(point).scale(this.transformScale.value);
+        return Vec.from(point).scale(this.transformScaleAdjust.value);
     }
 
     public inverseScale(point: Point): Point {
-        return Vec.from(point).scale(1 / this.transformScale.value);
+        return Vec.from(point).scale(1 / this.transformScaleAdjust.value);
     }
 
     public transform(point: Point): Point {
-        return Vec.from(point).scale(this.transformScale.value).add(this.transformPosition.value);
+        return Vec.from(point).scale(this.transformScaleAdjust.value).add(this.transformPosition.value);
     }
 
     public inverseTransform(point: Point): Point {
-        return Vec.from(point).sub(this.transformPosition.value).scale(1 / this.transformScale.value);
+        return Vec.from(point).sub(this.transformPosition.value).scale(1 / this.transformScaleAdjust.value);
     }
 
     private minMax: { min: Point, max: Point };
     public getMinMax(): { min: Point, max: Point } {
         if (!this.minMax) {
-            return this._allPoints.reduce(
+            return this.minMax = this._allPoints.reduce(
                 (prev, curr) => ({
                     min: { x: Math.min(prev.min.x, curr.x), y: Math.min(prev.min.y, curr.y) },
                     max: { x: Math.max(prev.max.x, curr.x), y: Math.max(prev.max.y, curr.y) },
@@ -132,12 +144,22 @@ export abstract class Grid {
         }
     }
 
+    private minMaxVector: { min: Point, max: Point };
     public getMinMaxAsVector(): { min: Point, max: Point } {
-        const { min, max } = this.getMinMax();
-        return {
-            min: this.toVector(min),
-            max: this.toVector(max),
-        };
+        if (!this.minMaxVector) {
+            return this.minMaxVector = this._allPoints.reduce(
+                (prev, curr) => {
+                    var v = this.toVector(curr);
+                    return {
+                        min: { x: Math.min(prev.min.x, v.x), y: Math.min(prev.min.y, v.y) },
+                        max: { x: Math.max(prev.max.x, v.x), y: Math.max(prev.max.y, v.y) },
+                    }
+                },
+                { min: { x: Infinity, y: Infinity }, max: { x: -Infinity, y: -Infinity } }
+            );
+        } else {
+            return this.minMaxVector;
+        }
     }
 
     public getCenter(): Point {
@@ -153,10 +175,10 @@ export abstract class Grid {
     public centerOnScreen() {
         const { x, y } = this.getCenter();
         const scale = this.getScale();
-        this.transformScale.value = 1 / Math.pow(scale, 0.8) * 50;
-        this.transformPosition.value = {
-            x: (x + 50) * windowSize.height / 100,
-            y: (y + 50) * windowSize.height / 100,
+        this.transformScaleAdjust.value = 1 / Math.pow(scale, 0.8) * 50;
+        this.transformPositionAdjust.value = {
+            x: -x,
+            y: -y,
         };
     }
 
@@ -222,6 +244,24 @@ export class SquareGrid extends Grid {
         let halfGridSize = Math.floor(gridSize / 2);
         for (let x = -halfGridSize; x < halfGridSize + gridSize % 2; x++) {
             for (let y = -halfGridSize; y < halfGridSize + gridSize % 2; y++) {
+                this.shapes.push(
+                    new Shape(
+                        this,
+                        [
+                            moveTo(x, y),
+                            lineTo(x + 1, y),
+                            lineTo(x + 1, y + 1),
+                            lineTo(x, y + 1),
+                        ]
+                    )
+                );
+            }
+        }
+    }
+
+    public generateRectGrid(sizeX: number, sizeY: number) {
+        for (let x = 0; x < sizeX; x++) {
+            for (let y = 0; y < sizeY; y++) {
                 this.shapes.push(
                     new Shape(
                         this,
