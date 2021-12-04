@@ -154,10 +154,10 @@ export abstract class Grid {
         const { x, y } = this.getCenter();
         const scale = this.getScale();
         this.transformScale.value = 1 / Math.pow(scale, 0.8) * 50;
-        // this.transformPosition.value = {
-        //     x: -(x + 50),
-        //     y: -(y + 50),
-        // };
+        this.transformPosition.value = {
+            x: (x + 50) * windowSize.height / 100,
+            y: (y + 50) * windowSize.height / 100,
+        };
     }
 
     public abstract toVector({ x, y }: Point): Vec;

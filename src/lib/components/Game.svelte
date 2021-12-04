@@ -11,7 +11,7 @@ import Vec, { Point } from "../utils/Vec";
 
     grid.transformScale.value = 50;
 
-    grid.generateDefaultGrid(10);
+    grid.generateDefaultGrid(16);
     grid.setMineRatio(0.16);
     grid.centerOnScreen();
 
@@ -34,6 +34,7 @@ import Vec, { Point } from "../utils/Vec";
     function onMouseWheel(e: WheelEvent) {
         var delta = e.deltaY || e.detail || (e as any).wheelDelta;
         grid.transformScale.value *= 1 + delta / 1000;
+        // grid.transformPosition.value = Vec.from(grid.transformPosition.value)
     }
 
     document.addEventListener("mousewheel", onMouseWheel, false);
