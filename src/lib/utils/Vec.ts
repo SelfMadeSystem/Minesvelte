@@ -23,19 +23,19 @@ export class Vec implements Point {
         return Math.sqrt(this.lengthSq());
     }
 
-    public add(v: Vec): Vec {
+    public add(v: Point): Vec {
         return new Vec(this.x + v.x, this.y + v.y);
     }
 
-    public sub(v: Vec): Vec {
+    public sub(v: Point): Vec {
         return new Vec(this.x - v.x, this.y - v.y);
     }
 
-    public mul(v: Vec): Vec {
+    public mul(v: Point): Vec {
         return new Vec(this.x * v.x, this.y * v.y);
     }
 
-    public div(v: Vec): Vec {
+    public div(v: Point): Vec {
         return new Vec(this.x / v.x, this.y / v.y);
     }
 
@@ -61,15 +61,15 @@ export class Vec implements Point {
         return new Vec(this.x * c - this.y * s, this.x * s + this.y * c);
     }
 
-    public rotateAround(rad: number, v: Vec): Vec {
+    public rotateAround(rad: number, v: Point): Vec {
         return this.sub(v).rotate(rad).add(v);
     }
 
-    public distanceSq(other: Vec): number {
+    public distanceSq(other: Point): number {
         return this.sub(other).lengthSq();
     }
 
-    public distance(other: Vec): number {
+    public distance(other: Point): number {
         return this.sub(other).length();
     }
 }

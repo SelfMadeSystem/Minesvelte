@@ -1,11 +1,11 @@
 <script lang="ts">
     import { afterUpdate, tick } from "svelte";
-    import { moveShapePoint, Shape } from "../utils/Shape";
+    import { moveShapePoint, Shape } from "../game/shape";
     import {
         getMousePoint,
         Grid,
         mouseDistFromClosestPoint
-    } from "../utils/Grid";
+    } from "../game/grid";
     import { getShapeColorByState } from "../utils/Colors";
     import Vec from "../utils/Vec";
     import type { Point } from "../utils/Vec";
@@ -30,13 +30,12 @@
     }
     function updatePath() {
         if (path) {
-            pathPosition = Vec.from(grid.applyMatrix(grid.toVector(shape.getCenter())));
+            pathPosition = Vec.from(grid.toVector(shape.getCenter()));
         }
         pointsStr = shape.toString();
         num = shape.number;
     }
 
-    grid.tranformMatrix.subscribe(updatePath);
     shape.callback = () => {
         color = getShapeColorByState(
             shape.shapeInfo.color,
@@ -175,7 +174,7 @@
         d={pointsStr}
         fill={color.fill}
         stroke={color.stroke}
-        stroke-width="4"
+        stroke-width="0.05"
         stroke-linecap="round"
         stroke-linejoin="round"
         on:mousedown={onMouseDown}
@@ -187,7 +186,7 @@
             y={pathPosition.y}
             text-anchor="middle"
             dominant-baseline="central"
-            font-size="24"
+            font-size="0.5"
             font-family="monospace"
             fill={color.stroke}
         >

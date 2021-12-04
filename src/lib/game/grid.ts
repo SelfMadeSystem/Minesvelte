@@ -1,9 +1,9 @@
 import Vec from "../utils/Vec";
 import type { Point } from "../utils/Vec";
-import { gcd } from "./Math";
+import { gcd } from "../utils/Math";
 import { windowSize } from "../stores";
-import { lineTo, moveTo, Shape } from "./Shape";
-import { Matrix2D } from "./Matrix2D";
+import { lineTo, moveTo, Shape } from "./shape";
+import { Notifier, ValueNotifier } from "../utils/Notifier";
 
 export class GridPoint implements Point {
     constructor(
@@ -16,7 +16,7 @@ export class GridPoint implements Point {
 export function getMousePoint(x: number, y: number, grid: Grid): Point {
     const relativeX = x - windowSize.width / 2;
     const relativeY = y - windowSize.height / 2;
-    const vec1 = grid.applyInverseMatrix(new Vec(relativeX, relativeY));
+    const vec1 = grid.inverseTransform(new Vec(relativeX, relativeY));
     const { x: a, y: b } = grid.fromVector({
         x: vec1.x,
         y: vec1.y,
@@ -32,7 +32,7 @@ export function mouseDistFromClosestPoint(
 ): number {
     const relativeX = x - windowSize.width / 2;
     const relativeY = y - windowSize.height / 2;
-    const vec1 = grid.applyInverseMatrix(new Vec(relativeX, relativeY));
+    const vec1 = grid.inverseTransform(new Vec(relativeX, relativeY));
     const { x: a, y: b } = grid.fromVector({
         x: vec1.x,
         y: vec1.y,
@@ -66,30 +66,15 @@ export abstract class Grid {
     protected _grid: { [key: number]: { [key: number]: GridPoint } };
     protected _allPoints: GridPoint[] = [];
     public shapes: Shape[] = [];
-    public callbacks: ((grid: Grid) => void)[] = [];
-    public tranformMatrix: Matrix2D = Matrix2D.identity();
-    private _subs: ((point: GridPoint[]) => void)[] = [];
+    public transformScale: ValueNotifier<number> = new ValueNotifier(1);
+    public transformPosition: ValueNotifier<Point> = new ValueNotifier(new Vec());
+    public notifyNewPoint: Notifier<{ newPoint: Point, grid: Grid }> = new Notifier();
 
     constructor(grid?: { [key: number]: { [key: number]: GridPoint } }) {
         this._grid = grid || {} as { [key: number]: { [key: number]: GridPoint } };
-    }
-
-    protected notify() {
-        const pts = this.getAllPoints();
-        this._subs.forEach(sub => sub(pts));
-    }
-
-    public subscribe(subOwO: (point: Point[]) => void) {
-        subOwO(this.getAllPoints());
-        this._subs.push(subOwO)
-        return () => this.unsubscribe(subOwO);
-    }
-
-    public unsubscribe(subOwO: (point: Point[]) => void) {
-        const index = this._subs.indexOf(subOwO);
-        if (index > -1) {
-            this._subs.splice(index, 1);
-        }
+        this.notifyNewPoint.subscribe(({ newPoint, grid }) => {
+            this.minMax = undefined;
+        });
     }
 
     public getAllPoints(): GridPoint[] {
@@ -108,34 +93,46 @@ export abstract class Grid {
         }
         col[y] = new GridPoint(x, y);
         this._allPoints.push(col[y]);
-        this.notify();
+        this.notifyNewPoint.notify({ newPoint: col[y], grid: this });
         return col[y];
     }
 
     public fromMousePos(x: number, y: number): Point {
-        return this.fromVector(this.applyInverseMatrix(new Vec(x, y)));
+        return this.fromVector(this.inverseTransform(new Vec(x, y)));
     }
 
-    public applyMatrix(vec: Point): Point {
-        return this.tranformMatrix.apply(vec);
+    public scale(point: Point): Point {
+        return Vec.from(point).scale(this.transformScale.value);
     }
 
-    public applyInverseMatrix(vec: Point): Point {
-        return this.tranformMatrix.applyInverse(vec);
+    public inverseScale(point: Point): Point {
+        return Vec.from(point).scale(1 / this.transformScale.value);
     }
 
-    // Todo: Cache this
-    public getMinMax(): {min: Point, max: Point} {
-        return this._allPoints.reduce(
-            (prev, curr) => ({
-                min: { x: Math.min(prev.min.x, curr.x), y: Math.min(prev.min.y, curr.y) },
-                max: { x: Math.max(prev.max.x, curr.x), y: Math.max(prev.max.y, curr.y) },
-            }),
-            { min: { x: Infinity, y: Infinity }, max: { x: -Infinity, y: -Infinity } }
-        );
+    public transform(point: Point): Point {
+        return Vec.from(point).scale(this.transformScale.value).add(this.transformPosition.value);
     }
 
-    public getMinMaxAsVector(): {min: Point, max: Point} {
+    public inverseTransform(point: Point): Point {
+        return Vec.from(point).sub(this.transformPosition.value).scale(1 / this.transformScale.value);
+    }
+
+    private minMax: { min: Point, max: Point };
+    public getMinMax(): { min: Point, max: Point } {
+        if (!this.minMax) {
+            return this._allPoints.reduce(
+                (prev, curr) => ({
+                    min: { x: Math.min(prev.min.x, curr.x), y: Math.min(prev.min.y, curr.y) },
+                    max: { x: Math.max(prev.max.x, curr.x), y: Math.max(prev.max.y, curr.y) },
+                }),
+                { min: { x: Infinity, y: Infinity }, max: { x: -Infinity, y: -Infinity } }
+            );
+        } else {
+            return this.minMax;
+        }
+    }
+
+    public getMinMaxAsVector(): { min: Point, max: Point } {
         const { min, max } = this.getMinMax();
         return {
             min: this.toVector(min),
@@ -156,7 +153,11 @@ export abstract class Grid {
     public centerOnScreen() {
         const { x, y } = this.getCenter();
         const scale = this.getScale();
-        this.tranformMatrix.identity().translate(-x, -y).scaleBoth(1 / Math.pow(scale, 0.8) * Math.min(windowSize.width, windowSize.height) * 0.5);
+        this.transformScale.value = 1 / Math.pow(scale, 0.8) * 50;
+        // this.transformPosition.value = {
+        //     x: -(x + 50),
+        //     y: -(y + 50),
+        // };
     }
 
     public abstract toVector({ x, y }: Point): Vec;

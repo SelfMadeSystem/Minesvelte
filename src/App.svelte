@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Overlay from "./lib/Overlay.svelte";
-  import Game from "./lib/Game.svelte";
+  import Overlay from "./lib/components/Overlay.svelte";
+  import Game from "./lib/components/Game.svelte";
 </script>
 
 <svelte:window

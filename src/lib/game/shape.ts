@@ -1,7 +1,7 @@
-import { inverseAngle, toDeg, wrapAngle, approx } from "./Math";
-import type { Grid, GridPoint } from "./Grid";
-import Vec from "./Vec";
-import type { Point } from "./Vec";
+import { inverseAngle, toDeg, wrapAngle, approx } from "../utils/Math";
+import type { Grid, GridPoint } from "./grid";
+import Vec from "../utils/Vec";
+import type { Point } from "../utils/Vec";
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -41,7 +41,7 @@ abstract class ShapePoint implements Point {
 class LTP extends ShapePoint {
     public readonly move = false;
     public toString(grid: Grid) {
-        const { x, y } = grid.applyMatrix(grid.toVector(this));
+        const { x, y } = grid.toVector(this);
         return `L ${x},${y}`;
     }
 }
@@ -50,7 +50,7 @@ class LTP extends ShapePoint {
 class MTP extends ShapePoint {
     public readonly move = true;
     public toString(grid: Grid) {
-        const { x, y } = grid.applyMatrix(grid.toVector(this));
+        const { x, y } = grid.toVector(this);
         return `Z M ${x},${y}`;
     }
 }

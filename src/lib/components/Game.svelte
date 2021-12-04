@@ -1,18 +1,17 @@
 <script lang="ts">
     import Canvas from "./Canvas.svelte";
-    import Grid from "./game/Grid.svelte";
-    import { getMousePoint, HexGrid, SquareGrid } from "./utils/Grid";
-    import Shape from "./game/Shape.svelte";
-    import type { Shape as Sh } from "./utils/Shape";
-    import Dot from "./game/Dot.svelte";
-    import type { Point } from "./utils/Vec";
+    import Grid from "./Grid.svelte";
+    import { getMousePoint, HexGrid, SquareGrid } from "../game/grid";
+    import Shape from "./Shape.svelte";
+    import type { Shape as Sh } from "../game/shape";
+import Vec, { Point } from "../utils/Vec";
     var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
 
-    grid.tranformMatrix.scale(50, 50);
+    grid.transformScale.value = 50;
 
-    grid.generateDefaultGrid(20);
+    grid.generateDefaultGrid(10);
     grid.setMineRatio(0.16);
     grid.centerOnScreen();
 
@@ -29,12 +28,12 @@
         const { clientX, clientY, movementX, movementY } = e;
         // mousePoint = getMousePoint(clientX, clientY, grid);
         if (!scrolling) return;
-        grid.tranformMatrix.translate(movementX, movementY);
+        grid.transformPosition.value = Vec.from(grid.transformPosition.value).add(new Vec(movementX, movementY));
     }
 
     function onMouseWheel(e: WheelEvent) {
         var delta = e.deltaY || e.detail || (e as any).wheelDelta;
-        grid.tranformMatrix.scale(1 + delta / 1000, 1 + delta / 1000);
+        grid.transformScale.value *= 1 + delta / 1000;
     }
 
     document.addEventListener("mousewheel", onMouseWheel, false);
@@ -42,14 +41,28 @@
 
     var scrolling = false;
     function onMouseDown(e: MouseEvent) {
-        scrolling = true;
+        if (e.button === 0) {
+            scrolling = true;
+        }
         e.preventDefault();
     }
 
     function onMouseUp(e: MouseEvent) {
-        scrolling = false;
+        if (e.button === 0) {
+            scrolling = false;
+        }
         e.preventDefault();
     }
+
+    let offset: Point = { x: 0, y: 0 };
+    let scale = 50;
+
+    grid.transformPosition.subscribe((v) => {
+        offset = v;
+    });
+    grid.transformScale.subscribe((v) => {
+        scale = v;
+    });
 </script>
 
 <svelte:window
@@ -58,7 +71,7 @@
     on:mouseup={onMouseUp}
 />
 
-<Canvas>
+<Canvas {offset} {scale}>
     <g id="grid">
         <Grid {grid} />
     </g>
