@@ -9,14 +9,14 @@ export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     return shapePoint;
 }
 
-abstract class ShapePoint implements Point {
+export abstract class ShapePoint implements Point {
     private _x: number;
     public get x(): number {
         return this._x;
     }
     public set x(value: number) {
         this._x = value;
-        this.shape.hasChanged = true;
+        if (this.shape) this.shape.hasChanged = true;
     }
     private _y: number;
     public get y(): number {
@@ -24,7 +24,7 @@ abstract class ShapePoint implements Point {
     }
     public set y(value: number) {
         this._y = value;
-        this.shape.hasChanged = true;
+        if (this.shape) this.shape.hasChanged = true;
     }
     shape: Shape;
     public readonly abstract move: boolean;
@@ -35,6 +35,7 @@ abstract class ShapePoint implements Point {
     }
 
     public abstract toString(grid: Grid): string;
+    public abstract clone(): ShapePoint;
 }
 
 // LineToPoint
@@ -44,6 +45,9 @@ class LTP extends ShapePoint {
         const { x, y } = grid.toVector(this);
         return `L ${x},${y}`;
     }
+    public clone() {
+        return new LTP(this.x, this.y);
+    }
 }
 
 // MoveToPiont
@@ -52,6 +56,9 @@ class MTP extends ShapePoint {
     public toString(grid: Grid) {
         const { x, y } = grid.toVector(this);
         return `Z M ${x},${y}`;
+    }
+    public clone() {
+        return new MTP(this.x, this.y);
     }
 }
 
