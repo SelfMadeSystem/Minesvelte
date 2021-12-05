@@ -219,7 +219,7 @@ export abstract class Grid {
             shapes.splice(index, 1);
             mines.push(point);
         }
-        mines.forEach(point => point.shapeInfo.hasMine = true);
+        mines.forEach(point => point.shapeState.hasMine = true);
     }
 
     public setMineRatio(ratio: number) {

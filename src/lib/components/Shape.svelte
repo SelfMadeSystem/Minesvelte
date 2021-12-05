@@ -21,8 +21,8 @@
 
     $: pointsStr = shape.toString();
     $: color = getShapeColorByState(
-        shape.shapeInfo.color,
-        shape.shapeInfo.getState(false)
+        shape.shapeState.color,
+        shape.shapeState.getState(false)
     );
     $: {
         grid;
@@ -36,13 +36,13 @@
         num = shape.number;
     }
 
-    shape.callback = () => {
+    shape.shapeStateNotify.subscribe((state) => {
         color = getShapeColorByState(
-            shape.shapeInfo.color,
-            shape.shapeInfo.getState(false)
+            state.color,
+            state.getState(false)
         );
         updatePath();
-    };
+    });
 
     afterUpdate(() => {
         updatePath();
@@ -71,22 +71,22 @@
                     }
                     break;
                 }
-                if (shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine) {
-                    var a = shape.contacts.filter((c) => c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed));
+                if (shape.shapeState.isRevealed && !shape.shapeState.hasMine) {
+                    var a = shape.contacts.filter((c) => c.shapeState.isFlagged || (c.shapeState.hasMine && c.shapeState.isRevealed));
                     if (a.length == shape.number) {
-                        shape.contacts.filter((c) => !(c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed))).forEach((c) => {
+                        shape.contacts.filter((c) => !(c.shapeState.isFlagged || (c.shapeState.hasMine && c.shapeState.isRevealed))).forEach((c) => {
                             c.reveal();
                         });
                     }
                     return;
                 }
-                if (shape.shapeInfo.getState(false) == "normal") shape.reveal();
+                if (shape.shapeState.getState(false) == "normal") shape.reveal();
                 break;
             case 2:
-                shape.shapeInfo.isFlagged = !shape.shapeInfo.isFlagged;
+                shape.shapeState.isFlagged = !shape.shapeState.isFlagged;
                 break;
             case 1:
-                shape.shapeInfo.hasMine = !shape.shapeInfo.hasMine;
+                shape.shapeState.hasMine = !shape.shapeState.hasMine;
                 break;
         }
         /* switch (e.button) {
@@ -161,9 +161,9 @@
         }
         pointsStr = shape.toString();
         shape.updateContacts();
-        shape.contacts.forEach((c) => {
-            c.callback(c);
-        });
+        // shape.contacts.forEach((c) => {
+        //     c.callback(c);
+        // });
     }
 </script>
 
@@ -180,7 +180,7 @@
         on:mousedown={onMouseDown}
         on:mouseup={onMouseUp}
     />
-    {#if path && pathPosition && shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine}
+    {#if path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine}
         <text
             x={pathPosition.x}
             y={pathPosition.y}

@@ -2,6 +2,7 @@ import { inverseAngle, toDeg, wrapAngle, approx } from "../utils/Math";
 import type { Grid, GridPoint } from "./grid";
 import Vec from "../utils/Vec";
 import type { Point } from "../utils/Vec";
+import { Notifier } from "../utils/Notifier";
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -78,11 +79,12 @@ export function moveToPoint(point: Point): ShapePoint {
     return new MTP(point.x, point.y);
 }
 
-export class ShapeInfo {
+export class ShapeState {
     public get isRevealed(): boolean {
         return this._isRevealed;
     }
     public set isRevealed(value: boolean) {
+        if (this.isFlagged) return;
         this._isRevealed = value;
         this.callback(this);
     }
@@ -113,7 +115,7 @@ export class ShapeInfo {
         private _hasMine: boolean = false,
         private _isFlagged: boolean = false,
         private _isRevealed: boolean = false,
-        public callback: (info: ShapeInfo) => void = () => { },
+        public callback: (info: ShapeState) => void = () => { },
     ) {
     }
 
@@ -136,12 +138,13 @@ export class ShapeInfo {
 
 export class Shape {
     public contacts: Shape[] = [];
-    public callback: (shape: Shape) => void = () => { };
-    public readonly shapeInfo: ShapeInfo = new ShapeInfo()
+    public readonly shapeState: ShapeState = new ShapeState()
+    public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
+    public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
-        this.shapeInfo.hasMine = hasMine;
-        this.shapeInfo.callback = () => this.callback(this);
+        this.shapeState.hasMine = hasMine;
+        this.shapeState.callback = () => this.shapeStateNotify.notify(this.shapeState);
         this.points.forEach(p => p.shape = this);
         this.getPoints();
     }
@@ -164,7 +167,7 @@ export class Shape {
         return lines;
     }
     public get number() {
-        return this.contacts.filter(s => s.shapeInfo.hasMine).length;
+        return this.contacts.filter(s => s.shapeState.hasMine).length;
     }
     private uptadingContacts: boolean = false;
 
@@ -181,17 +184,17 @@ export class Shape {
     _updateContacts() {
         var prevContacts = this.contacts;
         this.contacts = this.grid.shapes.filter(s => s !== this && this.isCorner(s));
-        this.callback(this);
+        this.notifyContactChange.notify(this.contacts);
         return prevContacts.filter(s => !this.contacts.includes(s));
     }
 
     reveal() {
-        if (this.shapeInfo.isRevealed) return;
-        this.shapeInfo.isRevealed = true;
-        if (!this.shapeInfo.hasMine && this.number === 0) {
+        if (this.shapeState.isRevealed) return;
+        this.shapeState.isRevealed = true;
+        if (!this.shapeState.hasMine && this.number === 0) {
             this.contacts.forEach(s => s.reveal());
         }
-        this.callback(this);
+        // this.callback(this);
     }
 
     isAdjacent(other: Shape) {

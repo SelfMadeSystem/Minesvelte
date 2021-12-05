@@ -6,15 +6,15 @@
     import type { Shape as Sh } from "../game/shape";
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
-import * as tiles from "../tiles/tiles";
-    var grid = new SquareGrid();
+    import * as tiles from "../tiles/tiles";
+    var grid = new HexGrid();
 
     var shapes: Sh[] = grid.shapes;
 
     grid.transformScaleAdjust.value = 50;
 
-    // grid.generateOctogonGrid(8);
-    tiles.tessellations1.generateGrid(grid, {x: 4, y: 4});
+    grid.generateDefaultGrid(10);
+    // tiles.tessellations1.generateGrid(grid, {x: 5, y: 5});
     grid.setMineRatio(0.16);
     grid.centerOnScreen();
 
