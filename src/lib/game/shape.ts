@@ -134,6 +134,22 @@ export class ShapeState {
         }
         return "normal";
     }
+
+    public getZIndex(hovering: boolean): number {
+        if (this.isRevealed) {
+            if (this.hasMine) {
+                return 4;
+            }
+            return 0;
+        }
+        if (this.isFlagged) {
+            return 3;
+        }
+        if (hovering) {
+            return 2;
+        }
+        return 1;
+    }
 }
 
 export class Shape {

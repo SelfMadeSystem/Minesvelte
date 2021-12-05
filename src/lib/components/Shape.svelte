@@ -18,6 +18,7 @@
 
     var pathPosition: Vec;
     var num: number;
+    var zIndex: number = 1;
 
     $: pointsStr = shape.toString();
     $: color = getShapeColorByState(
@@ -42,6 +43,7 @@
             state.getState(false)
         );
         updatePath();
+        zIndex = state.getZIndex(false);
     });
 
     afterUpdate(() => {

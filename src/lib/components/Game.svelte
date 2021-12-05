@@ -15,8 +15,15 @@
 
     grid.generateDefaultGrid(10);
     // tiles.tessellations1.generateGrid(grid, {x: 5, y: 5});
+    grid.resetShapes();
     grid.setMineRatio(0.16);
     grid.centerOnScreen();
+
+    grid.notifyShapeStateChange.subscribe(() => {
+        shapes = shapes.sort(
+            (a, b) => a.shapeState.getZIndex(false) - b.shapeState.getZIndex(false)
+        );
+    });
 
     if (shapes) {
         shapes.forEach((s) => s._updateContacts());
@@ -35,7 +42,9 @@
         if (!scrolling) return;
         grid.transformPosition.value = Vec.from(
             grid.transformPosition.value
-        ).add(new Vec(movementX, movementY).scale(1/grid.transformScale.value));
+        ).add(
+            new Vec(movementX, movementY).scale(1 / grid.transformScale.value)
+        );
     }
 
     function onMouseWheel(e: WheelEvent) {

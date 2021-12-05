@@ -71,11 +71,24 @@ export abstract class Grid {
     public transformPosition: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public transformPositionAdjust: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public notifyNewPoint: Notifier<{ newPoint: Point, grid: Grid }> = new Notifier();
+    public notifyShapeStateChange: Notifier<Shape> = new Notifier();
 
     constructor(grid?: { [key: number]: { [key: number]: GridPoint } }) {
         this._grid = grid || {} as { [key: number]: { [key: number]: GridPoint } };
         this.notifyNewPoint.subscribe(({ newPoint, grid }) => {
             this.minMax = undefined;
+        });
+    }
+
+    public resetShapes() {
+        this.shapes.forEach((shape) => {
+            shape.shapeState.isFlagged = false;
+            shape.shapeState.hasMine = false;
+            shape.shapeState.isRevealed = false;
+            shape.shapeStateNotify.unsubscribeAll();
+            shape.shapeStateNotify.subscribe(() => {
+                this.notifyShapeStateChange.notify(shape);
+            });
         });
     }
 
