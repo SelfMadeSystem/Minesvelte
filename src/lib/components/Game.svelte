@@ -14,15 +14,16 @@
 
     grid.transformScaleAdjust.value = 50;
 
-    grid.generateDefaultGrid(10);
-    // tiles.complex1.generateGrid(grid, {x: 5, y: 5});
+    // grid.generateDefaultGrid(10);
+    tiles.complex1.generateGrid(grid, { x: 5, y: 5 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.16);
     grid.centerOnScreen();
 
     grid.notifyShapeStateChange.subscribe(() => {
         shapes = shapes.sort(
-            (a, b) => a.shapeState.getZIndex(false) - b.shapeState.getZIndex(false)
+            (a, b) =>
+                a.shapeState.getZIndex(false) - b.shapeState.getZIndex(false)
         );
         minesLeft = grid.getMinesLeft();
     });
@@ -130,8 +131,6 @@
     <!-- <Dot {grid} point={mousePoint} fill={"purple"} /> -->
 </Canvas>
 
-<div
-class="text-3xl font-semibold text-white text-center w-full z-10"
->
-{minesLeft}
+<div class="text-3xl font-semibold text-white text-center w-full z-10">
+    {minesLeft}
 </div>

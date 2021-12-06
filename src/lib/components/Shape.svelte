@@ -182,7 +182,7 @@
         on:mousedown={onMouseDown}
         on:mouseup={onMouseUp}
     />
-    {#if path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine}
+    {#if (num > 0) && path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine}
         <text
             x={pathPosition.x}
             y={pathPosition.y}
