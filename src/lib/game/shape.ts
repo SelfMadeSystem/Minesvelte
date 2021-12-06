@@ -3,6 +3,7 @@ import type { Grid, GridPoint } from "./grid";
 import Vec from "../utils/Vec";
 import type { Point } from "../utils/Vec";
 import { Notifier } from "../utils/Notifier";
+import type { ShapeCollection } from "./solver";
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -110,6 +111,17 @@ export class ShapeState {
         this._color = value;
         this.callback(this);
     }
+
+    public get mineKnown() {
+        return (this.hasMine && this.isRevealed) || this.isFlagged;
+    }
+    public get noMineKnown() {
+        return this.isRevealed && !this.isFlagged && !this.hasMine;
+    }
+    public get unknown() {
+        return !this.isRevealed && !this.isFlagged;
+    }
+
     constructor(
         private _color: string = "default",
         private _hasMine: boolean = false,
@@ -158,6 +170,8 @@ export class Shape {
     public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
+    public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
+    public solver_selfShapeCollection: ShapeCollection; // For solver to use
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         this.shapeState.hasMine = hasMine;
         this.shapeState.callback = () => this.shapeStateNotify.notify(this.shapeState);
@@ -210,7 +224,10 @@ export class Shape {
         if (!this.shapeState.hasMine && this.number === 0) {
             this.contacts.forEach(s => s.reveal());
         }
-        // this.callback(this);
+    }
+
+    flag() {
+        this.shapeState.isFlagged = true;
     }
 
     isAdjacent(other: Shape) {

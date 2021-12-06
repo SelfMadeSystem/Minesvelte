@@ -7,15 +7,16 @@
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
     import * as tiles from "../tiles/hexTiles";
-    var grid = new HexGrid();
+import { Solver } from "../game/solver";
+    var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
     var minesLeft: number = 0;
 
     grid.transformScaleAdjust.value = 50;
 
-    // grid.generateDefaultGrid(10);
-    tiles.complex1.generateGrid(grid, { x: 5, y: 5 });
+    grid.generateDefaultGrid(10);
+    // tiles.complex1.generateGrid(grid, { x: 5, y: 5 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.16);
     grid.centerOnScreen();
@@ -99,6 +100,10 @@
     grid.transformScale.subscribe((v) => {
         scale = v;
     });
+
+    function solve() {
+        new Solver(grid).solve();
+    }
 </script>
 
 <svelte:window
@@ -134,3 +139,6 @@
 <div class="text-3xl font-semibold text-white text-center w-full z-10">
     {minesLeft}
 </div>
+<button on:click={solve} class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2">
+    Solve
+</button>

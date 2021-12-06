@@ -54,23 +54,24 @@
         switch (e.button) {
             case 0:
                 if (e.shiftKey) {
-                    clicking = true;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    clickPoint = getMousePoint(e.clientX, e.clientY, grid);
-                    var d = mouseDistFromClosestPoint(
-                        e.clientX,
-                        e.clientY,
-                        grid,
-                        shape.points
-                    );
-                    if (d < 0.5) {
-                        dragging = shape.points.findIndex(
-                            (p) => p.x === clickPoint.x && p.y === clickPoint.y
-                        );
-                    } else {
-                        dragging = -1;
-                    }
+                    // clicking = true;
+                    // e.preventDefault();
+                    // e.stopPropagation();
+                    // clickPoint = getMousePoint(e.clientX, e.clientY, grid);
+                    // var d = mouseDistFromClosestPoint(
+                    //     e.clientX,
+                    //     e.clientY,
+                    //     grid,
+                    //     shape.points
+                    // );
+                    // if (d < 0.5) {
+                    //     dragging = shape.points.findIndex(
+                    //         (p) => p.x === clickPoint.x && p.y === clickPoint.y
+                    //     );
+                    // } else {
+                    //     dragging = -1;
+                    // }
+                    shape.shapeState.hasMine = !shape.shapeState.hasMine;
                     break;
                 }
                 if (shape.shapeState.isRevealed && !shape.shapeState.hasMine) {
