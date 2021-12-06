@@ -6,23 +6,25 @@
     import type { Shape as Sh } from "../game/shape";
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
-    import * as tiles from "../tiles/tiles";
+    import * as tiles from "../tiles/hexTiles";
     var grid = new HexGrid();
 
     var shapes: Sh[] = grid.shapes;
+    var minesLeft: number = 0;
 
     grid.transformScaleAdjust.value = 50;
 
     grid.generateDefaultGrid(10);
-    // tiles.tessellations1.generateGrid(grid, {x: 5, y: 5});
+    // tiles.complex1.generateGrid(grid, {x: 5, y: 5});
     grid.resetShapes();
-    grid.setMineRatio(0.16);
+    minesLeft = grid.setMineRatio(0.16);
     grid.centerOnScreen();
 
     grid.notifyShapeStateChange.subscribe(() => {
         shapes = shapes.sort(
             (a, b) => a.shapeState.getZIndex(false) - b.shapeState.getZIndex(false)
         );
+        minesLeft = grid.getMinesLeft();
     });
 
     if (shapes) {
@@ -126,15 +128,10 @@
         {/each}
     </g> -->
     <!-- <Dot {grid} point={mousePoint} fill={"purple"} /> -->
-    <text
-        x="99%"
-        y="-99%"
-        class="text-3xl font-semibold"
-        fill="white"
-        stroke="black"
-        dominant-baseline="hanging"
-        text-anchor="end"
-    >
-        <!-- {grid.info.getShapeCountWithMines() - gsid} -->
-    </text>
 </Canvas>
+
+<div
+class="text-3xl font-semibold text-white text-center w-full z-10"
+>
+{minesLeft}
+</div>

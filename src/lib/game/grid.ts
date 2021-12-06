@@ -220,7 +220,6 @@ export abstract class Grid {
         return points;
     }
 
-    // Todo: Make a "pattern" class that can be used to make a grid with a pattern of shapes.
     public abstract generateDefaultGrid(size: number): void;
 
     public setRandomMines(count: number) {
@@ -236,7 +235,17 @@ export abstract class Grid {
     }
 
     public setMineRatio(ratio: number) {
-        this.setRandomMines(Math.floor(this.shapes.length * ratio));
+        let amnt = Math.floor(this.shapes.length * ratio);
+        this.setRandomMines(amnt);
+        return amnt;
+    }
+
+    public getMinesCount() {
+        return this.shapes.filter(m => m.shapeState.hasMine).length;
+    }
+
+    public getMinesLeft() {
+        return this.getMinesCount() - this.shapes.filter(m => (m.shapeState.isRevealed && m.shapeState.hasMine) || m.shapeState.isFlagged).length
     }
 }
 
