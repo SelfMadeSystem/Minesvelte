@@ -171,7 +171,7 @@ export class Shape {
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
     public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
-    public solver_selfShapeCollection: ShapeCollection; // For solver to use
+    // public solver_selfShapeCollection: ShapeCollection; // For solver to use
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         this.shapeState.hasMine = hasMine;
         this.shapeState.callback = () => this.shapeStateNotify.notify(this.shapeState);

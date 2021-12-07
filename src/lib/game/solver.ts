@@ -4,8 +4,17 @@ import type { Grid } from "./grid";
 export class ShapeCollection {
     constructor(
         public shapes: Shape[],
-        public minesWithin: number
-    ) { }
+        public minMines: number,
+        public maxMines: number
+    ) {
+        this.minMines = Math.max(0, this.minMines);
+        this.maxMines = Math.min(this.shapes.length, this.maxMines);
+        if (this.minMines > this.maxMines) {
+            var temp = this.minMines;
+            this.minMines = this.maxMines;
+            this.maxMines = temp;
+        }
+    }
 
     public intersection(other: ShapeCollection | Shape[]): Shape[] {
         const shapes = (other instanceof ShapeCollection) ? other.shapes : other;
@@ -14,12 +23,24 @@ export class ShapeCollection {
 
     public union(other: ShapeCollection | Shape[]): Shape[] {
         const shapes = (other instanceof ShapeCollection) ? other.shapes : other;
-        return this.shapes.concat(shapes);
+        return [...new Set(this.shapes.concat(shapes))];
     }
 
     public difference(other: ShapeCollection | Shape[]): Shape[] {
         const shapes = (other instanceof ShapeCollection) ? other.shapes : other;
         return this.shapes.filter(shape => !shapes.some(otherShape => shape === otherShape));
+    }
+
+    public addToShapes() {
+        this.shapes.forEach(contact => {
+            contact.solver_shapeCollections.push(this);
+        });
+    }
+
+    public removeFromShapes() {
+        this.shapes.forEach(contact => {
+            contact.solver_shapeCollections = contact.solver_shapeCollections.filter(shapeCollection => shapeCollection !== this);
+        });
     }
 
     public get size() {
@@ -31,7 +52,7 @@ export class ShapeCollection {
     }
 
     public equals(other: ShapeCollection): boolean {
-        return this.shapes.length === other.shapes.length && this.minesWithin === other.minesWithin && this.shapes.every(shape => other.shapes.some(otherShape => shape === otherShape));
+        return this.shapes.length === other.shapes.length && this.minMines === other.minMines && this.maxMines === other.maxMines && this.shapes.every(shape => other.shapes.some(otherShape => shape === otherShape));
     }
 }
 
@@ -43,9 +64,10 @@ export class Solver {
     }
 
     public solve() {
+        // this.solveWithCollections();
         while (true) {
             if (this.solveBasic()) continue;
-            // if (this.solveWithCollections()) continue; // it don't work
+            // if (this.solveWithCollections()) continue;
             break;
         }
     }
@@ -69,19 +91,21 @@ export class Solver {
             }
         });
     }
-
+    
     private solveWithCollections(): boolean {
         const shapes = this.grid.shapes;
         shapes.forEach(shape => shape.solver_shapeCollections = []);
-        console.log(this.findCollections());
 
         var found = false;
 
-        this.splitCollections(this.findCollections()).forEach(col => {
-            if (col.minesWithin === 0) {
+        const collections = this.splitCollections(this.findCollections());
+        debugger;
+        collections.forEach(col => {
+            if (col.size === 0) return;
+            if (col.maxMines === 0) {
                 col.shapes.forEach(s => s.reveal());
                 found = true;
-            } else if (col.minesWithin === col.size) {
+            } else if (col.minMines === col.size && col.maxMines === col.size) {
                 col.shapes.forEach(s => s.flag());
                 found = true;
             }
@@ -95,12 +119,10 @@ export class Solver {
         shapes.forEach(shape => {
             if (!shape.shapeState.noMineKnown || shape.contacts.every(contact => !contact.shapeState.unknown)) return;
             const minesAround = shape.contacts.filter(contact => contact.shapeState.mineKnown).length;
-            const collection = new ShapeCollection(shape.contacts.filter(contact => contact.shapeState.unknown), shape.number - minesAround);
+            const collection = new ShapeCollection(shape.contacts.filter(contact => contact.shapeState.unknown), shape.number - minesAround, shape.number - minesAround);
             collections.push(collection);
-            shape.solver_selfShapeCollection = collection;
-            collection.shapes.forEach(contact => {
-                contact.solver_shapeCollections.push(collection);
-            });
+            // shape.solver_selfShapeCollection = collection;
+            collection.addToShapes();
         });
         return collections;
     }
@@ -108,79 +130,79 @@ export class Solver {
     private splitCollections(collections: ShapeCollection[]): ShapeCollection[] {
         collections = [...collections];
 
-        var repeat = 0;
-
         for (let i = 0; i < collections.length; i++) {
-            const collection = collections[i];
-            
-            var intersections = collection.intersectingCollections;
-            if (repeat > 5) break;
+            if (i < 0) continue;
 
-            yeetOut: for (const col1 of intersections) {
+            const collection = collections[i];
+            var intersections = collection.intersectingCollections;
+
+            for (const col1 of intersections) {
                 const len1 = col1.size;
+                if (col1.minMines === 0 && col1.maxMines === 0) continue;
+                if (col1.minMines === len1 && col1.maxMines === len1) continue;
                 for (const col2 of intersections) {
+                    if (col1 === col2) continue;
                     const len2 = col2.size;
+                    if (col2.minMines === 0 && col2.maxMines === 0) continue;
+                    if (col2.minMines === len2 && col2.maxMines === len2) continue;
                     const intersection = col1.intersection(col2);
                     const ilen = intersection.length;
                     const d1 = len1 - ilen;
                     const d2 = len2 - ilen;
 
-                    if (col1.minesWithin < ilen ) {
-                        if (d2 === col1.minesWithin) {
-                            i--;
-                            repeat++;
-                            collections.splice(collections.indexOf(col1), 1);
-                            collections.splice(collections.indexOf(col2), 1);
-                            const new1 = new ShapeCollection(intersection, col1.minesWithin);
-                            const new2 = new ShapeCollection(col2.difference(intersection), col2.minesWithin - col1.minesWithin);
-                            const new3 = new ShapeCollection(col1.difference(intersection), 0);
-                            col1.shapes.forEach(s => s.solver_shapeCollections.splice(s.solver_shapeCollections.indexOf(col1)));
-                            col2.shapes.forEach(s => s.solver_shapeCollections.splice(s.solver_shapeCollections.indexOf(col2)));
-                            new1.shapes.forEach(contact => {
-                                contact.solver_shapeCollections.push(new1);
-                            });
-                            new2.shapes.forEach(contact => {
-                                contact.solver_shapeCollections.push(new2);
-                            });
-                            new3.shapes.forEach(contact => {
-                                contact.solver_shapeCollections.push(new3);
-                            });
-                            collections.push(new1);
-                            collections.push(new2);
-                            collections.push(new3);
-                            break yeetOut;
-                        }
+                    const minInInter = Math.min(intersection.length, Math.max(0, col1.minMines - d1, col2.minMines - d2));
+                    const maxInInter = Math.min(intersection.length, Math.max(col1.maxMines, col2.maxMines));
+
+                    // Fixme: idk what the max should be
+                    const new1 = new ShapeCollection(intersection, minInInter, maxInInter);
+                    const diff1 = col1.difference(intersection);
+                    const new2 = new ShapeCollection(diff1, col1.minMines - minInInter, Math.min(diff1.length, col1.maxMines - minInInter));
+                    const diff2 = col2.difference(intersection);
+                    const new3 = new ShapeCollection(diff2, col2.minMines - minInInter, Math.min(diff2.length, col2.maxMines - minInInter));
+
+                    var did = false;
+                    debugger;
+
+                    if (!collections.some(col => col.equals(new1))) {
+                        collections.push(new1);
+                        new1.addToShapes();
+                        col1.removeFromShapes();
+                        col2.removeFromShapes();
+                        if (removeFromArray(collections, col1)) i--;
+                        if (removeFromArray(collections, col2)) i--;
+                        did = true;
                     }
 
-                    if (col2.minesWithin < ilen ) {
-                        if (d1 === col2.minesWithin) {
-                            i--;
-                            repeat++;
-                            collections.splice(collections.indexOf(col1), 1);
-                            collections.splice(collections.indexOf(col2), 1);
-                            const new1 = new ShapeCollection(intersection, col2.minesWithin);
-                            const new2 = new ShapeCollection(col1.difference(intersection), col1.minesWithin - col2.minesWithin);
-                            const new3 = new ShapeCollection(col2.difference(intersection), 0);
-                            col1.shapes.forEach(s => s.solver_shapeCollections.splice(s.solver_shapeCollections.indexOf(col1)));
-                            col2.shapes.forEach(s => s.solver_shapeCollections.splice(s.solver_shapeCollections.indexOf(col2)));
-                            new1.shapes.forEach(contact => {
-                                contact.solver_shapeCollections.push(new1);
-                            });
-                            new2.shapes.forEach(contact => {
-                                contact.solver_shapeCollections.push(new2);
-                            });
-                            new3.shapes.forEach(contact => {
-                                contact.solver_shapeCollections.push(new3);
-                            });
-                            collections.push(new1);
-                            collections.push(new2);
-                            collections.push(new3);
-                            break yeetOut;
-                        }
+                    if (!collections.some(col => col.equals(new2))) {
+                        collections.push(new2);
+                        new2.addToShapes();
+                        col1.removeFromShapes();
+                        col2.removeFromShapes();
+                        if (removeFromArray(collections, col1)) i--;
+                        if (removeFromArray(collections, col2)) i--;
+                        did = true;
                     }
+
+                    if (!collections.some(col => col.equals(new3))) {
+                        collections.push(new3);
+                        new3.addToShapes();
+                        col1.removeFromShapes();
+                        col2.removeFromShapes();
+                        if (removeFromArray(collections, col1)) i--;
+                        if (removeFromArray(collections, col2)) i--;
+                        did = true;
+                    }
+                    if (did) break;
                 }
             }
         }
         return collections;
+
+        function removeFromArray(array: ShapeCollection[], element: ShapeCollection) {
+            const index = array.indexOf(element);
+            if (index === -1) return false;
+            array.splice(index, 1);
+            return true;
+        }
     }
 }
