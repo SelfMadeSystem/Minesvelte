@@ -38,10 +38,13 @@ function getFunOrDef<T>(p: Point, d: Point, value: FunOrDef<T>, def: ((p: Point,
     return value instanceof Function ? value(p, d) : def(p, d, value);
 }
 
+export abstract class Pattern { // Todo: Add stuff to this class and make a HexPattern and a TrianglePattern.
+}
+
 /**
  * A tile is a collection of shapes that can be tiled together to generate a grid.
  */
-export class Tile {
+export class SquarePattern extends Pattern {
     constructor(
         public repeatDimensions: Point,
         public repeatOffset: Point | ((p: Point) => Point),
@@ -50,6 +53,7 @@ export class Tile {
         public bottomTiles: FunOrDef<SingleTile[]> = [],
         public leftTiles: FunOrDef<SingleTile[]> = [],
         public rightTiles: FunOrDef<SingleTile[]> = []) {
+        super();
     }
 
     /**

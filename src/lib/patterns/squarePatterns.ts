@@ -1,8 +1,7 @@
 import { lineTo, moveTo } from "../game/shape";
-import { SingleTile, Tile } from "./tiles";
+import { SingleTile, SquarePattern } from "./patterns";
 
-
-export const basic = new Tile(
+export const basic = new SquarePattern(
     { x: 1, y: 1 },
     { x: 0, y: 0 },
     [
@@ -15,7 +14,7 @@ export const basic = new Tile(
     ]
 );
 
-export const cross = new Tile(
+export const cross = new SquarePattern(
     { x: 2, y: 2 },
     { x: 1, y: -1 },
     [
@@ -36,7 +35,7 @@ export const cross = new Tile(
     ],
 );
 
-export const tessellations1 = new Tile(
+export const tessellations1 = new SquarePattern(
     { x: 3, y: 3 },
     { x: 0, y: 0 },
     ({ x, y }) => [

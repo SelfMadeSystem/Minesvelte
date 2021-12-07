@@ -1,7 +1,7 @@
 import { lineTo, moveTo } from "../game/shape";
-import { SingleTile, Tile } from "./tiles";
+import { SingleTile, SquarePattern } from "./patterns";
 
-export const hex = new Tile(
+export const hex = new SquarePattern(
     { x: 2, y: 1 },
     { x: 1, y: -1 },
     [
@@ -16,7 +16,7 @@ export const hex = new Tile(
     ]
 )
 
-export const triangle = new Tile(
+export const triangle = new SquarePattern(
     { x: 1, y: 1 },
     { x: 0, y: 0 },
     [
@@ -33,7 +33,7 @@ export const triangle = new Tile(
     ]
 )
 
-export const lozenges = new Tile(
+export const lozenges = new SquarePattern(
     { x: 2, y: 1 },
     { x: 1, y: -1 },
     [
@@ -58,7 +58,7 @@ export const lozenges = new Tile(
     ]
 )
 
-export const tetrille1 = new Tile(
+export const tetrille1 = new SquarePattern(
     { x: 2, y: 1 },
     { x: 1, y: -1 },
     [
@@ -83,7 +83,7 @@ export const tetrille1 = new Tile(
     ]
 )
 
-export const tetrille2 = new Tile(
+export const tetrille2 = new SquarePattern(
     { x: 5, y: 4 },
     { x: 1, y: -1 },
     [
@@ -132,7 +132,7 @@ export const tetrille2 = new Tile(
     ]
 )
 
-export const tetrille3 = new Tile(
+export const tetrille3 = new SquarePattern(
     { x: 5, y: 4 },
     { x: 1, y: -1 },
     [
@@ -229,7 +229,7 @@ export const tetrille3 = new Tile(
     ]
 )
 
-export const complex1 = new Tile(
+export const complex1 = new SquarePattern(
     { x: 4, y: 2 },
     { x: 2, y: -2 },
     [

@@ -6,7 +6,7 @@
     import type { Shape as Sh } from "../game/shape";
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
-    import * as tiles from "../tiles/squareTiles";
+    import * as patterns from "../patterns/squarePatterns";
     import { Solver } from "../game/solver";
     var grid = new HexGrid();
 
@@ -16,7 +16,7 @@
     grid.transformScaleAdjust.value = 50;
 
     grid.generateDefaultGrid(10);
-    // tiles.tessellations1.generateGrid(grid, { x: 5, y: 5 });
+    // patterns.tessellations1.generateGrid(grid, { x: 5, y: 5 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.16);
     grid.centerOnScreen();
