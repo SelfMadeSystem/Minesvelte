@@ -164,12 +164,14 @@ export class ShapeState {
     }
 }
 
+// Todo: make shapes and grid not integers. I don't need to make them integers lol.
 export class Shape {
     public contacts: Shape[] = [];
     public readonly shapeState: ShapeState = new ShapeState()
     public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
+    public A_position: Point;
     public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
     // public solver_selfShapeCollection: ShapeCollection; // For solver to use
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
@@ -326,5 +328,27 @@ export class Line {
 
     public get sizeSq(): number {
         return this.v2.distanceSq(this.v1);
+    }
+
+    public isBetween(currPoint: Point): boolean {
+        var point1 = this.p1;
+        var point2 = this.p2;
+        let dxc = currPoint.x - point1.x;
+        let dyc = currPoint.y - point1.y;
+
+        let dxl = point2.x - point1.x;
+        let dyl = point2.y - point1.y;
+
+        let cross = dxc * dyl - dyc * dxl;
+        if (Math.abs(cross) > 0.00001)
+            return false;
+        if (Math.abs(dxl) >= Math.abs(dyl))
+            return dxl > 0 ?
+                point1.x <= currPoint.x && currPoint.x <= point2.x :
+                point2.x <= currPoint.x && currPoint.x <= point1.x;
+        else
+            return dyl > 0 ?
+                point1.y <= currPoint.y && currPoint.y <= point2.y :
+                point2.y <= currPoint.y && currPoint.y <= point1.y;
     }
 }

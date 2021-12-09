@@ -35,6 +35,35 @@ export const cross = new SquarePattern(
     ],
 );
 
+export const alternatingTriangles = new SquarePattern(
+    { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    ({x, y}) => [
+        new SingleTile([
+            ...((x + y) % 2 >= 0 ? [
+                moveTo(0, 0),
+                lineTo(1, 0),
+                lineTo(1, 1),
+            ] : [
+                moveTo(0, 0),
+                lineTo(1, 0),
+                lineTo(0, 1),
+            ])
+        ]),
+        new SingleTile([
+            ...((x + y) % 2 >= 0 ? [
+                moveTo(0, 0),
+                lineTo(0, 1),
+                lineTo(1, 1),
+            ] : [
+                moveTo(1, 0),
+                lineTo(1, 1),
+                lineTo(0, 1),
+            ])
+        ]),
+    ]
+);
+
 export const tessellations1 = new SquarePattern(
     { x: 3, y: 3 },
     { x: 0, y: 0 },

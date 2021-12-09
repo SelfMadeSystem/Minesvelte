@@ -5,6 +5,7 @@ import { windowSize } from "../stores";
 import { lineTo, moveTo, Shape } from "./shape";
 import { Notifier, ValueNotifier } from "../utils/Notifier";
 
+// Todo: make shapes and grid not integers. I don't need to make them integers lol. (remove this class)
 export class GridPoint implements Point {
     constructor(
         public readonly x: number,
@@ -263,19 +264,20 @@ export class SquareGrid extends Grid {
     }
 
     public generateDefaultGrid(gridSize: number) {
-        let halfGridSize = Math.floor(gridSize / 2);
-        for (let x = -halfGridSize; x < halfGridSize + gridSize % 2; x++) {
-            for (let y = -halfGridSize; y < halfGridSize + gridSize % 2; y++) {
+        for (let x = 0; x < gridSize; x++) {
+            for (let y = 0; y < gridSize; y++) {
+                let shape = new Shape(
+                    this,
+                    [
+                        moveTo(x, y),
+                        lineTo(x + 1, y),
+                        lineTo(x + 1, y + 1),
+                        lineTo(x, y + 1),
+                    ]
+                )
+                shape.A_position = { x, y };
                 this.shapes.push(
-                    new Shape(
-                        this,
-                        [
-                            moveTo(x, y),
-                            lineTo(x + 1, y),
-                            lineTo(x + 1, y + 1),
-                            lineTo(x, y + 1),
-                        ]
-                    )
+                    shape
                 );
             }
         }

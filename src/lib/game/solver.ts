@@ -52,7 +52,7 @@ export class ShapeCollection {
     }
 
     public equals(other: ShapeCollection): boolean {
-        return this.shapes.length === other.shapes.length && this.minMines === other.minMines && this.maxMines === other.maxMines && this.shapes.every(shape => other.shapes.some(otherShape => shape === otherShape));
+        return this.shapes.length === other.shapes.length && this.shapes.every(shape => other.shapes.some(otherShape => shape === otherShape));
     }
 }
 
@@ -63,35 +63,47 @@ export class Solver {
         this.grid = grid;
     }
 
-    public solve() {
+    public async solve() {
         // this.solveWithCollections();
         while (true) {
-            if (this.solveBasic()) continue;
+            if (await this.solveBasic()) continue; // fixme
             // if (this.solveWithCollections()) continue;
             break;
         }
     }
 
-    private solveBasic() {
+    private async solveBasic() {
         const shapes = this.grid.shapes;
 
-        return shapes.some(shape => {
-            if (!shape.shapeState.noMineKnown || shape.contacts.every(contact => !contact.shapeState.unknown)) return;
+        function sleep(ms: number=250) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        var fuck = false;
+
+        for (const shape of shapes) {
+            if (!shape.shapeState.noMineKnown || shape.contacts.every(contact => !contact.shapeState.unknown)) continue;
             const minesAround = shape.contacts.filter(contact => contact.shapeState.mineKnown).length;
             if (shape.number === minesAround) {
-                shape.contacts.forEach(contact => {
+                for (const contact of shape.contacts) {
+                    if (!contact.shapeState.unknown) continue;
                     contact.reveal();
-                });
-                return true;
+                    await sleep();
+                }
+                fuck = true;
             } else if (shape.number - minesAround === shape.contacts.filter(contact => contact.shapeState.unknown).length) {
-                shape.contacts.forEach(contact => {
+                
+                for (const contact of shape.contacts) {
+                    if (!contact.shapeState.unknown) continue;
                     contact.flag();
-                });
-                return true;
+                    await sleep();
+                }
+                fuck = true;
             }
-        });
+        }
+        return fuck;
     }
-    
+
     private solveWithCollections(): boolean {
         const shapes = this.grid.shapes;
         shapes.forEach(shape => shape.solver_shapeCollections = []);
@@ -99,7 +111,6 @@ export class Solver {
         var found = false;
 
         const collections = this.splitCollections(this.findCollections());
-        debugger;
         collections.forEach(col => {
             if (col.size === 0) return;
             if (col.maxMines === 0) {
@@ -120,9 +131,16 @@ export class Solver {
             if (!shape.shapeState.noMineKnown || shape.contacts.every(contact => !contact.shapeState.unknown)) return;
             const minesAround = shape.contacts.filter(contact => contact.shapeState.mineKnown).length;
             const collection = new ShapeCollection(shape.contacts.filter(contact => contact.shapeState.unknown), shape.number - minesAround, shape.number - minesAround);
-            collections.push(collection);
-            // shape.solver_selfShapeCollection = collection;
-            collection.addToShapes();
+            if (!collections.some(col => col.equals(collection))) {
+                collections.push(collection);
+                // shape.solver_selfShapeCollection = collection;
+                collection.addToShapes();
+            } else {
+                const col = collections.find(col => col.equals(collection));
+                if (col.minMines < collection.minMines) col.minMines = collection.minMines;
+                if (col.maxMines > collection.maxMines) col.maxMines = collection.maxMines;
+               // shape.solver_selfShapeCollection = collections.find(col => col.equals(collection));
+            }
         });
         return collections;
     }
@@ -136,63 +154,52 @@ export class Solver {
             const collection = collections[i];
             var intersections = collection.intersectingCollections;
 
-            for (const col1 of intersections) {
-                const len1 = col1.size;
-                if (col1.minMines === 0 && col1.maxMines === 0) continue;
-                if (col1.minMines === len1 && col1.maxMines === len1) continue;
-                for (const col2 of intersections) {
-                    if (col1 === col2) continue;
-                    const len2 = col2.size;
-                    if (col2.minMines === 0 && col2.maxMines === 0) continue;
-                    if (col2.minMines === len2 && col2.maxMines === len2) continue;
-                    const intersection = col1.intersection(col2);
-                    const ilen = intersection.length;
-                    const d1 = len1 - ilen;
-                    const d2 = len2 - ilen;
+            const col1 = collection;
+            const len1 = col1.size;
+            if (col1.minMines === 0 && col1.maxMines === 0) continue;
+            if (col1.minMines === len1 && col1.maxMines === len1) continue;
+            for (const col2 of intersections) {
+                if (col1 === col2) continue;
+                const len2 = col2.size;
+                if (col2.minMines === 0 && col2.maxMines === 0) continue;
+                if (col2.minMines === len2 && col2.maxMines === len2) continue;
+                const intersection = col1.intersection(col2);
+                const ilen = intersection.length;
+                const d1 = len1 - ilen;
+                const d2 = len2 - ilen;
 
-                    const minInInter = Math.min(intersection.length, Math.max(0, col1.minMines - d1, col2.minMines - d2));
-                    const maxInInter = Math.min(intersection.length, Math.max(col1.maxMines, col2.maxMines));
+                const minInInter = Math.min(intersection.length, Math.max(0, col1.minMines - d1, col2.minMines - d2));
+                const maxInInter = Math.min(intersection.length, Math.max(col1.maxMines, col2.maxMines));
 
-                    // Fixme: idk what the max should be
-                    const new1 = new ShapeCollection(intersection, minInInter, maxInInter);
-                    const diff1 = col1.difference(intersection);
-                    const new2 = new ShapeCollection(diff1, col1.minMines - minInInter, Math.min(diff1.length, col1.maxMines - minInInter));
-                    const diff2 = col2.difference(intersection);
-                    const new3 = new ShapeCollection(diff2, col2.minMines - minInInter, Math.min(diff2.length, col2.maxMines - minInInter));
+                // Fixme: idk what the max should be
+                const new1 = new ShapeCollection(intersection, minInInter, maxInInter);
+                const diff1 = col1.difference(intersection);
+                const new2 = new ShapeCollection(diff1, col1.minMines - maxInInter, Math.min(diff1.length, col1.maxMines - minInInter));
+                const diff2 = col2.difference(intersection);
+                const new3 = new ShapeCollection(diff2, col2.minMines - maxInInter, Math.min(diff2.length, col2.maxMines - minInInter));
 
-                    var did = false;
-                    debugger;
+                var did = false;
 
-                    if (!collections.some(col => col.equals(new1))) {
-                        collections.push(new1);
-                        new1.addToShapes();
+                function doStuff(n: ShapeCollection) {
+                    if (!collections.some(col => col.equals(n))) {
+                        collections.push(n);
+                        n.addToShapes();
                         col1.removeFromShapes();
                         col2.removeFromShapes();
                         if (removeFromArray(collections, col1)) i--;
                         if (removeFromArray(collections, col2)) i--;
                         did = true;
+                    } else {
+                        const col = collections.find(col => col.equals(n));
+                        if (col.minMines < n.minMines) col.minMines = n.minMines;
+                        if (col.maxMines > n.maxMines) col.maxMines = n.maxMines;
                     }
-
-                    if (!collections.some(col => col.equals(new2))) {
-                        collections.push(new2);
-                        new2.addToShapes();
-                        col1.removeFromShapes();
-                        col2.removeFromShapes();
-                        if (removeFromArray(collections, col1)) i--;
-                        if (removeFromArray(collections, col2)) i--;
-                        did = true;
-                    }
-
-                    if (!collections.some(col => col.equals(new3))) {
-                        collections.push(new3);
-                        new3.addToShapes();
-                        col1.removeFromShapes();
-                        col2.removeFromShapes();
-                        if (removeFromArray(collections, col1)) i--;
-                        if (removeFromArray(collections, col2)) i--;
-                        did = true;
-                    }
-                    if (did) break;
+                }
+                doStuff(new1);
+                doStuff(new2);
+                doStuff(new3);
+                if (did) {
+                    break;
                 }
             }
         }

@@ -8,15 +8,15 @@
     import { windowSize } from "../stores";
     import * as patterns from "../patterns/squarePatterns";
     import { Solver } from "../game/solver";
-    var grid = new HexGrid();
+    var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
     var minesLeft: number = 0;
 
     grid.transformScaleAdjust.value = 50;
 
-    grid.generateDefaultGrid(10);
-    // patterns.tessellations1.generateGrid(grid, { x: 5, y: 5 });
+    // grid.generateDefaultGrid(10);
+    patterns.alternatingTriangles.generateGrid(grid, { x: 7, y: 7 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.16);
     grid.centerOnScreen();
