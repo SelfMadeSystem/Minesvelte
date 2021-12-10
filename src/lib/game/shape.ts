@@ -4,6 +4,7 @@ import Vec from "../utils/Vec";
 import type { Point } from "../utils/Vec";
 import { Notifier } from "../utils/Notifier";
 import type { ShapeCollection } from "./solver";
+import { Rect } from "../utils/rect";
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -173,12 +174,13 @@ export class Shape {
     hasChanged = true;
     public A_position: Point;
     public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
+    public bounds: Rect;
     // public solver_selfShapeCollection: ShapeCollection; // For solver to use
     constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         this.shapeState.hasMine = hasMine;
         this.shapeState.callback = () => this.shapeStateNotify.notify(this.shapeState);
         this.points.forEach(p => p.shape = this);
-        this.getPoints();
+        this.getBounds();
     }
 
     public get lines(): Line[] {
@@ -201,6 +203,26 @@ export class Shape {
     public get number() {
         return this.contacts.filter(s => s.shapeState.hasMine).length;
     }
+
+    public getBounds() {
+        var minX = Number.MAX_SAFE_INTEGER;
+        var minY = Number.MAX_SAFE_INTEGER;
+        var maxX = Number.MIN_SAFE_INTEGER;
+        var maxY = Number.MIN_SAFE_INTEGER;
+        this.points.forEach(p => {
+            if (p.x < minX) minX = p.x;
+            if (p.y < minY) minY = p.y;
+            if (p.x > maxX) maxX = p.x;
+            if (p.y > maxY) maxY = p.y;
+        });
+        this.bounds = new Rect({
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY,
+        });
+    }
+
     private uptadingContacts: boolean = false;
 
     updateContacts() {
@@ -233,60 +255,18 @@ export class Shape {
     }
 
     isAdjacent(other: Shape) {
-        return this._isAdjacent(this.lines, other.lines);
+        return this.lines.some(l => other.lines.some(ol => {
+            if (l.isParallel(ol)) {
+                return l.isBetweenExclusive(ol.p1) || l.isBetweenExclusive(ol.p2) || (
+                    l.isBetween(ol.p1) && l.isBetween(ol.p2)
+                );
+            }
+            return false;
+        }));
     }
 
     isCorner(other: Shape) { // includes adjacent
-        return this.getPoints().some(p => p.shapes.includes(other));
-        // const otherPoints = other.getPoints();
-        // return this.getPoints().some(p => otherPoints.some(p2 => p.x === p2.x && p.y === p2.y));
-        // return this._isCorner(this.lines, other.lines);
-    }
-
-    _isAdjacent(self: Line[], them: Line[]) {
-        return self.some(l1 => them.some(l2 => {
-            if (!(approx(l2.rotation, l1.rotation) || approx(l2.rotation, inverseAngle(l1.rotation)))) {
-                return false;
-            }
-            const points1 = this.grid.getAllInLine(l1.p1, l1.p2);
-            const points2 = this.grid.getAllInLine(l2.p1, l2.p2);
-            let found = false;
-            return points1.some(p => points2.some(p2 => {
-                if (p.x === p2.x && p.y === p2.y) {
-                    if (found) {
-                        return true;
-                    }
-                    found = true;
-                }
-            }))
-        }))
-    }
-
-    private prevPoints: GridPoint[] = [];
-
-    getPoints() {
-        if (!this.hasChanged) {
-            this.hasChanged = false;
-            return this.prevPoints;
-        }
-        var points: GridPoint[] = [];
-        const lines = this.lines;
-        for (let i = 0; i < lines.length; i++) {
-            const element = lines[i];
-            points.push(...this.grid.getAllInLine(element.p1, element.p2));
-        }
-        this.prevPoints.forEach(p => {
-            if (!points.some(p2 => p.x === p2.x && p.y === p2.y)) {
-                p.shapes.splice(p.shapes.indexOf(this), 1);
-            }
-        });
-        points.forEach(p => {
-            if (!p.shapes.includes(this)) {
-                p.shapes.push(this);
-            }
-        });
-        this.prevPoints = points;
-        return points;
+        return this.lines.some(l => other.points.some(p => l.isBetween(p)));
     }
 
     getCenter() {
@@ -330,6 +310,10 @@ export class Line {
         return this.v2.distanceSq(this.v1);
     }
 
+    public isParallel(other: Line): boolean {
+        return this.rotation === other.rotation || this.rotation === wrapAngle(other.rotation + 180);
+    }
+
     public isBetween(currPoint: Point): boolean {
         var point1 = this.p1;
         var point2 = this.p2;
@@ -342,6 +326,7 @@ export class Line {
         let cross = dxc * dyl - dyc * dxl;
         if (Math.abs(cross) > 0.00001)
             return false;
+
         if (Math.abs(dxl) >= Math.abs(dyl))
             return dxl > 0 ?
                 point1.x <= currPoint.x && currPoint.x <= point2.x :
@@ -350,5 +335,30 @@ export class Line {
             return dyl > 0 ?
                 point1.y <= currPoint.y && currPoint.y <= point2.y :
                 point2.y <= currPoint.y && currPoint.y <= point1.y;
+    }
+
+    public isBetweenExclusive(currPoint: Point): boolean {
+        var point1 = this.p1;
+        var point2 = this.p2;
+        let dxc = currPoint.x - point1.x;
+        let dyc = currPoint.y - point1.y;
+
+        let dxl = point2.x - point1.x;
+        let dyl = point2.y - point1.y;
+
+        let cross = dxc * dyl - dyc * dxl;
+        if (Math.abs(cross) > 0.00001)
+            return false;
+
+        const epsilon = 0.00001;
+
+        if (Math.abs(dxl) >= Math.abs(dyl))
+            return dxl > 0 ?
+                point1.x < currPoint.x - epsilon && currPoint.x < point2.x - epsilon :
+                point2.x < currPoint.x - epsilon && currPoint.x < point1.x - epsilon;
+        else
+            return dyl > 0 ?
+                point1.y < currPoint.y - epsilon && currPoint.y < point2.y - epsilon :
+                point2.y < currPoint.y - epsilon && currPoint.y < point1.y - epsilon;
     }
 }

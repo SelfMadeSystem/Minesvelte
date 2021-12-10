@@ -16,18 +16,24 @@
     grid.transformScaleAdjust.value = 50;
 
     // grid.generateDefaultGrid(10);
-    patterns.alternatingTriangles.generateGrid(grid, { x: 7, y: 7 });
+    patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 10, y: 10 });
     grid.resetShapes();
-    minesLeft = grid.setMineRatio(0.16);
+    minesLeft = grid.setMineRatio(0.10);
     grid.centerOnScreen();
+    // shapes.forEach((s) => s.reveal());
 
-    grid.notifyShapeStateChange.subscribe(() => {
-        shapes = shapes.sort(
-            (a, b) =>
-                a.shapeState.getZIndex(false) - b.shapeState.getZIndex(false)
-        );
-        minesLeft = grid.getMinesLeft();
-    });
+    grid.notifyShapeStateChange.subscribe((() => {
+        var _ = () => {
+            shapes = shapes.sort(
+                (a, b) =>
+                    a.shapeState.getZIndex(false) -
+                    b.shapeState.getZIndex(false)
+            );
+            minesLeft = grid.getMinesLeft();
+        };
+        _();
+        return _;
+    })());
 
     if (shapes) {
         shapes.forEach((s) => s._updateContacts());
@@ -139,6 +145,9 @@
 <div class="text-3xl font-semibold text-white text-center w-full z-10">
     {minesLeft}
 </div>
-<button on:click={solve} class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2">
+<button
+    on:click={solve}
+    class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2"
+>
     Solve
 </button>

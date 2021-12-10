@@ -38,7 +38,7 @@ export const cross = new SquarePattern(
 export const alternatingTriangles = new SquarePattern(
     { x: 1, y: 1 },
     { x: 0, y: 0 },
-    ({x, y}) => [
+    ({ x, y }) => [
         new SingleTile([
             ...((x + y) % 2 >= 0 ? [
                 moveTo(0, 0),
@@ -121,3 +121,145 @@ export const tessellations1 = new SquarePattern(
         ),
     ],
 );
+
+const s3o2 = Math.sqrt(3) / 2;
+
+export const squareAndTriales = new SquarePattern(
+    { x: 1, y: 1 + s3o2 },
+    ({ y }) => ({ x: y % 2 * 0.5, y: 0 }),
+    ({ y }) => [
+        new SingleTile([
+            moveTo(0, 0),
+            lineTo(1, 0),
+            lineTo(1, 1),
+            lineTo(0, 1),
+        ]),
+        new SingleTile([
+            moveTo(0, 1),
+            lineTo(0.5, 1 + s3o2),
+            lineTo(1, 1),
+        ]),
+        ...(y % 2 ? [
+            new SingleTile([
+                moveTo(0, 1),
+                lineTo(0.5, 1 + s3o2),
+                lineTo(-0.5, 1 + s3o2),
+            ]),] : [
+            new SingleTile([
+                moveTo(1, 1),
+                lineTo(0.5, 1 + s3o2),
+                lineTo(1.5, 1 + s3o2),
+            ]),
+        ]),
+    ]
+);
+
+export const squareTriangleAndHexagon = new SquarePattern(
+    { x: 1 + 2 * s3o2, y: 1.5 + s3o2 },
+    ({ y }) => ({ x: y % 2 * (-0.5 - s3o2), y: 0 }),
+    [
+        new SingleTile([
+            moveTo(0, 0),
+            lineTo(1, 0),
+            lineTo(1, 1),
+            lineTo(0, 1),
+        ]),
+        new SingleTile([
+            moveTo(0, 0),
+            lineTo(0.5, -s3o2),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, 0),
+            lineTo(0.5, -s3o2),
+            lineTo(0.5 + s3o2, -0.5 - s3o2),
+            lineTo(1 + s3o2, -0.5),
+        ]),
+        new SingleTile([
+            moveTo(1 + s3o2, -0.5),
+            lineTo(0.5 + s3o2, -0.5 - s3o2),
+            lineTo(1.5 + s3o2, -0.5 - s3o2),
+        ]),
+        new SingleTile([
+            moveTo(1 + 2 * s3o2, 0),
+            lineTo(1.5 + 2 * s3o2, -s3o2),
+            lineTo(1.5 + s3o2, -0.5 - s3o2),
+            lineTo(1 + s3o2, -0.5),
+        ]),
+
+        new SingleTile([
+            moveTo(1, 0),
+            lineTo(1, 1),
+            lineTo(1 + s3o2, 1.5),
+            lineTo(1 + 2 * s3o2, 1),
+            lineTo(1 + 2 * s3o2, 0),
+            lineTo(1 + s3o2, -0.5),
+        ]),
+    ],
+    [],
+    [
+        new SingleTile([
+            moveTo(0.5, 1 + s3o2),
+            lineTo(0, 1),
+            lineTo(1, 1),
+        ]),
+        new SingleTile([
+            moveTo(0.5 + s3o2, 1.5 + s3o2),
+            lineTo(1 + s3o2, 1.5),
+            lineTo(1.5 + s3o2, 1.5 + s3o2),
+        ]),
+
+        new SingleTile([
+            moveTo(0.5 + s3o2, 1.5 + s3o2),
+            lineTo(1 + s3o2, 1.5),
+            lineTo(1, 1),
+            lineTo(0.5, 1 + s3o2),
+        ]),
+        new SingleTile([
+            moveTo(1.5 + s3o2, 1.5 + s3o2),
+            lineTo(1 + s3o2, 1.5),
+            lineTo(1 + 2 * s3o2, 1),
+            lineTo(1.5 + 2 * s3o2, 1 + s3o2),
+        ]),
+    ],
+    ({ y }, { y: my }) => [
+        ...(y % 2 && y !== my - 1 ? [new SingleTile([
+            moveTo(0.5, 1 + s3o2),
+            lineTo(0, 1),
+            lineTo(1, 1),
+        ]),
+        new SingleTile([
+            moveTo(0.5 + s3o2, 1.5 + s3o2),
+            lineTo(1 + s3o2, 1.5),
+            lineTo(1, 1),
+            lineTo(0.5, 1 + s3o2),
+        ]),] : []),
+    ],
+    ({ y }, { y: my }) => [
+        new SingleTile([
+            moveTo(1 + 2 * s3o2, 0),
+            lineTo(2 + 2 * s3o2, 0),
+            lineTo(2 + 2 * s3o2, 1),
+            lineTo(1 + 2 * s3o2, 1),
+        ]),
+        new SingleTile([
+            moveTo(1 + 2 * s3o2, 0),
+            lineTo(1.5 + 2 * s3o2, -s3o2),
+            lineTo(2 + 2 * s3o2, 0),
+        ]),
+        ...(!(y % 2) || y == my - 1 ? [
+            new SingleTile([
+                moveTo(1.5 + 2 * s3o2, 1 + s3o2),
+                lineTo(1 + 2 * s3o2, 1),
+                lineTo(2 + 2 * s3o2, 1),
+            ]),
+        ] : []),
+        ...(!(y % 2) && y != my - 1 ? [new SingleTile([
+            moveTo(1.5 + s3o2, 1.5 + s3o2),
+            lineTo(1 + s3o2, 1.5),
+            lineTo(1 + 2 * s3o2, 1),
+            lineTo(1.5 + 2 * s3o2, 1 + s3o2),
+        ]),] : []),
+    ],
+);
+// (1 + 2 * s3o2)/2 = 0.5 + s3o2

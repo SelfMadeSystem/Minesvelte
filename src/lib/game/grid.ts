@@ -22,7 +22,7 @@ export function getMousePoint(x: number, y: number, grid: Grid): Point {
         x: vec1.x,
         y: vec1.y,
     });
-    return grid.getPoint(Math.round(a), Math.round(b));
+    return { x: Math.round(a), y: Math.round(b) };
 }
 
 export function mouseDistFromClosestPoint(
@@ -64,21 +64,14 @@ getShapeCountWithMines(): number {
 */
 
 export abstract class Grid {
-    protected _grid: { [key: number]: { [key: number]: GridPoint } };
-    protected _allPoints: GridPoint[] = [];
     public shapes: Shape[] = [];
     public transformScaleAdjust: ValueNotifier<number> = new ValueNotifier(1);
     public transformScale: ValueNotifier<number> = new ValueNotifier(1);
     public transformPosition: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public transformPositionAdjust: ValueNotifier<Point> = new ValueNotifier(new Vec());
-    public notifyNewPoint: Notifier<{ newPoint: Point, grid: Grid }> = new Notifier();
     public notifyShapeStateChange: Notifier<Shape> = new Notifier();
 
-    constructor(grid?: { [key: number]: { [key: number]: GridPoint } }) {
-        this._grid = grid || {} as { [key: number]: { [key: number]: GridPoint } };
-        this.notifyNewPoint.subscribe(({ newPoint, grid }) => {
-            this.minMax = undefined;
-        });
+    constructor() {
     }
 
     public resetShapes() {
@@ -91,26 +84,6 @@ export abstract class Grid {
                 this.notifyShapeStateChange.notify(shape);
             });
         });
-    }
-
-    public getAllPoints(): GridPoint[] {
-        return this._allPoints;
-    }
-
-    public getPoint(x: number, y: number): GridPoint {
-        let col = this._grid[x];
-        if (col) {
-            let pnt = col[y];
-            if (pnt) {
-                return pnt;
-            }
-        } else {
-            col = this._grid[x] = {};
-        }
-        col[y] = new GridPoint(x, y);
-        this._allPoints.push(col[y]);
-        this.notifyNewPoint.notify({ newPoint: col[y], grid: this });
-        return col[y];
     }
 
     public fromMousePos(x: number, y: number): Point {
@@ -146,11 +119,21 @@ export abstract class Grid {
     private minMax: { min: Point, max: Point };
     public getMinMax(): { min: Point, max: Point } {
         if (!this.minMax) {
-            return this.minMax = this._allPoints.reduce(
-                (prev, curr) => ({
-                    min: { x: Math.min(prev.min.x, curr.x), y: Math.min(prev.min.y, curr.y) },
-                    max: { x: Math.max(prev.max.x, curr.x), y: Math.max(prev.max.y, curr.y) },
-                }),
+            return this.minMax = this.shapes.reduce(
+                (prev, curr) => {
+                    const min = curr.bounds.min;
+                    const max = curr.bounds.max;
+                    return {
+                        min: {
+                            x: Math.min(prev.min.x, min.x),
+                            y: Math.min(prev.min.y, min.y),
+                        },
+                        max: {
+                            x: Math.max(prev.max.x, max.x),
+                            y: Math.max(prev.max.y, max.y),
+                        },
+                    };
+                },
                 { min: { x: Infinity, y: Infinity }, max: { x: -Infinity, y: -Infinity } }
             );
         } else {
@@ -161,13 +144,20 @@ export abstract class Grid {
     private minMaxVector: { min: Point, max: Point };
     public getMinMaxAsVector(): { min: Point, max: Point } {
         if (!this.minMaxVector) {
-            return this.minMaxVector = this._allPoints.reduce(
+            return this.minMax = this.shapes.reduce(
                 (prev, curr) => {
-                    var v = this.toVector(curr);
+                    const min = this.toVector(curr.bounds.min);
+                    const max = this.toVector(curr.bounds.max);
                     return {
-                        min: { x: Math.min(prev.min.x, v.x), y: Math.min(prev.min.y, v.y) },
-                        max: { x: Math.max(prev.max.x, v.x), y: Math.max(prev.max.y, v.y) },
-                    }
+                        min: {
+                            x: Math.min(prev.min.x, min.x),
+                            y: Math.min(prev.min.y, min.y),
+                        },
+                        max: {
+                            x: Math.max(prev.max.x, max.x),
+                            y: Math.max(prev.max.y, max.y),
+                        },
+                    };
                 },
                 { min: { x: Infinity, y: Infinity }, max: { x: -Infinity, y: -Infinity } }
             );
@@ -201,25 +191,6 @@ export abstract class Grid {
     public abstract fromVector({ x, y }: Point): Vec;
 
     public abstract isAdjacent({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): boolean;
-
-    public getAllInLine({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): GridPoint[] {
-        const points: GridPoint[] = [];
-        const dx = Math.abs(x1 - x2);
-        const dy = Math.abs(y1 - y2);
-        const sx = x1 < x2 ? 1 : -1;
-        const sy = y1 < y2 ? 1 : -1;
-        const dxyGCD = gcd(dx, dy);
-        const dx2 = dx / dxyGCD;
-        const dy2 = dy / dxyGCD;
-        let x3 = x1;
-        let y3 = y1;
-        for (let i = 0; i <= dxyGCD; i++) {
-            points.push(this.getPoint(x3, y3));
-            x3 += dx2 * sx;
-            y3 += dy2 * sy;
-        }
-        return points;
-    }
 
     public abstract generateDefaultGrid(size: number): void;
 

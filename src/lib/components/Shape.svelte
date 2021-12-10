@@ -1,6 +1,6 @@
 <script lang="ts">
     import { afterUpdate, tick } from "svelte";
-    import { moveShapePoint, Shape } from "../game/shape";
+    import type { moveShapePoint, Shape } from "../game/shape";
     import {
         getMousePoint,
         Grid,
@@ -153,14 +153,14 @@
         if (dragging >= 0) {
             clickPoint = { x, y };
             if (dragging === -1) return;
-            var point = grid.getPoint(x, y);
-            shape.points[dragging].x = point.x;
-            shape.points[dragging].y = point.y;
+            // var point = grid.getPoint(x, y);
+            // shape.points[dragging].x = point.x;
+            // shape.points[dragging].y = point.y;
         } else {
             clickPoint = { x, y };
-            shape.points.forEach((p) =>
-                moveShapePoint(p, grid.getPoint(p.x + diff.x, p.y + diff.y))
-            );
+            // shape.points.forEach((p) =>
+            //     moveShapePoint(p, grid.getPoint(p.x + diff.x, p.y + diff.y))
+            // );
         }
         pointsStr = shape.toString();
         shape.updateContacts();
