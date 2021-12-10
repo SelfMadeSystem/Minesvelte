@@ -1,6 +1,5 @@
 import Vec from "../utils/Vec";
 import type { Point } from "../utils/Vec";
-import { gcd } from "../utils/Math";
 import { windowSize } from "../stores";
 import { lineTo, moveTo, Shape } from "./shape";
 import type { MineLine } from "./mineLine";

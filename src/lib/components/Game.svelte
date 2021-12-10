@@ -2,7 +2,9 @@
     import Canvas from "./Canvas.svelte";
     import { HexGrid, SquareGrid } from "../game/grid";
     import Shape from "./Shape.svelte";
+    import MineLine from "./MineLine.svelte";
     import type { Shape as Sh } from "../game/shape";
+    import { MineLine as Ml } from "../game/mineLine";
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
     import * as patterns from "../patterns/hexPatterns";
@@ -10,7 +12,9 @@
     var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
+    var mineLines = grid.mineLines;
     var minesLeft: number = 0;
+    mineLines.push(new Ml(grid, {x: 0, y: 0.5}, 0 * Math.PI / 180));
 
     grid.transformScaleAdjust.value = 50;
 
@@ -19,10 +23,11 @@
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.1);
     grid.centerOnScreen();
-    // shapes.forEach((s) => {
-    //     if (s.shapeState.hasMine) s.flag();
-    //     else s.reveal();
-    // });
+    shapes.forEach((s) => {
+        if (s.shapeState.hasMine) s.flag();
+        else s.reveal();
+    });
+    mineLines.forEach(ml => ml.updateContacts())
 
     grid.notifyShapeStateChange.subscribe(
         (() => {
@@ -133,6 +138,12 @@
         {#each shapes as shape}
             <!-- remove this nonsense -->
             <Shape {grid} {shape} />
+        {/each}
+    </g>
+    <g id="lines">
+        {#each mineLines as line}
+            <!-- remove this nonsense -->
+            <MineLine {grid} {line} />
         {/each}
     </g>
     <!-- <g id="owo">

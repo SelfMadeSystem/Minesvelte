@@ -10,7 +10,7 @@
     var path: SVGPathElement;
 
     var pathPosition: Vec;
-    var num: number;
+    var text: string;
     var zIndex: number = 1;
 
     $: pointsStr = shape.toString();
@@ -24,10 +24,10 @@
     }
     function updatePath() {
         if (path) {
-            pathPosition = Vec.from(grid.toVector(shape.getCenter()));
+            pathPosition = Vec.from(grid.toVector(shape.getTextPosition()));
         }
         pointsStr = shape.toString();
-        num = shape.number;
+        text = shape.getText();
     }
 
     shape.shapeStateNotify.subscribe((state) => {
@@ -94,7 +94,8 @@
         stroke-linejoin="round"
         on:mousedown={onMouseDown}
     />
-    {#if num > 0 && path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine}
+    <!-- num > 0 && path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine -->
+    {#if text }
         <text
             x={pathPosition.x}
             y={pathPosition.y}
@@ -104,7 +105,7 @@
             font-family="monospace"
             fill={color.stroke}
         >
-            {num}
+            {text}
         </text>
     {/if}
 </g>

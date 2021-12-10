@@ -1,10 +1,10 @@
-import { inverseAngle, toDeg, wrapAngle, approx } from "../utils/Math";
 import type { Grid } from "./grid";
-import Vec from "../utils/Vec";
 import type { Point } from "../utils/Vec";
 import { Notifier } from "../utils/Notifier";
 import type { ShapeCollection } from "./solver";
 import { Rect } from "../utils/rect";
+import { Line } from "../utils/Line";
+import { BasicHint } from "./basicHint";
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -166,7 +166,7 @@ export class ShapeState {
 }
 
 // Todo: make shapes and grid not integers. I don't need to make them integers lol.
-export class Shape {
+export class Shape extends BasicHint {
     public contacts: Shape[] = [];
     public readonly shapeState: ShapeState = new ShapeState()
     public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
@@ -176,7 +176,8 @@ export class Shape {
     public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
     public bounds: Rect;
     // public solver_selfShapeCollection: ShapeCollection; // For solver to use
-    constructor(public readonly grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
+    constructor(grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
+        super(grid);
         this.shapeState.hasMine = hasMine;
         this.shapeState.callback = () => this.shapeStateNotify.notify(this.shapeState);
         this.points.forEach(p => p.shape = this);
@@ -190,14 +191,14 @@ export class Shape {
         for (let i = 1; i < this.points.length; i++) {
             const p = this.points[i];
             if (p.move) {
-                lines.push(new Line(this.grid, prev, first));
+                lines.push(new Line(prev, first));
                 first = p;
             } else {
-                lines.push(new Line(this.grid, p, prev));
+                lines.push(new Line(p, prev));
             }
             prev = p;
         }
-        lines.push(new Line(this.grid, prev, first));
+        lines.push(new Line(prev, first));
         return lines;
     }
     public get number() {
@@ -269,7 +270,7 @@ export class Shape {
         return this.lines.some(l => other.points.some(p => l.isBetween(p)));
     }
 
-    getCenter() {
+    getTextPosition() {
         var center = { x: this.points[0].x, y: this.points[0].y }
         for (let i = 1; i < this.points.length; i++) {
             var p = this.points[i];
@@ -281,84 +282,17 @@ export class Shape {
         return center;
     }
 
+    getText() {
+        if (this.shapeState.isRevealed) {
+            if (this.shapeState.hasMine) {
+                return "";
+            }
+            return this.number === 0 ? "" : this.number.toString();
+        }
+        return "";
+    }
+
     toString() {
         return this.points.map(p => p.toString(this.grid)).join(' ').slice(2) + ' z';
-    }
-}
-
-export class Line {
-    public readonly v1: Vec;
-    public readonly v2: Vec;
-    constructor(public readonly grid: Grid, public readonly p1: Point, public readonly p2: Point) {
-        this.v1 = new Vec(p1.x, p1.y);
-        this.v2 = new Vec(p2.x, p2.y);
-    }
-
-    public get dx(): number {
-        return this.p2.x - this.p1.x;
-    }
-
-    public get dy(): number {
-        return this.p2.y - this.p1.y;
-    }
-
-    public get rotation(): number {
-        return wrapAngle(toDeg(Math.atan2(this.dy, this.dx)));
-    }
-
-    public get sizeSq(): number {
-        return this.v2.distanceSq(this.v1);
-    }
-
-    public isParallel(other: Line): boolean {
-        return this.rotation === other.rotation || this.rotation === wrapAngle(other.rotation + 180);
-    }
-
-    public isBetween(currPoint: Point): boolean {
-        var point1 = this.p1;
-        var point2 = this.p2;
-        let dxc = currPoint.x - point1.x;
-        let dyc = currPoint.y - point1.y;
-
-        let dxl = point2.x - point1.x;
-        let dyl = point2.y - point1.y;
-
-        let cross = dxc * dyl - dyc * dxl;
-        if (Math.abs(cross) > 0.00001)
-            return false;
-
-        if (Math.abs(dxl) >= Math.abs(dyl))
-            return dxl > 0 ?
-                point1.x <= currPoint.x && currPoint.x <= point2.x :
-                point2.x <= currPoint.x && currPoint.x <= point1.x;
-        else
-            return dyl > 0 ?
-                point1.y <= currPoint.y && currPoint.y <= point2.y :
-                point2.y <= currPoint.y && currPoint.y <= point1.y;
-    }
-
-    public isBetweenExclusive(currPoint: Point): boolean {
-        var point1 = this.p1;
-        var point2 = this.p2;
-        let dxc = currPoint.x - point1.x;
-        let dyc = currPoint.y - point1.y;
-
-        let dxl = point2.x - point1.x;
-        let dyl = point2.y - point1.y;
-
-        let cross = dxc * dyl - dyc * dxl;
-        if (Math.abs(cross) > 0.00001)
-            return false;
-
-        const epsilon = 0.00001;
-
-        if (Math.abs(dxl) >= Math.abs(dyl))
-            return dxl > 0 ?
-                point1.x < currPoint.x - epsilon && currPoint.x < point2.x - epsilon :
-                point2.x < currPoint.x - epsilon && currPoint.x < point1.x - epsilon;
-        else
-            return dyl > 0 ?
-                point1.y < currPoint.y - epsilon && currPoint.y < point2.y - epsilon :
-                point2.y < currPoint.y - epsilon && currPoint.y < point1.y - epsilon;
     }
 }
