@@ -1,6 +1,5 @@
 <script lang="ts">
     import Canvas from "./Canvas.svelte";
-    import Grid from "./Grid.svelte";
     import { getMousePoint, HexGrid, SquareGrid } from "../game/grid";
     import Shape from "./Shape.svelte";
     import type { Shape as Sh } from "../game/shape";
@@ -125,9 +124,6 @@
     {scale}
     {scaleAdjust}
 >
-    <g id="grid">
-        <Grid {grid} />
-    </g>
     <g id="shapes">
         {#each shapes as shape}
             <!-- remove this nonsense -->
