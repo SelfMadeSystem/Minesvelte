@@ -3,68 +3,12 @@ import type { Point } from "../utils/Vec";
 import { gcd } from "../utils/Math";
 import { windowSize } from "../stores";
 import { lineTo, moveTo, Shape } from "./shape";
+import type { MineLine } from "./mineLine";
 import { Notifier, ValueNotifier } from "../utils/Notifier";
-
-// Todo: make shapes and grid not integers. I don't need to make them integers lol. (remove this class)
-export class GridPoint implements Point {
-    constructor(
-        public readonly x: number,
-        public readonly y: number,
-        public readonly shapes: Shape[] = []) {
-    }
-}
-
-export function getMousePoint(x: number, y: number, grid: Grid): Point {
-    const relativeX = x - windowSize.width / 2;
-    const relativeY = y - windowSize.height / 2;
-    const vec1 = grid.inverseTransform(new Vec(relativeX, relativeY));
-    const { x: a, y: b } = grid.fromVector({
-        x: vec1.x,
-        y: vec1.y,
-    });
-    return { x: Math.round(a), y: Math.round(b) };
-}
-
-export function mouseDistFromClosestPoint(
-    x: number,
-    y: number,
-    grid: Grid,
-    points?: Point[]
-): number {
-    const relativeX = x - windowSize.width / 2;
-    const relativeY = y - windowSize.height / 2;
-    const vec1 = grid.inverseTransform(new Vec(relativeX, relativeY));
-    const { x: a, y: b } = grid.fromVector({
-        x: vec1.x,
-        y: vec1.y,
-    });
-    if (points) {
-        const closestPoint = points.reduce(
-            (prev, curr) =>
-                Math.hypot(a - curr.x, b - curr.y) <
-                    Math.hypot(a - prev.x, b - prev.y)
-                    ? curr
-                    : prev,
-            { x: 0, y: 0 }
-        );
-        return grid.fromVector({ x: a - closestPoint.x, y: b - closestPoint.y }).length();
-    } else {
-        return grid.fromVector({ x: a - relativeX, y: b - relativeY }).length();
-    }
-}
-
-/*
-getShapeCountWithMines(): number {
-        return this.shapes.reduce((prev, curr) => prev + (curr.shapeInfo.hasMine ? 1 : 0), 0);
-    }
-
-    getFlaggedShapeCount(): number {
-        return this.shapes.reduce((prev, curr) => prev + (curr.shapeInfo.isFlagged ? 1 : 0), 0);
-    }
-*/
 
 export abstract class Grid {
     public shapes: Shape[] = [];
+    public mineLines: MineLine[] = [];
     public transformScaleAdjust: ValueNotifier<number> = new ValueNotifier(1);
     public transformScale: ValueNotifier<number> = new ValueNotifier(1);
     public transformPosition: ValueNotifier<Point> = new ValueNotifier(new Vec());

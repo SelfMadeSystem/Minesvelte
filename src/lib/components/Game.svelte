@@ -1,11 +1,11 @@
 <script lang="ts">
     import Canvas from "./Canvas.svelte";
-    import { getMousePoint, HexGrid, SquareGrid } from "../game/grid";
+    import { HexGrid, SquareGrid } from "../game/grid";
     import Shape from "./Shape.svelte";
     import type { Shape as Sh } from "../game/shape";
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
-    import * as patterns from "../patterns/squarePatterns";
+    import * as patterns from "../patterns/hexPatterns";
     import { Solver } from "../game/solver";
     var grid = new SquareGrid();
 
@@ -14,25 +14,30 @@
 
     grid.transformScaleAdjust.value = 50;
 
-    // grid.generateDefaultGrid(10);
-    patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 10, y: 10 });
+    grid.generateDefaultGrid(10);
+    // patterns.tetrille2.generateGrid(grid, { x: 5, y: 5 });
     grid.resetShapes();
-    minesLeft = grid.setMineRatio(0.10);
+    minesLeft = grid.setMineRatio(0.1);
     grid.centerOnScreen();
-    // shapes.forEach((s) => s.reveal());
+    // shapes.forEach((s) => {
+    //     if (s.shapeState.hasMine) s.flag();
+    //     else s.reveal();
+    // });
 
-    grid.notifyShapeStateChange.subscribe((() => {
-        var _ = () => {
-            shapes = shapes.sort(
-                (a, b) =>
-                    a.shapeState.getZIndex(false) -
-                    b.shapeState.getZIndex(false)
-            );
-            minesLeft = grid.getMinesLeft();
-        };
-        _();
-        return _;
-    })());
+    grid.notifyShapeStateChange.subscribe(
+        (() => {
+            var _ = () => {
+                shapes = shapes.sort(
+                    (a, b) =>
+                        a.shapeState.getZIndex(false) -
+                        b.shapeState.getZIndex(false)
+                );
+                minesLeft = grid.getMinesLeft();
+            };
+            _();
+            return _;
+        })()
+    );
 
     if (shapes) {
         shapes.forEach((s) => s._updateContacts());

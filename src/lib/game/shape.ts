@@ -1,5 +1,5 @@
 import { inverseAngle, toDeg, wrapAngle, approx } from "../utils/Math";
-import type { Grid, GridPoint } from "./grid";
+import type { Grid } from "./grid";
 import Vec from "../utils/Vec";
 import type { Point } from "../utils/Vec";
 import { Notifier } from "../utils/Notifier";
