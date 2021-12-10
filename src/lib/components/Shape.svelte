@@ -1,11 +1,11 @@
 <script lang="ts">
     import { afterUpdate, tick } from "svelte";
-    import { moveShapePoint, Shape } from "../utils/Shape";
+    import type { moveShapePoint, Shape } from "../game/shape";
     import {
         getMousePoint,
         Grid,
         mouseDistFromClosestPoint
-    } from "../utils/Grid";
+    } from "../game/grid";
     import { getShapeColorByState } from "../utils/Colors";
     import Vec from "../utils/Vec";
     import type { Point } from "../utils/Vec";
@@ -18,11 +18,12 @@
 
     var pathPosition: Vec;
     var num: number;
+    var zIndex: number = 1;
 
     $: pointsStr = shape.toString();
     $: color = getShapeColorByState(
-        shape.shapeInfo.color,
-        shape.shapeInfo.getState(false)
+        shape.shapeState.color,
+        shape.shapeState.getState(false)
     );
     $: {
         grid;
@@ -30,20 +31,20 @@
     }
     function updatePath() {
         if (path) {
-            pathPosition = Vec.from(grid.applyMatrix(grid.toVector(shape.getCenter())));
+            pathPosition = Vec.from(grid.toVector(shape.getCenter()));
         }
         pointsStr = shape.toString();
         num = shape.number;
     }
 
-    grid.tranformMatrix.subscribe(updatePath);
-    shape.callback = () => {
+    shape.shapeStateNotify.subscribe((state) => {
         color = getShapeColorByState(
-            shape.shapeInfo.color,
-            shape.shapeInfo.getState(false)
+            state.color,
+            state.getState(false)
         );
         updatePath();
-    };
+        zIndex = state.getZIndex(false);
+    });
 
     afterUpdate(() => {
         updatePath();
@@ -53,41 +54,42 @@
         switch (e.button) {
             case 0:
                 if (e.shiftKey) {
-                    clicking = true;
-                    e.preventDefault();
-                    e.stopPropagation();
-                    clickPoint = getMousePoint(e.clientX, e.clientY, grid);
-                    var d = mouseDistFromClosestPoint(
-                        e.clientX,
-                        e.clientY,
-                        grid,
-                        shape.points
-                    );
-                    if (d < 0.5) {
-                        dragging = shape.points.findIndex(
-                            (p) => p.x === clickPoint.x && p.y === clickPoint.y
-                        );
-                    } else {
-                        dragging = -1;
-                    }
+                    // clicking = true;
+                    // e.preventDefault();
+                    // e.stopPropagation();
+                    // clickPoint = getMousePoint(e.clientX, e.clientY, grid);
+                    // var d = mouseDistFromClosestPoint(
+                    //     e.clientX,
+                    //     e.clientY,
+                    //     grid,
+                    //     shape.points
+                    // );
+                    // if (d < 0.5) {
+                    //     dragging = shape.points.findIndex(
+                    //         (p) => p.x === clickPoint.x && p.y === clickPoint.y
+                    //     );
+                    // } else {
+                    //     dragging = -1;
+                    // }
+                    shape.shapeState.hasMine = !shape.shapeState.hasMine;
                     break;
                 }
-                if (shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine) {
-                    var a = shape.contacts.filter((c) => c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed));
+                if (shape.shapeState.isRevealed && !shape.shapeState.hasMine) {
+                    var a = shape.contacts.filter((c) => c.shapeState.isFlagged || (c.shapeState.hasMine && c.shapeState.isRevealed));
                     if (a.length == shape.number) {
-                        shape.contacts.filter((c) => !(c.shapeInfo.isFlagged || (c.shapeInfo.hasMine && c.shapeInfo.isRevealed))).forEach((c) => {
+                        shape.contacts.filter((c) => !(c.shapeState.isFlagged || (c.shapeState.hasMine && c.shapeState.isRevealed))).forEach((c) => {
                             c.reveal();
                         });
                     }
                     return;
                 }
-                if (shape.shapeInfo.getState(false) == "normal") shape.reveal();
+                if (shape.shapeState.getState(false) == "normal") shape.reveal();
                 break;
             case 2:
-                shape.shapeInfo.isFlagged = !shape.shapeInfo.isFlagged;
+                shape.shapeState.isFlagged = !shape.shapeState.isFlagged;
                 break;
             case 1:
-                shape.shapeInfo.hasMine = !shape.shapeInfo.hasMine;
+                shape.shapeState.hasMine = !shape.shapeState.hasMine;
                 break;
         }
         /* switch (e.button) {
@@ -151,20 +153,20 @@
         if (dragging >= 0) {
             clickPoint = { x, y };
             if (dragging === -1) return;
-            var point = grid.getPoint(x, y);
-            shape.points[dragging].x = point.x;
-            shape.points[dragging].y = point.y;
+            // var point = grid.getPoint(x, y);
+            // shape.points[dragging].x = point.x;
+            // shape.points[dragging].y = point.y;
         } else {
             clickPoint = { x, y };
-            shape.points.forEach((p) =>
-                moveShapePoint(p, grid.getPoint(p.x + diff.x, p.y + diff.y))
-            );
+            // shape.points.forEach((p) =>
+            //     moveShapePoint(p, grid.getPoint(p.x + diff.x, p.y + diff.y))
+            // );
         }
         pointsStr = shape.toString();
         shape.updateContacts();
-        shape.contacts.forEach((c) => {
-            c.callback(c);
-        });
+        // shape.contacts.forEach((c) => {
+        //     c.callback(c);
+        // });
     }
 </script>
 
@@ -175,19 +177,19 @@
         d={pointsStr}
         fill={color.fill}
         stroke={color.stroke}
-        stroke-width="4"
+        stroke-width="0.05"
         stroke-linecap="round"
         stroke-linejoin="round"
         on:mousedown={onMouseDown}
         on:mouseup={onMouseUp}
     />
-    {#if path && pathPosition && shape.shapeInfo.isRevealed && !shape.shapeInfo.hasMine}
+    {#if (num > 0) && path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine}
         <text
             x={pathPosition.x}
             y={pathPosition.y}
             text-anchor="middle"
             dominant-baseline="central"
-            font-size="24"
+            font-size="0.5"
             font-family="monospace"
             fill={color.stroke}
         >
