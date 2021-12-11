@@ -105,6 +105,13 @@ export class ShapeState {
         this._hasMine = value;
         this.callback(this);
     }
+    public get isHighlighed(): boolean {
+        return this._isHighlighed;
+    }
+    public set isHighlighed(value: boolean) {
+        this._isHighlighed = value;
+        this.callback(this);
+    }
     public get color(): string {
         return this._color;
     }
@@ -128,6 +135,7 @@ export class ShapeState {
         private _hasMine: boolean = false,
         private _isFlagged: boolean = false,
         private _isRevealed: boolean = false,
+        private _isHighlighed: boolean = false,
         public callback: (info: ShapeState) => void = () => { },
     ) {
     }
@@ -143,7 +151,7 @@ export class ShapeState {
             return "flagged";
         }
         if (hovering) {
-            return "hovering";
+            return "hover";
         }
         return "normal";
     }

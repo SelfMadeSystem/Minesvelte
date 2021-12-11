@@ -2,6 +2,8 @@ export class ShapeColor {
     constructor(
         public readonly stroke: string,
         public readonly fill: string,
+        public readonly highlightFill: string = fill,
+        public readonly highlighStroke: string = stroke,
     ) {
     }
 }
@@ -19,10 +21,10 @@ export class MineColor {
 
 export const colors: { [key: string]: MineColor } = {
     'default': new MineColor(
-        new ShapeColor('#c8c3bc', '#52585c'),
-        new ShapeColor('#c8c3bc', '#52585c'),
-        new ShapeColor('#880', '#330'),
-        new ShapeColor('#800', '#300'),
+        new ShapeColor('#c8c3bc', '#52585c', '#464b4f'),
+        new ShapeColor('#c8c3bc', '#414649'),
+        new ShapeColor('#880', '#330', '#292900'),
+        new ShapeColor('#800', '#300', '#290000'),
         new ShapeColor('#c8c3bc', '#313538'),
     ),
 }

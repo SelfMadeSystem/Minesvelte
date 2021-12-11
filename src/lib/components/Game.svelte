@@ -7,26 +7,26 @@
     import { MineLine as Ml } from "../game/mineLine";
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
-    import * as patterns from "../patterns/hexPatterns";
+    import * as patterns from "../patterns/squarePatterns";
     import { Solver } from "../game/solver";
     var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
     var mineLines = grid.mineLines;
     var minesLeft: number = 0;
-    mineLines.push(new Ml(grid, {x: 0, y: 0.5}, 0 * Math.PI / 180));
+    mineLines.push(new Ml(grid, {x: 0, y: 0}, 45 * Math.PI / 180));
 
     grid.transformScaleAdjust.value = 50;
 
-    grid.generateDefaultGrid(10);
-    // patterns.tetrille2.generateGrid(grid, { x: 5, y: 5 });
+    // grid.generateDefaultGrid(10);
+    patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 6, y: 5 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.1);
     grid.centerOnScreen();
-    shapes.forEach((s) => {
-        if (s.shapeState.hasMine) s.flag();
-        else s.reveal();
-    });
+    // shapes.forEach((s) => {
+    //     if (s.shapeState.hasMine) s.flag();
+    //     else s.reveal();
+    // });
     mineLines.forEach(ml => ml.updateContacts())
 
     grid.notifyShapeStateChange.subscribe(
@@ -154,7 +154,7 @@
     <!-- <Dot {grid} point={mousePoint} fill={"purple"} /> -->
 </Canvas>
 
-<div class="text-3xl font-semibold text-white text-center w-full z-10">
+<div class="text-3xl font-semibold text-white top-2 right-4 bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute">
     {minesLeft}
 </div>
 <button

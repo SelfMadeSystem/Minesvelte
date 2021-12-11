@@ -1,43 +1,36 @@
 <script lang="ts">
-    import { afterUpdate, tick } from "svelte";
-    import type { moveShapePoint, Shape } from "../game/shape";
+    import type { Shape } from "../game/shape";
     import type { Grid } from "../game/grid";
     import { getShapeColorByState } from "../utils/Colors";
     import Vec from "../utils/Vec";
-    import type { Point } from "../utils/Vec";
-    export var grid: Grid;
-    export var shape: Shape;
-    var path: SVGPathElement;
+    export let grid: Grid;
+    export let shape: Shape;
+    let path: SVGPathElement;
 
-    var pathPosition: Vec;
-    var text: string;
-    var zIndex: number = 1;
+    $: state = shape.shapeState;
+
+    $: pathPosition = Vec.from(grid.toVector(shape.getTextPosition()));
+    $: text = shape.getText();
+    $: hovering = false;
+    $: highlighted = state.isHighlighed;
 
     $: pointsStr = shape.toString();
     $: color = getShapeColorByState(
         shape.shapeState.color,
-        shape.shapeState.getState(false)
+        shape.shapeState.getState(hovering)
     );
-    $: {
-        grid;
-        pointsStr = shape.toString();
-    }
-    function updatePath() {
+    /* function updatePath() {
         if (path) {
             pathPosition = Vec.from(grid.toVector(shape.getTextPosition()));
         }
         pointsStr = shape.toString();
         text = shape.getText();
-    }
+    } */
 
     shape.shapeStateNotify.subscribe((state) => {
-        color = getShapeColorByState(state.color, state.getState(false));
-        updatePath();
-        zIndex = state.getZIndex(false);
-    });
-
-    afterUpdate(() => {
-        updatePath();
+        color = getShapeColorByState(state.color, state.getState(hovering));
+        highlighted = state.isHighlighed;
+        text = shape.getText();
     });
 
     function onMouseDown(e: MouseEvent) {
@@ -48,7 +41,7 @@
                     break;
                 }
                 if (shape.shapeState.isRevealed && !shape.shapeState.hasMine) {
-                    var a = shape.contacts.filter(
+                    let a = shape.contacts.filter(
                         (c) =>
                             c.shapeState.isFlagged ||
                             (c.shapeState.hasMine && c.shapeState.isRevealed)
@@ -80,6 +73,16 @@
                 break;
         }
     }
+
+    function mouseEnter(e: MouseEvent) {
+        hovering = true; // Fixme: svelte being dum and "efficient" I think
+        if (e.altKey) shape.contacts.forEach(s => s.shapeState.isHighlighed = true);
+    }
+
+    function mouseLeave(e: MouseEvent) {
+        hovering = false;
+        shape.contacts.forEach(s => s.shapeState.isHighlighed = false);
+    }
 </script>
 
 <g>
@@ -87,12 +90,14 @@
         bind:this={path}
         fill-rule="evenodd"
         d={pointsStr}
-        fill={color.fill}
-        stroke={color.stroke}
+        fill={highlighted ? color.highlightFill : color.fill}
+        stroke={highlighted ? color.highlighStroke : color.stroke}
         stroke-width="0.05"
         stroke-linecap="round"
         stroke-linejoin="round"
         on:mousedown={onMouseDown}
+        on:mouseenter={mouseEnter}
+        on:mouseleave={mouseLeave}
     />
     <!-- num > 0 && path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine -->
     {#if text }
@@ -115,8 +120,8 @@
         pointer-events: fill;
 
         // &:hover {
-        //     fill: var(--fillHover);
-        //     stroke: var(--strokeHover);
+        //     fill: let(--fillHover);
+        //     stroke: let(--strokeHover);
         // }
     }
 </style>

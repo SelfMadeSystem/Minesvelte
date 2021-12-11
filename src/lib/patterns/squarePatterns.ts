@@ -124,7 +124,7 @@ export const tessellations1 = new SquarePattern(
 
 const s3o2 = Math.sqrt(3) / 2;
 
-export const squareAndTriales = new SquarePattern(
+export const squareAndTriangles = new SquarePattern(
     { x: 1, y: 1 + s3o2 },
     ({ y }) => ({ x: y % 2 * 0.5, y: 0 }),
     ({ y }) => [
