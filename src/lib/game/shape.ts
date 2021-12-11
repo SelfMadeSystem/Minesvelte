@@ -180,7 +180,6 @@ export class ShapeState {
     }
 }
 
-// Todo: make shapes and grid not integers. I don't need to make them integers lol.
 export class Shape extends BasicHint {
     public contacts: Shape[] = [];
     public readonly shapeState: ShapeState = new ShapeState()
