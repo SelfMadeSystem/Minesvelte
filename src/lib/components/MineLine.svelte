@@ -17,20 +17,22 @@
         if (!clicked) {
             lineColor = hoverColor;
         }
-        line.contacts.forEach(s => s.shapeState.isHighlighed = true);
+        line.contacts.forEach((s) => (s.shapeState.setHighlighed(line, true)));
     }
 
     function mouseLeave() {
         if (!clicked) {
             lineColor = "#0000";
+            line.contacts.forEach((s) => (s.shapeState.setHighlighed(line, false)));
         }
-        line.contacts.forEach(s => s.shapeState.isHighlighed = false);
     }
 
     function onClick() {
         clicked = !clicked;
-        if (clicked) lineColor = clickedColor;
-        else lineColor = hoverColor;
+        if (clicked) {
+            lineColor = clickedColor;
+            line.contacts.forEach((s) => (s.shapeState.setHighlighed(line, true)));
+        } else lineColor = hoverColor;
     }
 </script>
 

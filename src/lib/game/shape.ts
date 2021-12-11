@@ -106,10 +106,14 @@ export class ShapeState {
         this.callback(this);
     }
     public get isHighlighed(): boolean {
-        return this._isHighlighed;
+        return this._highlightation.length > 0;
     }
-    public set isHighlighed(value: boolean) {
-        this._isHighlighed = value;
+    public setHighlighed(obj: any, value: boolean) {
+        if (value) {
+            this._highlightation.push(obj);
+        } else {
+            this._highlightation = this._highlightation.filter((o) => o !== obj);
+        }
         this.callback(this);
     }
     public get color(): string {
@@ -135,7 +139,7 @@ export class ShapeState {
         private _hasMine: boolean = false,
         private _isFlagged: boolean = false,
         private _isRevealed: boolean = false,
-        private _isHighlighed: boolean = false,
+        private _highlightation: any[] = [],
         public callback: (info: ShapeState) => void = () => { },
     ) {
     }
@@ -159,11 +163,14 @@ export class ShapeState {
     public getZIndex(hovering: boolean): number {
         if (this.isRevealed) {
             if (this.hasMine) {
-                return 4;
+                return 5;
             }
             return 0;
         }
         if (this.isFlagged) {
+            return 4;
+        }
+        if (this.isHighlighed) {
             return 3;
         }
         if (hovering) {
@@ -183,6 +190,7 @@ export class Shape extends BasicHint {
     public A_position: Point;
     public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
     public bounds: Rect;
+    public id: number;
     // public solver_selfShapeCollection: ShapeCollection; // For solver to use
     constructor(grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         super(grid);
@@ -190,6 +198,7 @@ export class Shape extends BasicHint {
         this.shapeState.callback = () => this.shapeStateNotify.notify(this.shapeState);
         this.points.forEach(p => p.shape = this);
         this.getBounds();
+        this.id = this.grid.shapeId++;
     }
 
     public get lines(): Line[] {

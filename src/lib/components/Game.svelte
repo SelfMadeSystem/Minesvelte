@@ -135,7 +135,7 @@
     {scaleAdjust}
 >
     <g id="shapes">
-        {#each shapes as shape}
+        {#each shapes as shape (shape.id)}
             <!-- remove this nonsense -->
             <Shape {grid} {shape} />
         {/each}

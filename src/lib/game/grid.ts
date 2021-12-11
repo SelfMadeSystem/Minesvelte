@@ -13,6 +13,7 @@ export abstract class Grid {
     public transformPosition: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public transformPositionAdjust: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public notifyShapeStateChange: Notifier<Shape> = new Notifier();
+    public shapeId: number = 0;
 
     constructor() {
     }

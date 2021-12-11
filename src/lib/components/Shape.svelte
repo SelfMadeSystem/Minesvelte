@@ -76,12 +76,12 @@
 
     function mouseEnter(e: MouseEvent) {
         hovering = true; // Fixme: svelte being dum and "efficient" I think
-        if (e.altKey) shape.contacts.forEach(s => s.shapeState.isHighlighed = true);
+        if (e.altKey) shape.contacts.forEach(s => s.shapeState.setHighlighed(shape, true));
     }
 
     function mouseLeave(e: MouseEvent) {
         hovering = false;
-        shape.contacts.forEach(s => s.shapeState.isHighlighed = false);
+        shape.contacts.forEach(s => s.shapeState.setHighlighed(shape, false));
     }
 </script>
 
