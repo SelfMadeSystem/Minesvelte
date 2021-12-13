@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Shape } from "../game/shape";
     import type { Grid } from "../game/grid";
-    import { getShapeColorByState } from "../utils/Colors";
+    import { getShapeColorByState, BG_COLOR } from "../utils/Colors";
     import Vec from "../utils/Vec";
     export let grid: Grid;
     export let shape: Shape;
@@ -11,15 +11,11 @@
     $: pathPosition = Vec.from(grid.toVector(shape.getTextPosition()));
     $: text = shape.getText();
     $: hovering = false;
-    $: highlighted = state.isHighlighed;
 
     $: fontSize = shape.getTextSize();
 
     $: pointsStr = shape.toString();
-    $: color = getShapeColorByState(
-        shape.shapeState.color,
-        shape.shapeState.getState(hovering)
-    );
+    $: color = getShapeColorByState(shape.shapeState, hovering);
     /* function updatePath() {
         if (path) {
             pathPosition = Vec.from(grid.toVector(shape.getTextPosition()));
@@ -29,8 +25,7 @@
     } */
 
     shape.shapeStateNotify.subscribe((state) => {
-        color = getShapeColorByState(state.color, state.getState(hovering));
-        highlighted = state.isHighlighed;
+        color = getShapeColorByState(shape.shapeState, hovering);
         text = shape.getText();
     });
 
@@ -63,8 +58,7 @@
                     }
                     return;
                 }
-                if (shape.shapeState.getState(false) == "normal")
-                    shape.reveal();
+                if (shape.shapeState.getState() == "normal") shape.reveal();
                 break;
             case 2:
                 shape.shapeState.isFlagged = !shape.shapeState.isFlagged;
@@ -77,30 +71,72 @@
 
     function mouseEnter(e: MouseEvent) {
         hovering = true;
-        if (e.ctrlKey) shape.contacts.forEach(s => s.shapeState.setHighlighed(shape, true));
+        if (e.ctrlKey)
+            shape.contacts.forEach((s) =>
+                s.shapeState.setHighlighed(shape, true)
+            );
     }
 
     function mouseLeave(e: MouseEvent) {
         hovering = false;
-        shape.contacts.forEach(s => s.shapeState.setHighlighed(shape, false));
+        shape.contacts.forEach((s) => s.shapeState.setHighlighed(shape, false));
     }
 </script>
 
-<g>
+<defs>
     <path
+        id="path_{shape.id}"
+        class="mainPath"
         fill-rule="evenodd"
         d={pointsStr}
-        fill={highlighted ? color.highlightFill : color.fill}
-        stroke={highlighted ? color.highlighStroke : color.stroke}
-        stroke-width="0.05"
+    />
+    <clipPath id="clip_{shape.id}">
+        <use xlink:href="#path_{shape.id}" />
+    </clipPath>
+</defs>
+
+<g>
+    <use
+        xlink:href="#path_{shape.id}"
+        fill={color.fill}
+        stroke={color.stroke}
+        stroke-width="0.2"
+        clip-path="url(#clip_{shape.id})"
+    />
+    <use
+        xlink:href="#path_{shape.id}"
+        fill="#0000"
+        stroke={BG_COLOR}
+        stroke-width="0.075"
+        clip-path="url(#clip_{shape.id})"
+        style="pointer-events: fill;"
+        on:mousedown={onMouseDown}
+        on:mouseenter={mouseEnter}
+        on:mouseleave={mouseLeave}
+    />
+    <use
+        xlink:href="#path_{shape.id}"
+        fill="#0000"
+        stroke={BG_COLOR}
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="0.045"
+    />
+    <!-- <path
+        class="mainPath"
+        fill-rule="evenodd"
+        d={pointsStr}
+        fill={color.fill}
+        stroke={color.stroke}
+        stroke-width="0"
         stroke-linecap="round"
         stroke-linejoin="round"
         on:mousedown={onMouseDown}
         on:mouseenter={mouseEnter}
         on:mouseleave={mouseLeave}
-    />
+    /> -->
     <!-- num > 0 && path && pathPosition && shape.shapeState.isRevealed && !shape.shapeState.hasMine -->
-    {#if text }
+    {#if text}
         <text
             x={pathPosition.x}
             y={pathPosition.y}
@@ -108,20 +144,16 @@
             dominant-baseline="central"
             font-size={fontSize}
             font-family="monospace"
-            fill={color.stroke}
+            fill="#e9e9e9"
         >
             {text}
         </text>
     {/if}
 </g>
 
-<style lang="scss">
-    path {
+<style>
+    /* .mainPath {
         pointer-events: fill;
-
-        // &:hover {
-        //     fill: let(--fillHover);
-        //     stroke: let(--strokeHover);
-        // }
-    }
+        filter: url(#shadow);
+    } */
 </style>

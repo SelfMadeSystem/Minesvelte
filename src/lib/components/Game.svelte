@@ -9,6 +9,7 @@
     import { windowSize } from "../stores";
     import * as patterns from "../patterns/squarePatterns";
     import { Solver } from "../game/solver";
+    import { specifics, strokeColors } from "../utils/Colors";
     var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
@@ -18,26 +19,31 @@
 
     grid.transformScaleAdjust.value = 50;
 
-    // grid.generateDefaultGrid(8);
-    patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 6, y: 6 });
+    // grid.generateDefaultGrid(10);
+    patterns.squareAndTriangles.generateGrid(grid, { x: 9, y: 7 });
     grid.resetShapes();
-    // minesLeft = grid.setMineRatio(0.15);
+    minesLeft = grid.setMineRatio(0.15);
     grid.centerOnScreen();
-    shapes.forEach((s) => {
-        if (s.shapeState.hasMine) s.flag();
-        else s.reveal();
-    });
-    mineLines.forEach(ml => ml.updateContacts())
+    // shapes.forEach((s) => {
+    //     if (s.shapeState.hasMine) s.flag();
+    //     else s.reveal();
+    // });
+    mineLines.forEach((ml) => ml.updateContacts());
+    for (let i = 0; i < shapes.length; i++) {
+        shapes[i].shapeState.color =
+            strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
+    }
+    var shapesByColor = grid.shapesByColor();
 
     grid.notifyShapeStateChange.subscribe(
         (() => {
             var _ = () => {
                 shapes = shapes.sort(
                     (a, b) =>
-                        a.shapeState.getZIndex(false) -
-                        b.shapeState.getZIndex(false)
+                        a.shapeState.getZIndex() - b.shapeState.getZIndex()
                 );
                 minesLeft = grid.getMinesLeft();
+                shapesByColor = grid.shapesByColor();
             };
             _();
             return _;
@@ -153,9 +159,20 @@
     <!-- <Dot {grid} point={mousePoint} fill={"purple"} /> -->
 </Canvas>
 
-<div class="text-3xl font-semibold text-white top-2 right-4 bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute">
+<div
+    class="text-3xl font-semibold text-white font-mono top-2 right-4 bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
+>
     {minesLeft}
 </div>
+{#each Object.keys(shapesByColor) as color, i}
+    <div
+        class="text-3xl font-semibold right-4 font-mono bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
+        style="top: {(i + 1) * 3 + 0.5}rem;
+               color: {specifics[color].normal};"
+    >
+        {shapesByColor[color].filter((s) => s.shapeState.hasMine).length - shapesByColor[color].filter((s) => s.shapeState.mineKnown).length}
+    </div>
+{/each}
 <button
     on:click={solve}
     class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2"

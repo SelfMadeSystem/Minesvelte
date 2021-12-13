@@ -4,6 +4,7 @@ import { windowSize } from "../stores";
 import { lineTo, moveTo, Shape } from "./shape";
 import type { MineLine } from "./mineLine";
 import { Notifier, ValueNotifier } from "../utils/Notifier";
+import type { SpecificColors } from "../utils/Colors";
 
 export abstract class Grid {
     public shapes: Shape[] = [];
@@ -16,6 +17,22 @@ export abstract class Grid {
     public shapeId: number = 0;
 
     constructor() {
+    }
+
+    private _shapesByColor: { [key in SpecificColors]?: Shape[] };
+
+    public shapesByColor(): { [key in SpecificColors]?: Shape[] } {
+        if (this._shapesByColor) {
+            return this._shapesByColor;
+        }
+        const shapes = {};
+        this.shapes.forEach(shape => {
+            if (!shapes[shape.shapeState.color]) {
+                shapes[shape.shapeState.color] = [];
+            }
+            shapes[shape.shapeState.color].push(shape);
+        });
+        return this._shapesByColor = shapes;
     }
 
     public resetShapes() {

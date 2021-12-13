@@ -5,6 +5,7 @@ import type { ShapeCollection } from "./solver";
 import { Rect } from "../utils/rect";
 import { Line } from "../utils/Line";
 import { BasicHint } from "./basicHint";
+import type { SpecificColors } from "../utils/Colors";
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -81,6 +82,8 @@ export function moveToPoint(point: Point): ShapePoint {
     return new MTP(point.x, point.y);
 }
 
+export type ShapeStates = "normal" | "revealed" | "flagged" | "exploded";
+
 export class ShapeState {
     public get isRevealed(): boolean {
         return this._isRevealed;
@@ -116,10 +119,10 @@ export class ShapeState {
         }
         this.callback(this);
     }
-    public get color(): string {
+    public get color(): SpecificColors {
         return this._color;
     }
-    public set color(value: string) {
+    public set color(value: SpecificColors) {
         this._color = value;
         this.callback(this);
     }
@@ -135,7 +138,7 @@ export class ShapeState {
     }
 
     constructor(
-        private _color: string = "default",
+        private _color: SpecificColors = "default",
         private _hasMine: boolean = false,
         private _isFlagged: boolean = false,
         private _isRevealed: boolean = false,
@@ -144,7 +147,7 @@ export class ShapeState {
     ) {
     }
 
-    public getState(hovering: boolean): string {
+    public getState(): ShapeStates {
         if (this.isRevealed) {
             if (this.hasMine) {
                 return "exploded";
@@ -154,26 +157,20 @@ export class ShapeState {
         if (this.isFlagged) {
             return "flagged";
         }
-        if (hovering) {
-            return "hover";
-        }
         return "normal";
     }
 
-    public getZIndex(hovering: boolean): number {
+    public getZIndex(): number {
         if (this.isRevealed) {
             if (this.hasMine) {
-                return 5;
+                return 4;
             }
             return 0;
         }
         if (this.isFlagged) {
-            return 4;
-        }
-        if (this.isHighlighed) {
             return 3;
         }
-        if (hovering) {
+        if (this.isHighlighed) {
             return 2;
         }
         return 1;
@@ -355,7 +352,7 @@ export class Shape extends BasicHint {
 
     getTextSize(): number {
         var size = this.getShapeArea();
-        return Math.min(0.5, size * 0.7);
+        return Math.min(0.5, size * 0.6);
     }
 
     getText() {
