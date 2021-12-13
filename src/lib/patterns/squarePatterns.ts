@@ -40,7 +40,7 @@ export const alternatingTriangles = new SquarePattern(
     { x: 0, y: 0 },
     ({ x, y }) => [
         new SingleTile([
-            ...((x + y) % 2 >= 0 ? [
+            ...((y) % 2 > 0 ? [
                 moveTo(0, 0),
                 lineTo(1, 0),
                 lineTo(1, 1),
@@ -51,7 +51,7 @@ export const alternatingTriangles = new SquarePattern(
             ])
         ]),
         new SingleTile([
-            ...((x + y) % 2 >= 0 ? [
+            ...((y) % 2 > 0 ? [
                 moveTo(0, 0),
                 lineTo(0, 1),
                 lineTo(1, 1),

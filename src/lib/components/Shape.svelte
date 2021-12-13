@@ -5,7 +5,6 @@
     import Vec from "../utils/Vec";
     export let grid: Grid;
     export let shape: Shape;
-    let path: SVGPathElement;
 
     $: state = shape.shapeState;
 
@@ -13,6 +12,8 @@
     $: text = shape.getText();
     $: hovering = false;
     $: highlighted = state.isHighlighed;
+
+    $: fontSize = shape.getTextSize();
 
     $: pointsStr = shape.toString();
     $: color = getShapeColorByState(
@@ -75,8 +76,8 @@
     }
 
     function mouseEnter(e: MouseEvent) {
-        hovering = true; // Fixme: svelte being dum and "efficient" I think
-        if (e.altKey) shape.contacts.forEach(s => s.shapeState.setHighlighed(shape, true));
+        hovering = true;
+        if (e.ctrlKey) shape.contacts.forEach(s => s.shapeState.setHighlighed(shape, true));
     }
 
     function mouseLeave(e: MouseEvent) {
@@ -87,7 +88,6 @@
 
 <g>
     <path
-        bind:this={path}
         fill-rule="evenodd"
         d={pointsStr}
         fill={highlighted ? color.highlightFill : color.fill}
@@ -106,7 +106,7 @@
             y={pathPosition.y}
             text-anchor="middle"
             dominant-baseline="central"
-            font-size="0.5"
+            font-size={fontSize}
             font-family="monospace"
             fill={color.stroke}
         >

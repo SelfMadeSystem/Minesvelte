@@ -14,19 +14,19 @@
     var shapes: Sh[] = grid.shapes;
     var mineLines = grid.mineLines;
     var minesLeft: number = 0;
-    mineLines.push(new Ml(grid, {x: 0, y: 0}, Math.atan2(1, 2)));
+    // mineLines.push(new Ml(grid, {x: 0, y: 0}, Math.atan2(1, 1)));
 
     grid.transformScaleAdjust.value = 50;
 
-    grid.generateDefaultGrid(8);
-    // patterns.squareAndTriangles.generateGrid(grid, { x: 6, y: 5 });
+    // grid.generateDefaultGrid(8);
+    patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 6, y: 6 });
     grid.resetShapes();
-    minesLeft = grid.setMineRatio(0.15);
+    // minesLeft = grid.setMineRatio(0.15);
     grid.centerOnScreen();
-    // shapes.forEach((s) => {
-    //     if (s.shapeState.hasMine) s.flag();
-    //     else s.reveal();
-    // });
+    shapes.forEach((s) => {
+        if (s.shapeState.hasMine) s.flag();
+        else s.reveal();
+    });
     mineLines.forEach(ml => ml.updateContacts())
 
     grid.notifyShapeStateChange.subscribe(
@@ -68,7 +68,6 @@
 
     function onMouseWheel(e: WheelEvent) {
         var delta = e.deltaY || e.detail || (e as any).wheelDelta;
-        console.log(delta);
         grid.transformScale.value *= 1 + delta / 1000;
         grid.transformPosition.value = Vec.from(
             grid.transformPosition.value

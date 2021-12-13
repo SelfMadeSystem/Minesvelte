@@ -181,15 +181,16 @@ export class ShapeState {
 }
 
 export class Shape extends BasicHint {
+    public A_position: Point;
     public contacts: Shape[] = [];
     public readonly shapeState: ShapeState = new ShapeState()
     public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
-    public A_position: Point;
-    public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
+    public adjacentShapesNumber: boolean = true;
     public bounds: Rect;
     public id: number;
+    public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
     // public solver_selfShapeCollection: ShapeCollection; // For solver to use
     constructor(grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         super(grid);
@@ -272,8 +273,13 @@ export class Shape extends BasicHint {
     }
 
     isAdjacent(other: Shape) {
+        return this._isAdjacent(other);
+    }
+
+    private _isAdjacent(other: Shape) {
         return this.lines.some(l => other.lines.some(ol => {
             if (l.isParallel(ol)) {
+                if (!l.isBetween(ol.p2)) console.log(l, ol.p2);
                 return l.isBetweenExclusive(ol.p1) || l.isBetweenExclusive(ol.p2) || (
                     l.isBetween(ol.p1) && l.isBetween(ol.p2)
                 );
@@ -284,6 +290,43 @@ export class Shape extends BasicHint {
 
     isCorner(other: Shape) { // includes adjacent
         return this.lines.some(l => other.points.some(p => l.isBetween(p)));
+    }
+
+    areAllAdjacent(): boolean {
+        var hasMines = [...this.contacts].filter(s => s.shapeState.hasMine);
+        console.log("------", [...hasMines]);
+        var current = hasMines.shift();
+
+        while (hasMines.length > 0) {
+            var contacts = hasMines.filter(s => s.isAdjacent(current));
+            console.log(contacts);
+            if (contacts.length === 0) {
+                return false;
+            } else {
+                contacts.forEach(s => this._areAllAdjacent(s, hasMines));
+            }
+        }
+        return true;
+    }
+
+    private _areAllAdjacent(shape: Shape, shapes: Shape[]) {
+        shapes.splice(shapes.indexOf(shape), 1);
+        var contacts = shapes.filter(s => s.isAdjacent(shape));
+        if (contacts.length === 0) {
+            return;
+        }
+        contacts.forEach(s => this._areAllAdjacent(s, shapes));
+    }
+
+    getNumText() {
+        if (this.adjacentShapesNumber && this.number > 1) {
+            if (this.areAllAdjacent()) {
+                return `{${this.number}}`;
+            } else {
+                return `-${this.number}-`;
+            }
+        }
+        return this.number.toString();
     }
 
     getTextPosition() {
@@ -298,12 +341,29 @@ export class Shape extends BasicHint {
         return center;
     }
 
+    private getShapeArea() {
+        let area = 0;
+
+        for (let i = 0; i < this.points.length - 1; ++i) {
+            area += this.points[i].x * this.points[i + 1].y - this.points[i + 1].x * this.points[i].y;
+        }
+
+        area += this.points[this.points.length - 1].x * this.points[0].y - this.points[0].x * this.points[this.points.length - 1].y;
+
+        return area = Math.abs(area) / 2;
+    }
+
+    getTextSize(): number {
+        var size = this.getShapeArea();
+        return Math.min(0.5, size * 0.7);
+    }
+
     getText() {
         if (this.shapeState.isRevealed) {
             if (this.shapeState.hasMine) {
                 return "";
             }
-            return this.number === 0 ? "" : this.number.toString();
+            return this.number === 0 ? "" : this.getNumText();
         }
         return "";
     }
