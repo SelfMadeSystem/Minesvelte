@@ -6,6 +6,8 @@ import { Rect } from "../utils/rect";
 import { Line } from "../utils/Line";
 import { BasicHint } from "./basicHint";
 import type { SpecificColors } from "../utils/Colors";
+import { mdiFlagCheckered, mdiMine } from '@mdi/js';
+import { mdiFlag } from '@mdi/js';
 
 export function moveShapePoint(shapePoint: ShapePoint, point: Point) {
     shapePoint.x = point.x;
@@ -159,22 +161,6 @@ export class ShapeState {
         }
         return "normal";
     }
-
-    public getZIndex(): number {
-        if (this.isRevealed) {
-            if (this.hasMine) {
-                return 4;
-            }
-            return 0;
-        }
-        if (this.isFlagged) {
-            return 3;
-        }
-        if (this.isHighlighed) {
-            return 2;
-        }
-        return 1;
-    }
 }
 
 export class Shape extends BasicHint {
@@ -265,8 +251,8 @@ export class Shape extends BasicHint {
         }
     }
 
-    flag() {
-        this.shapeState.isFlagged = true;
+    flag(bot: boolean = true) {
+        this.shapeState.isFlagged = bot || !this.shapeState.isFlagged;
     }
 
     isAdjacent(other: Shape) {
@@ -276,7 +262,6 @@ export class Shape extends BasicHint {
     private _isAdjacent(other: Shape) {
         return this.lines.some(l => other.lines.some(ol => {
             if (l.isParallel(ol)) {
-                if (!l.isBetween(ol.p2)) console.log(l, ol.p2);
                 return l.isBetweenExclusive(ol.p1) || l.isBetweenExclusive(ol.p2) || (
                     l.isBetween(ol.p1) && l.isBetween(ol.p2)
                 );
@@ -291,7 +276,6 @@ export class Shape extends BasicHint {
 
     areAllAdjacent(): boolean {
         var hasMines = [...this.contacts].filter(s => s.shapeState.hasMine);
-        console.log("------", [...hasMines]);
         var current = hasMines.shift();
 
         while (hasMines.length > 0) {
@@ -356,13 +340,30 @@ export class Shape extends BasicHint {
     }
 
     getText() {
-        if (this.shapeState.isRevealed) {
-            if (this.shapeState.hasMine) {
-                return "";
-            }
+        if (this.shapeState.isRevealed && ! this.shapeState.hasMine) {
             return this.number === 0 ? "" : this.getNumText();
         }
         return "";
+    }
+
+    getIcon() {
+        if (this.shapeState.isRevealed && this.shapeState.hasMine) {
+            return {
+                path: mdiMine,
+                fill: "red",
+                stroke: "transparent",
+                size: 24,
+            };
+        }
+        if (this.shapeState.isFlagged) {
+            return {
+                path: mdiFlag,
+                fill: "black",
+                stroke: "transparent",
+                size: 24,
+            };
+        }
+        return null;
     }
 
     toString() {

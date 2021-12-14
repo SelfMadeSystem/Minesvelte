@@ -6,10 +6,9 @@
     export let grid: Grid;
     export let shape: Shape;
 
-    $: state = shape.shapeState;
-
     $: pathPosition = Vec.from(grid.toVector(shape.getTextPosition()));
     $: text = shape.getText();
+    $: icon = shape.getIcon();
     $: hovering = false;
 
     $: fontSize = shape.getTextSize();
@@ -25,8 +24,9 @@
     } */
 
     shape.shapeStateNotify.subscribe((state) => {
-        color = getShapeColorByState(shape.shapeState, hovering);
+        color = getShapeColorByState(state, hovering);
         text = shape.getText();
+        icon = shape.getIcon();
     });
 
     function onMouseDown(e: MouseEvent) {
@@ -61,7 +61,7 @@
                 if (shape.shapeState.getState() == "normal") shape.reveal();
                 break;
             case 2:
-                shape.shapeState.isFlagged = !shape.shapeState.isFlagged;
+                shape.flag(false);
                 break;
             case 1:
                 shape.shapeState.hasMine = !shape.shapeState.hasMine;
@@ -81,6 +81,24 @@
         hovering = false;
         shape.contacts.forEach((s) => s.shapeState.setHighlighed(shape, false));
     }
+
+    function keyDown(e: KeyboardEvent) {
+        if (!hovering) return;
+        console.log("keydown", e.key);
+        if (e.key == "Control") {
+            shape.contacts.forEach((s) =>
+                s.shapeState.setHighlighed(shape, true)
+            );
+        }
+    }
+
+    function keyUp(e: KeyboardEvent) {
+        if (e.key == "Control") {
+            shape.contacts.forEach((s) =>
+                s.shapeState.setHighlighed(shape, false)
+            );
+        }
+    }
 </script>
 
 <defs>
@@ -94,6 +112,8 @@
         <use xlink:href="#path_{shape.id}" />
     </clipPath>
 </defs>
+
+<svelte:window on:keydown={keyDown} on:keyup={keyUp} />
 
 <g>
     <use
@@ -148,6 +168,20 @@
         >
             {text}
         </text>
+    {/if}
+    {#if icon}
+        <g
+            transform="translate({pathPosition.x}, {pathPosition.y}) 
+            scale({(1 / icon.size) * fontSize * 1.5})"
+            class="icon"
+        >
+            <path
+                d={icon.path}
+                fill={icon.fill}
+                stroke={icon.stroke}
+                transform="translate(-{icon.size / 2} -{icon.size / 2})"
+            />
+        </g>
     {/if}
 </g>
 

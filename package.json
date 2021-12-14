@@ -10,6 +10,8 @@
     "lint": "eslint src"
   },
   "devDependencies": {
+    "@mdi/font": "^6.5.95",
+    "@mdi/js": "^6.5.95",
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.11",
     "@tsconfig/svelte": "^2.0.1",
     "@typescript-eslint/eslint-plugin": "^5.3.1",

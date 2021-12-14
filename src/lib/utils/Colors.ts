@@ -19,24 +19,24 @@ export type ShapeColor = {
 
 export const shapeColors: ShapeColor = {
     normal: {
-        normal: "#52585c",
+        normal: "#71797f",
         hover: "#3f4447",
         highlighted: "#4a5054"
     },
     revealed: {
         normal: "#2d3033",
         hover: "#2d3033",
-        highlighted: "#33373a"
+        highlighted: "#1f2123"
     },
     flagged: {
         normal: "#e6e6e6",
-        hover: "#d8d8d8",
-        highlighted: "#c6c6c6"
+        hover: "#888",
+        highlighted: "#aaa"
     },
     exploded: {
         normal: "#000",
         hover: "#000",
-        highlighted: "#111"
+        highlighted: "#151515"
     }
 }
 
