@@ -15,18 +15,18 @@
     var shapes: Sh[] = grid.shapes;
     var mineLines = grid.mineLines;
     var minesLeft: number = 0;
-    let s3o2 = Math.sqrt(3) / 2;
-    mineLines.push(new Ml(grid, {x: 0, y: 0.5}, 0));
-    mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 1 * (1.5 + s3o2)}, 0));
-    mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 2 * (1.5 + s3o2)}, 0));
-    mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 3 * (1.5 + s3o2)}, 0));
-    mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 4 * (1.5 + s3o2)}, 0));
-    mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 5 * (1.5 + s3o2)}, 0));
-    mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 6 * (1.5 + s3o2)}, 0));
+    // let s3o2 = Math.sqrt(3) / 2;
+    // mineLines.push(new Ml(grid, {x: 0, y: 0}, 45 * Math.PI / 180));
+    // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 1 * (1.5 + s3o2)}, 0));
+    // mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 2 * (1.5 + s3o2)}, 0));
+    // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 3 * (1.5 + s3o2)}, 0));
+    // mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 4 * (1.5 + s3o2)}, 0));
+    // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 5 * (1.5 + s3o2)}, 0));
+    // mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 6 * (1.5 + s3o2)}, 0));
 
     grid.transformScaleAdjust.value = 50;
 
-    // grid.generateDefaultGrid(5);
+    grid.generateDefaultGrid(5);
     patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 7, y: 7 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.15);

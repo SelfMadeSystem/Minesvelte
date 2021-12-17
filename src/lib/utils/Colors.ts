@@ -92,7 +92,7 @@ export function getShapeColorByState(state: ShapeState, hovering: boolean): Path
     return {
         fill: (state.color != 'default' && gs === "normal" ? color : shapeColors[gs])
         [hovering ? 'hover' : state.isHighlighed ? 'highlighted' : 'normal'],
-        stroke: color.normal
+        stroke: (state.color == 'default' && gs !== "normal" ? shapeColors[gs][hovering ? 'hover' : state.isHighlighed ? 'highlighted' : 'normal']: color.normal)
     };
 }
 
