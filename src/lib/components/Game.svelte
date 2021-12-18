@@ -26,7 +26,7 @@
 
     grid.transformScaleAdjust.value = 50;
 
-    grid.generateDefaultGrid(5);
+    // grid.generateDefaultGrid(5);
     patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 7, y: 7 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.15);

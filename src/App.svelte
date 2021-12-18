@@ -1,15 +1,24 @@
 <script lang="ts">
-  import Overlay from "./lib/components/Overlay.svelte";
   import Game from "./lib/components/Game.svelte";
+  import MainMenu from "./lib/components/menus/MainMenu.svelte";
+  import Options from "./lib/components/menus/Options.svelte";
+
+  let menu: string = "main";
+
+  function onMenu(e: CustomEvent<any>) {
+    menu = e.detail.menu;
+  }
 </script>
 
-<svelte:window
-  on:contextmenu={e => e.preventDefault()}
-/>
+<svelte:window on:contextmenu={(e) => e.preventDefault()} />
 
-<Game />
-<!-- This must render last -->
-<Overlay />
+{#if menu === "main"}
+  <MainMenu on:menu={onMenu} />
+{:else if menu === "options"}
+  <Options on:menu={onMenu} />
+{:else if menu === "game"}
+  <Game />
+{/if}
 
 <style>
   :root {
