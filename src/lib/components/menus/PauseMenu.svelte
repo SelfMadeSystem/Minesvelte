@@ -20,12 +20,16 @@
 </script>
 
 <div>
-    <button on:click={resume}>
+    <button on:click={resume} class="resume">
         Resume
     </button>
 
     <button on:click={options}>
         Options
+    </button>
+
+    <button on:click={() => window.alert("Bruh u think I implemented shit yet?")}>
+        Save game
     </button>
 
     <button on:click={() => changeMenu("main")} class="exit"> Exit </button>
@@ -43,7 +47,7 @@
     button:hover {
         @apply bg-gray-700 text-white text-5xl rounded-lg;
 
-        &.options {
+        &.resume {
             @apply bg-green-800;
         }
 

@@ -12,12 +12,12 @@
     }
 
     function apply() {
-        // Not implemented
+        window.alert("Congratulations! You have successfully applied nothing!");
     }
 </script>
 
 <div>
-    <button>
+    <button on:click={() => window.alert("Pretend this is a page title.")}>
         Options
     </button>
 

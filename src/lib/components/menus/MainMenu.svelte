@@ -21,7 +21,7 @@
         New game
     </button>
 
-    <button on:click={() => changeMenu("load-game")}> Load game </button>
+    <button on:click={() => window.alert("This is dead button")}> Load game </button>
 
     <button on:click={() => changeMenu("options")}> Options </button>
 
