@@ -7,7 +7,8 @@
     import { MineLine as Ml } from "../game/mineLine";
     import Vec, { Point } from "../utils/Vec";
     import { windowSize } from "../stores";
-    import * as patterns from "../patterns/squarePatterns";
+    import * as squarePatterns from "../patterns/squarePatterns";
+    import * as hexPatterns from "../patterns/hexPatterns";
     import { Solver } from "../game/solver";
     import { specifics, strokeColors } from "../utils/Colors";
     import PauseMenu from "./menus/PauseMenu.svelte";
@@ -28,7 +29,7 @@
     grid.transformScaleAdjust.value = 50;
 
     // grid.generateDefaultGrid(5);
-    patterns.squareTriangleAndHexagon.generateGrid(grid, { x: 7, y: 7 });
+    squarePatterns.squareTriangleAndHexagon.generateGrid(grid, { x: 7, y: 7 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.15);
     grid.centerOnScreen();
