@@ -17,7 +17,7 @@
 {:else if menu === "options"}
   <Options on:menu={onMenu} />
 {:else if menu === "game"}
-  <Game />
+  <Game on:menu={onMenu} />
 {/if}
 
 <style>

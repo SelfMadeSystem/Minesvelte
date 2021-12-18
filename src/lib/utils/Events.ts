@@ -1,6 +1,7 @@
 import type { Grid } from "../game/grid";
 import type { Pattern } from "../patterns/patterns";
 
+// Unsure, probably not needed
 export type GameEvents = 
     | 'game-start'   // Starts new game
     | 'game-pause'   // Pauses game (pauses timer)

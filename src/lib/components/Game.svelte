@@ -10,6 +10,7 @@
     import * as patterns from "../patterns/squarePatterns";
     import { Solver } from "../game/solver";
     import { specifics, strokeColors } from "../utils/Colors";
+    import PauseMenu from "./menus/PauseMenu.svelte";
     var grid = new SquareGrid();
 
     var shapes: Sh[] = grid.shapes;
@@ -41,7 +42,7 @@
             strokeColors[
                 //Math.floor(Math.random() * strokeColors.length);
                 Math.floor((i / shapes.length) * strokeColors.length)
-                ];
+            ];
     }
     var shapesByColor = grid.shapesByColor();
 
@@ -95,7 +96,12 @@
     document.addEventListener("DOMMouseScroll", onMouseWheel, false);
 
     var scrolling = false;
+    let paused = false;
+
     function onMouseDown(e: MouseEvent) {
+        if (paused) {
+            return;
+        }
         if (e.button === 0) {
             scrolling = true;
         }
@@ -103,10 +109,21 @@
     }
 
     function onMouseUp(e: MouseEvent) {
+        if (paused) {
+            return;
+        }
         if (e.button === 0) {
             scrolling = false;
         }
         e.preventDefault();
+    }
+
+    function onKeyDown(e: KeyboardEvent) {
+        switch (e.key) {
+            case "Escape":
+                paused = !paused;
+                break;
+        }
     }
 
     let offsetCanvas: Point = { x: 0, y: 0 };
@@ -136,52 +153,61 @@
     on:mousemove={onMouseMove}
     on:mousedown={onMouseDown}
     on:mouseup={onMouseUp}
+    on:keydown={onKeyDown}
 />
 
-<Canvas
-    {offsetCanvas}
-    offsetAdjust1={{ x: 50, y: 50 }}
-    offsetAdjust2={offsetAdjust}
-    {scale}
-    {scaleAdjust}
->
-    <g id="shapes">
-        {#each shapes as shape (shape.id)}
-            <!-- remove this nonsense -->
-            <Shape {grid} {shape} />
-        {/each}
-    </g>
-    <g id="lines">
-        {#each mineLines as line}
-            <!-- remove this nonsense -->
-            <MineLine {grid} {line} />
-        {/each}
-    </g>
-    <!-- <g id="owo">
-        {#each shapes[0].getPoints() as point }
-            <Dot {grid} {point} fill="red" />
-        {/each}
-    </g> -->
-    <!-- <Dot {grid} point={mousePoint} fill={"purple"} /> -->
-</Canvas>
+{#if paused}
+    <PauseMenu on:game-resume={() => (paused = false)} on:menu />
+{/if}
 
-<div
-    class="text-3xl font-semibold text-white font-mono top-2 right-4 bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
->
-    {minesLeft}
-</div>
-{#each Object.keys(shapesByColor) as color, i}
-    <div
-        class="text-3xl font-semibold right-4 font-mono bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
-        style="top: {(i + 1) * 3 + 0.5}rem;
-               color: {specifics[color].normal};"
+<!-- Keeps the objects rendered so it won't take forever to unpause -->
+<span class:invisible={paused}>
+    <Canvas
+        {offsetCanvas}
+        offsetAdjust1={{ x: 50, y: 50 }}
+        offsetAdjust2={offsetAdjust}
+        {scale}
+        {scaleAdjust}
     >
-        {shapesByColor[color].filter((s) => s.shapeState.hasMine).length - shapesByColor[color].filter((s) => s.shapeState.mineKnown).length}
+        <g id="shapes">
+            {#each shapes as shape (shape.id)}
+                <!-- remove this nonsense -->
+                <Shape {grid} {shape} />
+            {/each}
+        </g>
+        <g id="lines">
+            {#each mineLines as line}
+                <!-- remove this nonsense -->
+                <MineLine {grid} {line} />
+            {/each}
+        </g>
+        <!-- <g id="owo">
+    {#each shapes[0].getPoints() as point }
+        <Dot {grid} {point} fill="red" />
+    {/each}
+    </g> -->
+        <!-- <Dot {grid} point={mousePoint} fill={"purple"} /> -->
+    </Canvas>
+
+    <div
+        class="text-3xl font-semibold text-white font-mono top-2 right-4 bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
+    >
+        {minesLeft}
     </div>
-{/each}
-<button
-    on:click={solve}
-    class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2"
->
-    Solve
-</button>
+    {#each Object.keys(shapesByColor) as color, i}
+        <div
+            class="text-3xl font-semibold right-4 font-mono bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
+            style="top: {(i + 1) * 3 + 0.5}rem;
+        color: {specifics[color].normal};"
+        >
+            {shapesByColor[color].filter((s) => s.shapeState.hasMine).length -
+                shapesByColor[color].filter((s) => s.shapeState.mineKnown).length}
+        </div>
+    {/each}
+    <button
+        on:click={solve}
+        class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2"
+    >
+        Solve
+    </button>
+</span>
