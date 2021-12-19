@@ -4,7 +4,7 @@
     import * as squarePatterns from "../../patterns/squarePatterns";
     import * as hexPatterns from "../../patterns/hexPatterns";
     import type { Pattern } from "src/lib/patterns/patterns";
-    import { each } from "svelte/internal";
+    import Toggle from "../form/Toggle.svelte";
 
     const dispatch = createEventDispatcher();
 
@@ -73,11 +73,27 @@
 
     {#if parameters}
         {#each parameters as parameter}
-            <label
+            <label class="number-input"
                 >{parameter}
-                <input type="number" min="1" max="50" step="1" name={parameter} />
+                <input
+                    type="number"
+                    value="5"
+                    min="1"
+                    max="50"
+                    step="1"
+                    name={parameter}
+                />
             </label>
         {/each}
+        <label class="number-input"
+            >Mine Count
+            <input type="number" value="5" min="1" step="1" name="mineCount" />
+        </label>
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class="boolean-input"
+            >Mine Percent
+            <Toggle name="minePercent" state="false" _class="ml-4"/>
+        </label>
     {/if}
 
     <button on:click={() => changeMenu("game")} class="new-game rounded-b-lg">
@@ -129,12 +145,27 @@
         @apply bg-gray-800 text-white text-2xl p-2 border-b-2 border-gray-900;
     }
 
-    label {
+    .number-input {
         @apply flex flex-col items-center justify-center w-72;
         @apply bg-gray-800 text-white text-2xl pt-2;
 
         input {
             @apply bg-gray-600 text-white text-2xl p-1 mt-2 w-72 cursor-text;
+            appearance: textfield;
+            &[type="number"]::-webkit-inner-spin-button,
+            &[type="number"]::-webkit-outer-spin-button {
+                -webkit-appearance: none;
+            }
+        }
+    }
+
+    .boolean-input {
+        @apply flex flex-row items-center justify-center w-72;
+        @apply bg-gray-800 text-white text-2xl pt-2;
+
+        input {
+            @apply bg-gray-600 text-2xl p-1 ml-2;
+            appearance: checkbox;
         }
     }
 </style>

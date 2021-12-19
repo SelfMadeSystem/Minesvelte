@@ -60,16 +60,18 @@ export class SquarePattern extends Pattern {
         public bottomTiles: FunOrDef<SingleTile[]> = [],
         public leftTiles: FunOrDef<SingleTile[]> = [],
         public rightTiles: FunOrDef<SingleTile[]> = []) {
-        super(name, ["x", "y"]);
+        super(name, ["Width", "Height"]);
     }
 
     /**
      * Generates a Grid from this Tile.
      * 
      * @param grid The grid to generate the shapes into.
-     * @param dimensions The dimensions of the grid to generate.
+     * @param parameters The dimensions of the grid to generate.
      */
-    public generateGrid(grid: Grid, dimensions: Point): void {
+    public generateGrid(grid: Grid, parameters: {Width: number, Height: number}): void {
+        const { Width, Height } = parameters;
+        const dimensions: Point = new Vec(Width, Height);
         for (let y = 0; y < dimensions.y; y++) {
             for (let x = 0; x < dimensions.x; x++) {
                 grid.shapes.push(...this.generateShapes(grid, x, y, dimensions));
