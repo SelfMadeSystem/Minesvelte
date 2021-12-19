@@ -17,7 +17,7 @@
 </script>
 
 <div>
-    <button on:click={() => changeMenu("game")} class="new-game">
+    <button on:click={() => changeMenu("new-game")} class="new-game">
         New game
     </button>
 
@@ -29,6 +29,10 @@
 </div>
 
 <style lang="scss">
+    * {
+        pointer-events: all;
+    }
+    
     div {
         @apply flex flex-col align-middle justify-center w-72 h-screen m-auto;
     }

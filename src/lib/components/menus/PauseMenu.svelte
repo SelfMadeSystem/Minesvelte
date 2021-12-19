@@ -36,6 +36,10 @@
 </div>
 
 <style lang="scss">
+    * {
+        pointer-events: all;
+    }
+    
     div {
         @apply flex flex-col align-middle justify-center w-72 h-screen m-auto;
     }

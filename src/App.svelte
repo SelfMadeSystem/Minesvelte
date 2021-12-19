@@ -1,6 +1,7 @@
 <script lang="ts">
   import Game from "./lib/components/Game.svelte";
   import MainMenu from "./lib/components/menus/MainMenu.svelte";
+  import NewGame from "./lib/components/menus/NewGame.svelte";
   import Options from "./lib/components/menus/Options.svelte";
 
   let menu: string = "main";
@@ -16,6 +17,8 @@
   <MainMenu on:menu={onMenu} />
 {:else if menu === "options"}
   <Options on:menu={onMenu} />
+{:else if menu === "new-game"}
+  <NewGame on:menu={onMenu} />
 {:else if menu === "game"}
   <Game on:menu={onMenu} />
 {/if}

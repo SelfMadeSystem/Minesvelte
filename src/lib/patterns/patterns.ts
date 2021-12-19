@@ -39,6 +39,12 @@ function getFunOrDef<T>(p: Point, d: Point, value: FunOrDef<T>, def: ((p: Point,
 }
 
 export abstract class Pattern { // Todo: Add stuff to this class and make a HexPattern and a TrianglePattern.
+    constructor(
+        public readonly name: string,
+        public readonly parameters: string[]
+    ) { }
+
+    public abstract generateGrid(grid: Grid, parameters: unknown): void;
 }
 
 /**
@@ -46,6 +52,7 @@ export abstract class Pattern { // Todo: Add stuff to this class and make a HexP
  */
 export class SquarePattern extends Pattern {
     constructor(
+        public readonly name: string,
         public repeatDimensions: Point,
         public repeatOffset: Point | ((p: Point) => Point),
         public repeatingTiles: FunOrDef<SingleTile[]>,
@@ -53,7 +60,7 @@ export class SquarePattern extends Pattern {
         public bottomTiles: FunOrDef<SingleTile[]> = [],
         public leftTiles: FunOrDef<SingleTile[]> = [],
         public rightTiles: FunOrDef<SingleTile[]> = []) {
-        super();
+        super(name, ["x", "y"]);
     }
 
     /**

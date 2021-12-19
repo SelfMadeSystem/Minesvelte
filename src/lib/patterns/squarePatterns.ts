@@ -2,6 +2,7 @@ import { lineTo, moveTo } from "../game/shape";
 import { SingleTile, SquarePattern } from "./patterns";
 
 export const basic = new SquarePattern(
+    "Basic",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
     [
@@ -15,6 +16,7 @@ export const basic = new SquarePattern(
 );
 
 export const cross = new SquarePattern(
+    "Cross",
     { x: 2, y: 2 },
     { x: 1, y: -1 },
     [
@@ -35,7 +37,8 @@ export const cross = new SquarePattern(
     ],
 );
 
-export const alternatingTriangles = new SquarePattern(
+export const squareTriangles = new SquarePattern(
+    "Square Triangles",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
     ({ x, y }) => [
@@ -65,6 +68,7 @@ export const alternatingTriangles = new SquarePattern(
 );
 
 export const tessellations1 = new SquarePattern(
+    "Tessellations 1",
     { x: 3, y: 3 },
     { x: 0, y: 0 },
     ({ x, y }) => [
@@ -124,7 +128,8 @@ export const tessellations1 = new SquarePattern(
 
 const s3o2 = Math.sqrt(3) / 2;
 
-export const squareAndTriangles = new SquarePattern(
+export const squaresAndTriangles = new SquarePattern(
+    "Squares and Triangles",
     { x: 1, y: 1 + s3o2 },
     ({ y }) => ({ x: y % 2 * 0.5, y: 0 }),
     ({ y }) => [
@@ -154,7 +159,8 @@ export const squareAndTriangles = new SquarePattern(
     ]
 );
 
-export const squareTriangleAndHexagon = new SquarePattern(
+export const rhombitrihexagonal = new SquarePattern(
+    "Rhombitrihexagonal",
     { x: 1 + 2 * s3o2, y: 1.5 + s3o2 },
     ({ y }) => ({ x: y % 2 * (-0.5 - s3o2), y: 0 }),
     [
