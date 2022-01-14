@@ -1,19 +1,13 @@
 <script lang="ts">
     import { createEventDispatcher } from "svelte";
-    import type { MainMenuChangeOptions } from "../../utils/Events";
+    import type {
+        MainMenuChangeOptions,
+        MainMenuNewGameOptions,
+    } from "../../utils/Events";
     import * as squarePatterns from "../../patterns/squarePatterns";
     import * as hexPatterns from "../../patterns/hexPatterns";
     import type { Pattern } from "src/lib/patterns/patterns";
-    import Toggle from "../form/Toggle.svelte";
-
-    const dispatch = createEventDispatcher();
-
-    function changeMenu(name: string) {
-        dispatch("menu", {
-            type: "main-menu-change",
-            menu: name,
-        } as MainMenuChangeOptions);
-    }
+    import Toggle, { State } from "../form/Toggle.svelte";
 
     let type: string = "square";
     let patterns: Map<string, Pattern> = new Map<string, Pattern>();
@@ -52,10 +46,42 @@
     let selected: string;
     let selectedPattern: Pattern;
     let parameters: string[];
+    let selectedParameters: { [key: string]: number } = {};
 
     $: if (selected) {
+        resetSelected();
+    }
+
+    function resetSelected() {
         selectedPattern = patterns.get(selected);
         parameters = selectedPattern.parameters;
+        selectedParameters = {};
+        for (const parameter of parameters) {
+            selectedParameters[parameter] = 5;
+        }
+    }
+
+    let mineCount: number = 10;
+    let minePercent: State = "false";
+
+    const dispatch = createEventDispatcher();
+
+    function changeMenu(name: string) {
+        dispatch("menu", {
+            type: "main-menu-change",
+            menu: name,
+        } as MainMenuChangeOptions);
+    }
+
+    function newGame() {
+        dispatch("menu", {
+            type: "main-menu-new-game",
+            menu: "game",
+            pattern: selectedPattern,
+            patternSize: selectedParameters,
+            mineCount: mineCount,
+            minePercent: minePercent === "true",
+        } as MainMenuNewGameOptions);
     }
 </script>
 
@@ -77,7 +103,7 @@
                 >{parameter}
                 <input
                     type="number"
-                    value="5"
+                    bind:value={selectedParameters[parameter]}
                     min="1"
                     max="50"
                     step="1"
@@ -87,16 +113,22 @@
         {/each}
         <label class="number-input"
             >Mine Count
-            <input type="number" value="5" min="1" step="1" name="mineCount" />
+            <input
+                type="number"
+                bind:value={mineCount}
+                min="1"
+                step="1"
+                name="mineCount"
+            />
         </label>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="boolean-input"
             >Mine Percent
-            <Toggle name="minePercent" state="false" _class="ml-4"/>
+            <Toggle name="minePercent" bind:state={minePercent} _class="ml-4" />
         </label>
     {/if}
 
-    <button on:click={() => changeMenu("game")} class="new-game rounded-b-lg">
+    <button on:click={() => newGame()} class="new-game rounded-b-lg">
         New game
     </button>
 

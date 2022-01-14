@@ -44,14 +44,17 @@ export interface MainMenuEvent {
 }
 
 export interface MainMenuChangeOptions extends MainMenuEvent {
+    type: 'main-menu-change';
     menu: string;
 }
 
 export interface MainMenuNewGameOptions extends MainMenuEvent {
+    type: 'main-menu-new-game';
     pattern: Pattern;
     patternSize: {[key: string]: number}; // Pattern type speific
     mineCount: number;
-    difficulty: number; // I have no idea how to implement this
+    minePercent: boolean;
+    difficulty?: number; // I have no idea how to implement this
 }
 
 export interface PauseMenuEvent {

@@ -69,7 +69,7 @@ export class SquarePattern extends Pattern {
      * @param grid The grid to generate the shapes into.
      * @param parameters The dimensions of the grid to generate.
      */
-    public generateGrid(grid: Grid, parameters: {Width: number, Height: number}): void {
+    public generateGrid(grid: Grid, parameters: { Width: number, Height: number }): void {
         const { Width, Height } = parameters;
         const dimensions: Point = new Vec(Width, Height);
         for (let y = 0; y < dimensions.y; y++) {

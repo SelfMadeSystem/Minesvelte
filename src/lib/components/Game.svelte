@@ -29,7 +29,7 @@
     grid.transformScaleAdjust.value = 50;
 
     // grid.generateDefaultGrid(5);
-    squarePatterns.squaresAndTriangles.generateGrid(grid, { x: 7, y: 7 });
+    squarePatterns.squaresAndTriangles.generateGrid(grid, { Width: 7, Height: 7 });
     grid.resetShapes();
     minesLeft = grid.setMineRatio(0.15);
     grid.centerOnScreen();
