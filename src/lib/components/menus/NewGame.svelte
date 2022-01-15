@@ -8,6 +8,7 @@
     import * as hexPatterns from "../../patterns/hexPatterns";
     import type { Pattern } from "src/lib/patterns/patterns";
     import Toggle, { State } from "../form/Toggle.svelte";
+    import { HexGrid, SquareGrid } from "../../game/grid";
 
     let type: string = "square";
     let patterns: Map<string, Pattern> = new Map<string, Pattern>();
@@ -61,8 +62,8 @@
         }
     }
 
-    let mineCount: number = 10;
-    let minePercent: State = "false";
+    let mineCount: number = 35;
+    let minePercent: State = "true";
 
     const dispatch = createEventDispatcher();
 
@@ -77,6 +78,7 @@
         dispatch("menu", {
             type: "main-menu-new-game",
             menu: "game",
+            grid: type == "square" ? new SquareGrid() : new HexGrid(),
             pattern: selectedPattern,
             patternSize: selectedParameters,
             mineCount: mineCount,

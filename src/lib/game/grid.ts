@@ -167,12 +167,11 @@ export abstract class Grid {
             mines.push(point);
         }
         mines.forEach(point => point.shapeState.hasMine = true);
+        return count;
     }
 
     public setMineRatio(ratio: number) {
-        let amnt = Math.floor(this.shapes.length * ratio);
-        this.setRandomMines(amnt);
-        return amnt;
+        return this.setRandomMines(Math.floor(this.shapes.length * ratio));
     }
 
     public getMinesCount() {

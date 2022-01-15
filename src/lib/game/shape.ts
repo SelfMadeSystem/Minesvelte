@@ -280,7 +280,6 @@ export class Shape extends BasicHint {
 
         while (hasMines.length > 0) {
             var contacts = hasMines.filter(s => s.isAdjacent(current));
-            console.log(contacts);
             if (contacts.length === 0) {
                 return false;
             } else {

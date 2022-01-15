@@ -12,7 +12,12 @@
     import { Solver } from "../game/solver";
     import { specifics, strokeColors } from "../utils/Colors";
     import PauseMenu from "./menus/PauseMenu.svelte";
-    var grid = new SquareGrid();
+    import type { MainMenuNewGameOptions } from "../utils/Events";
+    export let options: MainMenuNewGameOptions;
+
+    console.log("options", options);
+
+    var grid = options.grid;
 
     var shapes: Sh[] = grid.shapes;
     var mineLines = grid.mineLines;
@@ -29,9 +34,11 @@
     grid.transformScaleAdjust.value = 50;
 
     // grid.generateDefaultGrid(5);
-    squarePatterns.squaresAndTriangles.generateGrid(grid, { Width: 7, Height: 7 });
+    options.pattern.generateGrid(grid, options.patternSize);
     grid.resetShapes();
-    minesLeft = grid.setMineRatio(0.15);
+    minesLeft = options.minePercent
+        ? grid.setMineRatio(options.mineCount / 100)
+        : grid.setRandomMines(options.mineCount);
     grid.centerOnScreen();
     // shapes.forEach((s) => {
     //     if (s.shapeState.hasMine) s.flag();
@@ -202,7 +209,8 @@
         color: {specifics[color].normal};"
         >
             {shapesByColor[color].filter((s) => s.shapeState.hasMine).length -
-                shapesByColor[color].filter((s) => s.shapeState.mineKnown).length}
+                shapesByColor[color].filter((s) => s.shapeState.mineKnown)
+                    .length}
         </div>
     {/each}
     <button

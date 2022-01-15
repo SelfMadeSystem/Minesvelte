@@ -50,6 +50,7 @@ export interface MainMenuChangeOptions extends MainMenuEvent {
 
 export interface MainMenuNewGameOptions extends MainMenuEvent {
     type: 'main-menu-new-game';
+    grid: Grid;
     pattern: Pattern;
     patternSize: {[key: string]: number}; // Pattern type speific
     mineCount: number;
