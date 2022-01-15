@@ -2,7 +2,7 @@ import type { Grid } from "../game/grid";
 import type { Pattern } from "../patterns/patterns";
 
 // Unsure, probably not needed
-export type GameEvents = 
+export type GameEvents =
     | 'game-start'   // Starts new game
     | 'game-pause'   // Pauses game (pauses timer)
     | 'game-resume'  // Resumes game (resumes timer)
@@ -48,11 +48,11 @@ export interface MainMenuChangeOptions extends MainMenuEvent {
     menu: string;
 }
 
-export interface MainMenuNewGameOptions extends MainMenuEvent {
+export interface MainMenuNewGameOptions extends MainMenuEvent { // Todo: add colour stuffs
     type: 'main-menu-new-game';
     grid: Grid;
     pattern: Pattern;
-    patternSize: {[key: string]: number}; // Pattern type speific
+    patternSize: { [key: string]: number }; // Pattern type speific
     mineCount: number;
     minePercent: boolean;
     difficulty?: number; // I have no idea how to implement this

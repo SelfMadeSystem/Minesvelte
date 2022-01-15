@@ -33,25 +33,23 @@
 
     grid.transformScaleAdjust.value = 50;
 
-    // grid.generateDefaultGrid(5);
     options.pattern.generateGrid(grid, options.patternSize);
+
     grid.resetShapes();
     minesLeft = options.minePercent
         ? grid.setMineRatio(options.mineCount / 100)
         : grid.setRandomMines(options.mineCount);
     grid.centerOnScreen();
-    // shapes.forEach((s) => {
-    //     if (s.shapeState.hasMine) s.flag();
-    //     else s.reveal();
-    // });
+
     mineLines.forEach((ml) => ml.updateContacts());
-    for (let i = 0; i < shapes.length; i++) {
+
+    for (let i = 0; i < shapes.length; i++) { // Todo: add colour stuffs
         shapes[i].shapeState.color =
             strokeColors[
-                //Math.floor(Math.random() * strokeColors.length);
                 Math.floor((i / shapes.length) * strokeColors.length)
             ];
     }
+
     var shapesByColor = grid.shapesByColor();
 
     grid.notifyShapeStateChange.subscribe(
