@@ -1,5 +1,5 @@
 import type { Grid } from "./grid";
-import type { Point } from "../utils/Vec";
+import type { HexPoint, Point } from "../utils/Vec";
 import { Notifier } from "../utils/Notifier";
 import type { ShapeCollection } from "./solver";
 import { Rect } from "../utils/rect";
@@ -165,6 +165,7 @@ export class ShapeState {
 
 export class Shape extends BasicHint {
     public A_position: Point;
+    public A_hexPosition: HexPoint;
     public contacts: Shape[] = [];
     public readonly shapeState: ShapeState = new ShapeState()
     public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();

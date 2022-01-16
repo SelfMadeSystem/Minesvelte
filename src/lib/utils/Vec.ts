@@ -3,6 +3,12 @@ export interface Point {
     y: number;
 }
 
+export interface HexPoint {
+    q: number;
+    r: number;
+    s: number;
+}
+
 export class Vec implements Point {
     constructor(public readonly x = 0, public readonly y = 0) {
     }

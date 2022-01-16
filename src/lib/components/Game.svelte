@@ -43,11 +43,14 @@
 
     mineLines.forEach((ml) => ml.updateContacts());
 
-    for (let i = 0; i < shapes.length; i++) { // Todo: add colour stuffs
+    for (let i = 0; i < shapes.length; i++) {
+        // Todo: add colour stuffs
         shapes[i].shapeState.color =
-            strokeColors[
-                Math.floor((i / shapes.length) * strokeColors.length)
-            ];
+            strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
+        // let s = shapes[i];
+        // if (s.A_hexPosition.q == -1) {
+        //     s.shapeState.color = strokeColors[1];
+        // }
     }
 
     var shapesByColor = grid.shapesByColor();

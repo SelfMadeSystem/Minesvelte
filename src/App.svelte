@@ -3,10 +3,24 @@
   import MainMenu from "./lib/components/menus/MainMenu.svelte";
   import NewGame from "./lib/components/menus/NewGame.svelte";
   import Options from "./lib/components/menus/Options.svelte";
+  import { HexGrid } from "./lib/game/grid";
+  import { hex, triangle } from "./lib/patterns/hexPatterns";
   import type { MainMenuNewGameOptions } from "./lib/utils/Events";
 
-  let menu: string = "main";
-  let options: MainMenuNewGameOptions;
+  let menu: string = "game";
+  let options: MainMenuNewGameOptions = {
+    grid: new HexGrid(),
+    mineCount: 10,
+    minePercent: true,
+    pattern: triangle,
+    patternSize: {
+      Symmetric: false,
+      Width: 2,
+      BottomHeight: 4,
+      TopHeight: 1,
+    },
+    type: "main-menu-new-game",
+  };
 
   function onMenu(e: CustomEvent<any>) {
     menu = e.detail.menu;

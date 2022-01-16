@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-    export type State = "true" | "false" | "indeterminate";
+    export type State = "true" | "false" | "indeterminate" | true | false;
 </script>
 
 <script lang="ts">
@@ -27,7 +27,7 @@
         }
     }
     export function toggle() {
-        setState(state === "true" ? "false" : "true");
+        setState((state === "true" || state === true) ? "false" : "true");
     }
 
     let slider: HTMLSpanElement;
@@ -83,12 +83,15 @@
 
     switch (state) {
         case "true":
+        case true:
             setPercent(1);
             break;
         case "false":
+        case false:
             setPercent(0);
             break;
         case "indeterminate":
+        default:
             setPercent(0.5);
             break;
     }
@@ -117,8 +120,7 @@
         document.removeEventListener("mouseup", onMouseUp);
         var pos = { x: e.clientX, y: e.clientY };
         if (
-            state !== "indeterminate" &&
-            startTime + 200 > Date.now() ||
+            (state !== "indeterminate" && startTime + 200 > Date.now()) ||
             Math.abs(pos.x - startMouse.x) < 5
         ) {
             toggle();

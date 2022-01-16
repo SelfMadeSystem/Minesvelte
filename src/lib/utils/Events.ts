@@ -51,8 +51,8 @@ export interface MainMenuChangeOptions extends MainMenuEvent {
 export interface MainMenuNewGameOptions extends MainMenuEvent { // Todo: add colour stuffs
     type: 'main-menu-new-game';
     grid: Grid;
-    pattern: Pattern;
-    patternSize: { [key: string]: number }; // Pattern type speific
+    pattern: Pattern<any>;
+    patternSize: { [key: string]: any }; // Pattern type speific
     mineCount: number;
     minePercent: boolean;
     difficulty?: number; // I have no idea how to implement this

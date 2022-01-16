@@ -6,12 +6,12 @@
     } from "../../utils/Events";
     import * as squarePatterns from "../../patterns/squarePatterns";
     import * as hexPatterns from "../../patterns/hexPatterns";
-    import type { Pattern } from "src/lib/patterns/patterns";
+    import type { Pattern, PatternParam } from "src/lib/patterns/patterns";
     import Toggle, { State } from "../form/Toggle.svelte";
     import { HexGrid, SquareGrid } from "../../game/grid";
 
-    let type: string = "square";
-    let patterns: Map<string, Pattern> = new Map<string, Pattern>();
+    let type: string = "hex";
+    let patterns: Map<string, Pattern<any>> = new Map<string, Pattern<any>>();
     let patternsArr: string[];
 
     $: if (type) {
@@ -44,10 +44,10 @@
         }
         patternsArr = Array.from(patterns.keys());
     }
-    let selected: string;
-    let selectedPattern: Pattern;
-    let parameters: string[];
-    let selectedParameters: { [key: string]: number } = {};
+    let selected: string = "hex";
+    let selectedPattern: Pattern<any>;
+    let parameters: PatternParam[];
+    let selectedParameters: { [key: string]: any } = {};
 
     $: if (selected) {
         resetSelected();
@@ -58,7 +58,8 @@
         parameters = selectedPattern.parameters;
         selectedParameters = {};
         for (const parameter of parameters) {
-            selectedParameters[parameter] = 5;
+            selectedParameters[parameter.name.replaceAll(" ", "")] =
+                parameter.default;
         }
     }
 
@@ -101,20 +102,47 @@
 
     {#if parameters}
         {#each parameters as parameter}
-            <label class="number-input"
-                >{parameter}
-                <input
-                    type="number"
-                    bind:value={selectedParameters[parameter]}
-                    min="1"
-                    max="50"
-                    step="1"
-                    name={parameter}
-                />
-            </label>
+            {#if parameter.type == "number"}
+                <label class="number-input"
+                    >{parameter.name}:
+                    <input
+                        type="number"
+                        bind:value={selectedParameters[parameter.name]}
+                        min={parameter.min}
+                        max={parameter.max}
+                        step={parameter.step}
+                        name={parameter.name}
+                    />
+                </label>
+            {:else if parameter.type == "boolean"}
+                <!-- svelte-ignore a11y-label-has-associated-control -->
+                <label class="boolean-input"
+                    >{parameter.name}:
+                    <Toggle
+                        name={parameter.name}
+                        bind:state={selectedParameters[parameter.name]}
+                        _class="ml-4"
+                    />
+                </label>
+            {:else if parameter.type == "select"}
+                <div class="select-input">
+                    <span
+                        >{parameter.name}:
+                        <select
+                            name={parameter.name}
+                            style="border-bottom-width: 0;"
+                            bind:value={selectedParameters[parameter.name]}
+                        >
+                            {#each parameter.options as option}
+                                <option value={option}>{option}</option>
+                            {/each}
+                        </select>
+                    </span>
+                </div>
+            {/if}
         {/each}
         <label class="number-input"
-            >Mine Count
+            >Mine Count:
             <input
                 type="number"
                 bind:value={mineCount}
@@ -125,7 +153,7 @@
         </label>
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <label class="boolean-input"
-            >Mine Percent
+            >Mine Percent:
             <Toggle name="minePercent" bind:state={minePercent} _class="ml-4" />
         </label>
     {/if}
@@ -190,6 +218,16 @@
             &[type="number"]::-webkit-outer-spin-button {
                 -webkit-appearance: none;
             }
+        }
+    }
+
+    .select-input {
+        @apply w-full cursor-default h-max my-0;
+        @apply bg-gray-800 text-white text-2xl pt-2;
+        @apply bg-gray-800 text-white text-2xl border-b-2 border-gray-900;
+
+        span {
+            @apply mx-auto;
         }
     }
 

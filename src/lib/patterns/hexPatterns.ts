@@ -1,7 +1,7 @@
 import { lineTo, moveTo } from "../game/shape";
-import { SingleTile, SquarePattern } from "./patterns";
+import { SingleTile, SquarePattern, HexPattern } from "./patterns";
 
-export const hex = new SquarePattern(
+export const hex = new HexPattern(
     "Hex",
     { x: 2, y: 1 },
     { x: 1, y: -1 },
@@ -17,22 +17,26 @@ export const hex = new SquarePattern(
     ]
 )
 
-export const triangle = new SquarePattern(
+export const triangle = new HexPattern(
     "Triangle",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
-    [
-        new SingleTile([
+    (_, { q }) => [
+        ...(q == -1 ? [] : [new SingleTile([
             moveTo(0, 0),
             lineTo(1, 0),
             lineTo(0, 1),
-        ]),
-        new SingleTile([
+        ])]),
+        ...(q == 1 ? [] : [new SingleTile([
             moveTo(1, 0),
             lineTo(1, 1),
             lineTo(0, 1),
-        ]),
-    ]
+        ])]),
+    ],
+    (p) => { //fixme
+        p.TopHeight += 1;
+        return p;
+    }
 )
 
 export const lozenges = new SquarePattern(
