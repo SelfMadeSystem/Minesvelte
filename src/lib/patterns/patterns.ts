@@ -234,18 +234,18 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
         console.log(parameters);
         const { Symmetric, Width, BottomHeight, TopHeight } = parameters;
         const height = BottomHeight + TopHeight - 1;
-        const fullWidth = Width - 1 + (Symmetric ? Math.min(BottomHeight, TopHeight) : Math.ceil(BottomHeight + TopHeight / 2 - 1));
+        const fullWidth = Width + (Symmetric ? Math.min(BottomHeight, TopHeight) : BottomHeight) - 1;
+        console.log(fullWidth);
 
         const edge: HexPoint = { q: 0, r: 0, s: 0 };
         for (let y = 0; y < height; y++) {
             edge.r = y == 0 ? -1 : y == height - 1 ? 1 : 0;
             let minX = Math.max(0, BottomHeight - y - 1);
-            let maxX = Math.min(fullWidth, fullWidth + (Symmetric ? BottomHeight : TopHeight) - y - 1); // magic
+            let maxX = Math.min(fullWidth, fullWidth + (Symmetric ? BottomHeight : TopHeight) - y - 1);
             for (let x = minX; x < maxX; x++) {
                 edge.s = 0;
                 edge.q = 0;
-                let e = x == minX ? -1 : x == maxX - 1 ? 1 : 0;
-                if (e == -1) {
+                if (x == minX) {
                     if (y < BottomHeight - 1) {
                         edge.q = -1;
                     } else if (y == BottomHeight - 1) {
@@ -253,10 +253,12 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
                     } else {
                         edge.s = -1;
                     }
-                } else if (e == 1) {
-                    if (y < TopHeight - 1) {
+                }
+                if (x == maxX - 1) {
+                    var h = Symmetric ? BottomHeight : TopHeight;
+                    if (y < h - 1) {
                         edge.s = 1;
-                    } else if (y == TopHeight - 1) {
+                    } else if (y == h - 1) {
                         edge.s = edge.q = 1;
                     } else {
                         edge.q = 1;

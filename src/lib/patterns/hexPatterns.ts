@@ -21,22 +21,42 @@ export const triangle = new HexPattern(
     "Triangle",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
-    (_, { q }) => [
-        ...(q == -1 ? [] : [new SingleTile([
+    (_, { q }) => {
+        let a = [
+            new SingleTile([
+                moveTo(0, 0),
+                lineTo(1, 0),
+                lineTo(0, 1),
+            ]),
+            new SingleTile([
+                moveTo(1, 0),
+                lineTo(1, 1),
+                lineTo(0, 1),
+            ])
+        ];
+        if (q == 1) a.pop();
+        if (q == -1) a.shift();
+        return a;
+    },
+    (n): import("./patterns").HexP => {
+        n.TopHeight += 1;
+        n.Width += 1;
+        return n;
+    }
+)
+
+export const square = new HexPattern(
+    "Square",
+    { x: 1, y: 1 },
+    { x: 0, y: 0 },
+    [
+        new SingleTile([
             moveTo(0, 0),
             lineTo(1, 0),
-            lineTo(0, 1),
-        ])]),
-        ...(q == 1 ? [] : [new SingleTile([
-            moveTo(1, 0),
             lineTo(1, 1),
-            lineTo(0, 1),
-        ])]),
+            lineTo(0, 1)
+        ]),
     ],
-    (p) => { //fixme
-        p.TopHeight += 1;
-        return p;
-    }
 )
 
 export const lozenges = new SquarePattern(
