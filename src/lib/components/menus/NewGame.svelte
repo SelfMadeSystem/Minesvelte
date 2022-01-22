@@ -63,7 +63,7 @@
         }
     }
 
-    let mineCount: number = 35;
+    let mineCount: number = 30;
     let minePercent: State = "true";
 
     const dispatch = createEventDispatcher();

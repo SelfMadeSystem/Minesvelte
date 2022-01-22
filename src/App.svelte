@@ -7,7 +7,7 @@
   import { square, hex, triangle } from "./lib/patterns/hexPatterns";
   import type { MainMenuNewGameOptions } from "./lib/utils/Events";
 
-  let menu: string = "game";
+  let menu: string = "main";
   let options: MainMenuNewGameOptions = {
     // grid: new SquareGrid(),
     grid: new HexGrid(),
