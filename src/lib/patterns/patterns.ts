@@ -1,4 +1,4 @@
-import type { Grid } from '../game/grid';
+import { Grid, HexGrid, SquareGrid } from '../game/grid';
 import { Shape, ShapePoint } from '../game/shape';
 import { Vec } from '../utils/Vec';
 import type { HexPoint, Point } from '../utils/Vec';
@@ -99,6 +99,8 @@ export abstract class Pattern<P extends PatternParam[]> {
     }
 
     public abstract generateGrid(grid: Grid, parameters: unknown): void;
+
+    public abstract newGrid(): Grid;
 }
 
 /**
@@ -179,6 +181,10 @@ export class SquarePattern extends Pattern<[NumberParam, NumberParam]> {
             _(this.bottomTiles);
         }
         return shapes;
+    }
+
+    public newGrid() {
+        return new SquareGrid();
     }
 }
 
@@ -287,5 +293,9 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
             shapes.push(s);
         }
         return shapes;
+    }
+
+    public newGrid() {
+        return new HexGrid();
     }
 }

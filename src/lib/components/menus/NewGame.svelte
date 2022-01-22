@@ -79,7 +79,7 @@
         dispatch("menu", {
             type: "main-menu-new-game",
             menu: "game",
-            grid: type == "square" ? new SquareGrid() : new HexGrid(),
+            grid: selectedPattern.newGrid(),
             pattern: selectedPattern,
             patternSize: selectedParameters,
             mineCount: mineCount,

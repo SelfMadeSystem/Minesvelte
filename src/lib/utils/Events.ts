@@ -7,6 +7,7 @@ export type GameEvents =
     | 'game-pause'   // Pauses game (pauses timer)
     | 'game-resume'  // Resumes game (resumes timer)
     | 'game-restart' // Restarts game (resets timer)
+    | 'game-new-game' // Recreates game with same settings (resets timer)
     | 'game-win'     // Game is won (stops timer)
     | 'game-lose'    // Game is lost (stops timer)
 

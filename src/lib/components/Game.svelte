@@ -166,7 +166,7 @@
 />
 
 {#if paused}
-    <PauseMenu on:game-resume={() => (paused = false)} on:menu />
+    <PauseMenu on:game-resume={() => (paused = false)} on:menu on:game-new-game />
 {/if}
 
 <!-- Keeps the objects rendered so it won't take forever to unpause -->

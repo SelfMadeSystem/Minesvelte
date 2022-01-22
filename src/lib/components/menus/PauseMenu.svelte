@@ -15,6 +15,10 @@
         dispatch("game-resume", {});
     }
 
+    function newGame() {
+        dispatch("game-new-game", {});
+    }
+
     function options() {
     }
 </script>
@@ -22,6 +26,10 @@
 <div>
     <button on:click={resume} class="resume">
         Resume
+    </button>
+
+    <button on:click={newGame}>
+        New Game
     </button>
 
     <button on:click={options}>

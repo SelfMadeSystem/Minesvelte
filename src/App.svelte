@@ -8,6 +8,7 @@
   import type { MainMenuNewGameOptions } from "./lib/utils/Events";
 
   let menu: string = "main";
+  let unique: {} = {};
   let options: MainMenuNewGameOptions = {
     // grid: new SquareGrid(),
     grid: new HexGrid(),
@@ -27,7 +28,13 @@
     menu = e.detail.menu;
     if (menu === "game") {
       options = e.detail;
+      newGame();
     }
+  }
+
+  function newGame() {
+    unique = {};
+    options.grid = options.pattern.newGrid();
   }
 </script>
 
@@ -40,7 +47,9 @@
 {:else if menu === "new-game"}
   <NewGame on:menu={onMenu} />
 {:else if menu === "game"}
-  <Game on:menu={onMenu} {options} />
+  {#key unique}
+    <Game on:menu={onMenu} {options} on:game-new-game={newGame} />
+  {/key}
 {/if}
 
 <style>
