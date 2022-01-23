@@ -45,12 +45,12 @@
 
     for (let i = 0; i < shapes.length; i++) {
         // Todo: add colour stuffs
-        // shapes[i].shapeState.color =
-        //     strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
-        let s = shapes[i];
-        if (s.A_hexPosition.q == 1) {
-            s.shapeState.color = strokeColors[1];
-        }
+        shapes[i].shapeState.color =
+            strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
+        // let s = shapes[i];
+        // if (s.A_hexPosition.q == 1) {
+        //     s.shapeState.color = strokeColors[1];
+        // }
     }
 
     var shapesByColor = grid.shapesByColor();
@@ -166,7 +166,11 @@
 />
 
 {#if paused}
-    <PauseMenu on:game-resume={() => (paused = false)} on:menu on:game-new-game />
+    <PauseMenu
+        on:game-resume={() => (paused = false)}
+        on:menu
+        on:game-new-game
+    />
 {/if}
 
 <!-- Keeps the objects rendered so it won't take forever to unpause -->

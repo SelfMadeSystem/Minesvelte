@@ -4,7 +4,7 @@ import { Notifier } from "../utils/Notifier";
 import type { ShapeCollection } from "./solver";
 import { Rect } from "../utils/rect";
 import { Line } from "../utils/Line";
-import { BasicHint } from "./basicHint";
+import { BasicHint, Hint } from "./basicHint";
 import type { SpecificColors } from "../utils/Colors";
 import { mdiFlagCheckered, mdiMine } from '@mdi/js';
 import { mdiFlag } from '@mdi/js';
@@ -276,27 +276,31 @@ export class Shape extends BasicHint {
     }
 
     areAllAdjacent(): boolean {
-        var hasMines = [...this.contacts].filter(s => s.shapeState.hasMine);
-        var current = hasMines.shift();
+        return Shape.checkAllAdjacent([...this.contacts].filter(s => s.shapeState.hasMine));
+    }
 
-        while (hasMines.length > 0) {
-            var contacts = hasMines.filter(s => s.isAdjacent(current));
+    static checkAllAdjacent(shapes: Shape[]): boolean {
+        console.log(shapes.map(s => s.A_position));
+        var current = shapes.shift();
+
+        while (shapes.length > 0) {
+            var contacts = shapes.filter(s => s.isAdjacent(current));
             if (contacts.length === 0) {
                 return false;
             } else {
-                contacts.forEach(s => this._areAllAdjacent(s, hasMines));
+                contacts.forEach(s => Shape._areAllAdjacent(s, shapes));
             }
         }
         return true;
     }
 
-    private _areAllAdjacent(shape: Shape, shapes: Shape[]) {
+    static _areAllAdjacent(shape: Shape, shapes: Shape[]) {
         shapes.splice(shapes.indexOf(shape), 1);
         var contacts = shapes.filter(s => s.isAdjacent(shape));
         if (contacts.length === 0) {
             return;
         }
-        contacts.forEach(s => this._areAllAdjacent(s, shapes));
+        contacts.forEach(s => Shape._areAllAdjacent(s, shapes));
     }
 
     getNumText() {
@@ -340,7 +344,7 @@ export class Shape extends BasicHint {
     }
 
     getText() {
-        if (this.shapeState.isRevealed && ! this.shapeState.hasMine) {
+        if (this.shapeState.isRevealed && !this.shapeState.hasMine) {
             return this.number === 0 ? "" : this.getNumText();
         }
         return "";
@@ -368,5 +372,17 @@ export class Shape extends BasicHint {
 
     toString() {
         return this.points.map(p => p.toString(this.grid)).join(' ').slice(2) + ' z';
+    }
+
+    public asHint(): Hint {
+        var minesAlreadyKnown = this.contacts.filter(c => c.shapeState.mineKnown);
+        console.log(this.adjacentShapesNumber && this.number > 1)
+        var hint: Hint = new Hint(this.contacts.filter(c => c.shapeState.unknown), this.number - this.contacts.reduce((a, c) => a + Number(c.shapeState.mineKnown), 0),
+            this.adjacentShapesNumber && this.number > 1 ?
+                this.areAllAdjacent() ?
+                    (p) => Hint.defaultVerify(p, hint) && Shape.checkAllAdjacent([...minesAlreadyKnown, ...hint.getShapes(p)]) :
+                    (p) => Hint.defaultVerify(p, hint) && !Shape.checkAllAdjacent([...minesAlreadyKnown, ...hint.getShapes(p)]) :
+                (p) => Hint.defaultVerify(p, hint));
+        return hint;
     }
 }

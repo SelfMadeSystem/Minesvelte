@@ -12,6 +12,7 @@ export abstract class BasicHint {
     }
     public abstract updateContacts(): void;
     public getIcon(): Icon | null { return null; }
+    public abstract asHint(): Hint;
 }
 
 export class Hint {
@@ -109,7 +110,7 @@ export class Hint {
         }
     }
 
-    public setPossibility(possibility: boolean[]) {
-        possibility.forEach((b, i) => this.setShapeState(i, b))
+    public getShapes(possibility: boolean[]) {
+        return this.shapes.filter((_, i) => possibility[i]);
     }
 }

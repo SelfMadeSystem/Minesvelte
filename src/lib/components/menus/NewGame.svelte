@@ -10,7 +10,7 @@
     import Toggle, { State } from "../form/Toggle.svelte";
     import { HexGrid, SquareGrid } from "../../game/grid";
 
-    let type: string = "hex";
+    let type: string = "square";
     let patterns: Map<string, Pattern<any>> = new Map<string, Pattern<any>>();
     let patternsArr: string[];
 
@@ -44,7 +44,7 @@
         }
         patternsArr = Array.from(patterns.keys());
     }
-    let selected: string = "hex";
+    let selected: string = "basic";
     let selectedPattern: Pattern<any>;
     let parameters: PatternParam[];
     let selectedParameters: { [key: string]: any } = {};
@@ -63,7 +63,7 @@
         }
     }
 
-    let mineCount: number = 30;
+    let mineCount: number = 0;
     let minePercent: State = "true";
 
     const dispatch = createEventDispatcher();

@@ -56,6 +56,10 @@ export class ShapeCollection {
     }
 }
 
+function sleep(ms: number = 250) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export class Solver {
     private grid: Grid;
 
@@ -66,35 +70,32 @@ export class Solver {
     public async solve() {
         while (true) {
             if (await this.solveBasic()) continue;
-            if (await this.solveIntersection()) continue;
+            if (await this.solveSingleSolution()) continue;
+            if (await this.solveMatchingSolutions()) continue;
+            // if (await this.solveIntersection()) continue;
             break;
         }
     }
 
     private async solveBasic() {
-        const shapes = this.grid.shapes;
-
-        function sleep(ms: number=250) {
-            return new Promise(resolve => setTimeout(resolve, ms));
-        }
+        const hints = this.grid.getHints();
+        console.log(hints);
 
         var found = false;
 
-        for (const shape of shapes) {
-            if (!shape.shapeState.noMineKnown || shape.contacts.every(contact => !contact.shapeState.unknown)) continue;
-            const minesAround = shape.contacts.filter(contact => contact.shapeState.mineKnown).length;
-            if (shape.number === minesAround) {
-                for (const contact of shape.contacts) {
-                    if (!contact.shapeState.unknown) continue;
-                    contact.reveal();
+        for (const hint of hints) {
+            // if (!hint.shapeState.noMineKnown || hint.contacts.every(contact => !contact.shapeState.unknown)) continue;
+            if (hint.mines === 0) {
+                for (const shape of hint.shapes) {
+                    if (!shape.shapeState.unknown) continue;
+                    shape.reveal();
                     await sleep();
                 }
                 found = true;
-            } else if (shape.number - minesAround === shape.contacts.filter(contact => contact.shapeState.unknown).length) {
-                
-                for (const contact of shape.contacts) {
-                    if (!contact.shapeState.unknown) continue;
-                    contact.flag();
+            } else if (hint.mines === hint.shapes.length) {
+                for (const shape of hint.shapes) {
+                    if (!shape.shapeState.unknown) continue;
+                    shape.flag();
                     await sleep();
                 }
                 found = true;
@@ -103,19 +104,71 @@ export class Solver {
         return found;
     }
 
+    private async solveSingleSolution() {
+        const hints = this.grid.getHints();
+
+        var found = false;
+
+        for (const hint of hints) {
+            if (hint.estimatePossibilityCount() > 32) continue;
+            let possibilities = hint.getMinePossibilities();
+
+            if (possibilities.length == 1) {
+                for (let i = 0; i < possibilities[0].length; i++) {
+                    const p = possibilities[0][i];
+                    hint.setShapeState(i, p)
+                    await sleep();
+                }
+                found = true;
+            }
+        }
+        return found;
+    }
+
+    private async solveMatchingSolutions() {
+        const hints = this.grid.getHints();
+
+        var found = false;
+
+        for (const hint of hints) {
+            if (hint.estimatePossibilityCount() > 32) continue;
+            let possibilities = hint.getMinePossibilities();
+            if (possibilities.length <= 1) continue;
+
+            let matching = new Array<boolean>(hint.shapes.length).fill(true);
+            let checkAgainst = possibilities[0];
+
+            possibilities.shift();
+            possibilities.forEach((p) => {
+                p.forEach((b, i) => {
+                    if (checkAgainst[i] !== b) {
+                        matching[i] = false;
+                    }
+                })
+            })
+
+            console.log(matching, [checkAgainst, ...possibilities]);
+
+            for (let i = 0; i < matching.length; i++) {
+                const b = matching[i];
+                if (b) {
+                    hint.setShapeState(i, checkAgainst[i]);
+                    await sleep();
+                    found = true;
+                }
+            }
+        }
+        return found;
+    }
+
     private async solveIntersection() {
-        const shapes = this.grid.shapes;
+        const hints = this.grid.getHints();
 
         function sleep(ms: number = 250) {
             return new Promise(resolve => setTimeout(resolve, ms));
         }
 
         var found = false;
-
-        for (const shape of shapes) {
-            if (!shape.shapeState.noMineKnown || shape.contacts.every(contact => !contact.shapeState.unknown)) continue;
-            const minesAround = shape.contacts.filter(contact => contact.shapeState.mineKnown).length;
-        }
 
         return found;
     }

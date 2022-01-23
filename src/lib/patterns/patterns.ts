@@ -164,7 +164,9 @@ export class SquarePattern extends Pattern<[NumberParam, NumberParam]> {
         const pos: Point = new Vec(x, y).mul(this.repeatDimensions).add(getFunOrDef({ x, y }, dimensions, this.repeatOffset, (p, { }, v) => new Vec(p.y, p.x).mul(v)));
         function _(tiles: FunOrDef<SingleTile[], Point>): void {
             for (const shape of getFunOrDef({ x, y }, dimensions, tiles)) {
-                shapes.push(shape.toShape(grid, pos));
+                var s = shape.toShape(grid, pos);
+                s.A_position = {x, y};
+                shapes.push(s);
             }
         }
         _(this.repeatingTiles);

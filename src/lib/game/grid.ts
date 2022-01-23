@@ -6,6 +6,7 @@ import type { MineLine } from "./mineLine";
 import { Notifier, ValueNotifier } from "../utils/Notifier";
 import { strokeColors } from "../utils/Colors";
 import type { SpecificColors } from "../utils/Colors"
+import { Hint } from "./basicHint";
 
 export abstract class Grid {
     public shapes: Shape[] = [];
@@ -180,6 +181,32 @@ export abstract class Grid {
 
     public getMinesLeft() {
         return this.getMinesCount() - this.shapes.filter(m => (m.shapeState.isRevealed && m.shapeState.hasMine) || m.shapeState.isFlagged).length
+    }
+
+    public getHints(): Hint[] {
+        return [
+            ...this.getShapeHints(),
+            ...this.getColorHints(),
+        ].filter(a => a.shapes.length > 0);
+    }
+
+    private getShapeHints(): Hint[] {
+        return this.shapes.filter(s => s.shapeState.noMineKnown).map(s => s.asHint())
+    }
+
+    private getColorHints(): Hint[] {
+        var hints: Hint[] = [];
+        var sbc = this.shapesByColor();
+        for (const key in sbc) {
+            if (Object.prototype.hasOwnProperty.call(sbc, key)) {
+                let shapes: Shape[] = sbc[key];
+                shapes = shapes.filter(s => s.shapeState.unknown)
+                if (shapes.length > 0) {
+                    hints.push(new Hint(shapes, shapes.reduce((a, s) => a + Number(s.shapeState.hasMine), 0)));
+                }
+            }
+        }
+        return hints;
     }
 }
 
