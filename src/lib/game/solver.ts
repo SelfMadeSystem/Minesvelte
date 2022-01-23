@@ -166,6 +166,7 @@ export class Solver {
     }
 
     private static getCommonalities(possibilities: boolean[][]): boolean[] {
+        possibilities = [...possibilities];
         if (possibilities.length === 0) return [];
         let matching = new Array<boolean>(possibilities[0].length).fill(true);
         let checkAgainst = possibilities[0];
@@ -213,12 +214,15 @@ export class Solver {
         }
 
         for (const [h, p] of possibilities) {
+            if (p.length === 0) continue;
             let commonalities = Solver.getCommonalities(p);
+
+            let p0 = p[0];
 
             for (let i = 0; i < commonalities.length; i++) {
                 const b = commonalities[i];
                 if (b) {
-                    h.setShapeState(i, p[0][i], state);
+                    h.setShapeState(i, p0[i], state);
                     await sleep();
                     found = true;
                 }
