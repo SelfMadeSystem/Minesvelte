@@ -1,3 +1,4 @@
+import { HexGrid, HexGridFlipped } from "../game/grid";
 import { lineTo, moveTo } from "../game/shape";
 import { SingleTile, SquarePattern, HexPattern } from "./patterns";
 
@@ -44,6 +45,8 @@ export const triangle = new HexPattern(
         return n;
     }
 )
+
+triangle.newGrid = () => new HexGridFlipped();
 
 export const square = new HexPattern(
     "Square",

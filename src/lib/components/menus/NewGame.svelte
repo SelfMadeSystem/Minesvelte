@@ -107,7 +107,7 @@
                     >{parameter.name}:
                     <input
                         type="number"
-                        bind:value={selectedParameters[parameter.name]}
+                        bind:value={selectedParameters[parameter.name.replaceAll(" ", "")]}
                         min={parameter.min}
                         max={parameter.max}
                         step={parameter.step}
@@ -120,7 +120,7 @@
                     >{parameter.name}:
                     <Toggle
                         name={parameter.name}
-                        bind:state={selectedParameters[parameter.name]}
+                        bind:state={selectedParameters[parameter.name.replaceAll(" ", "")]}
                         _class="ml-4"
                     />
                 </label>
@@ -131,7 +131,7 @@
                         <select
                             name={parameter.name}
                             style="border-bottom-width: 0;"
-                            bind:value={selectedParameters[parameter.name]}
+                            bind:value={selectedParameters[parameter.name.replaceAll(" ", "")]}
                         >
                             {#each parameter.options as option}
                                 <option value={option}>{option}</option>

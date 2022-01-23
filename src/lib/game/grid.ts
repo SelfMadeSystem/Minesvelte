@@ -373,3 +373,14 @@ export class HexGrid extends Grid {
         }
     }
 }
+
+export class HexGridFlipped extends HexGrid {
+    public toVector({ x, y }: Point): Vec {
+        return new Vec(-x - y * 0.5, -y * sqrt3over2);
+    }
+
+    public fromVector({ x, y }: Point): Vec {
+        var newY = y / sqrt3over2;
+        return new Vec(-x - newY * 0.5, -newY);
+    }
+}
