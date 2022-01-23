@@ -181,7 +181,7 @@ export class Solver {
 
                 let filter = p1.filter(p => p2.some(pp => {
                     for (const [_, n] of i) {
-                        if (p[n[0]] !== pp[n[0]]) return false;
+                        if (p[n[0]] !== pp[n[1]]) return false;
                     }
                     return true;
                 }))
