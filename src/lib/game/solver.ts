@@ -187,28 +187,40 @@ export class Solver {
 
         var found = false;
 
+        var possibilities: Map<Hint, boolean[][]> = new Map();
+
+        function getPossibilities(hint: Hint): boolean[][] {
+            if (!possibilities.has(hint)) possibilities.set(hint, hint.getMinePossibilities());
+            return possibilities.get(hint);
+        }
+
         for (const [h1, v] of intersections) {
-            let p1 = h1.getMinePossibilities();
+            let p1 = getPossibilities(h1);
             for (const h2 of v) {
-                let p2 = h2.getMinePossibilities();
                 let i = h1.getIntersections(h2);
 
-                let filter = p1.filter(p => p2.some(pp => {
+                let p2 = getPossibilities(h2);
+
+                p1 = p1.filter(p => p2.some(pp => {
                     for (const [_, n] of i) {
                         if (p[n[0]] !== pp[n[1]]) return false;
                     }
                     return true;
                 }))
 
-                let commonalities = Solver.getCommonalities(filter);
+                possibilities.set(h1, p1);
+            }
+        }
 
-                for (let i = 0; i < commonalities.length; i++) {
-                    const b = commonalities[i];
-                    if (b) {
-                        h1.setShapeState(i, filter[0][i], state);
-                        await sleep();
-                        found = true;
-                    }
+        for (const [h, p] of possibilities) {
+            let commonalities = Solver.getCommonalities(p);
+
+            for (let i = 0; i < commonalities.length; i++) {
+                const b = commonalities[i];
+                if (b) {
+                    h.setShapeState(i, p[0][i], state);
+                    await sleep();
+                    found = true;
                 }
             }
         }

@@ -208,7 +208,7 @@ export class Shape extends BasicHint {
     public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
-    public adjacentShapesNumber: boolean = false;
+    public adjacentShapesNumber: boolean = true;
     public bounds: Rect;
     public id: number;
     public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
@@ -317,7 +317,6 @@ export class Shape extends BasicHint {
     }
 
     static checkAllAdjacent(shapes: Shape[]): boolean {
-        console.log(shapes.map(s => s.A_position));
         var current = shapes.shift();
 
         while (shapes.length > 0) {
