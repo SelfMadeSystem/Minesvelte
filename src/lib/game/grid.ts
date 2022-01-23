@@ -191,7 +191,7 @@ export abstract class Grid {
     }
 
     private getShapeHints(): Hint[] {
-        return this.shapes.filter(s => s.shapeState.noMineKnown).map(s => s.asHint())
+        return this.shapes.filter(s => s.solverState.noMineKnown).map(s => s.asHint())
     }
 
     private getColorHints(): Hint[] {
@@ -200,9 +200,9 @@ export abstract class Grid {
         for (const key in sbc) {
             if (Object.prototype.hasOwnProperty.call(sbc, key)) {
                 let shapes: Shape[] = sbc[key];
-                shapes = shapes.filter(s => s.shapeState.unknown)
+                shapes = shapes.filter(s => s.solverState.unknown)
                 if (shapes.length > 0) {
-                    hints.push(new Hint(shapes, shapes.reduce((a, s) => a + Number(s.shapeState.hasMine), 0)));
+                    hints.push(new Hint(shapes, shapes.reduce((a, s) => a + Number(s.solverState.hasMine), 0)));
                 }
             }
         }

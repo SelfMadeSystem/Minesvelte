@@ -86,6 +86,8 @@ export function moveToPoint(point: Point): ShapePoint {
 
 export type ShapeStates = "normal" | "revealed" | "flagged" | "exploded";
 
+export type StateType = "solverState" | "shapeState";
+
 export class ShapeState {
     public get isRevealed(): boolean {
         return this._isRevealed;
@@ -93,7 +95,7 @@ export class ShapeState {
     public set isRevealed(value: boolean) {
         if (this.isFlagged) return;
         this._isRevealed = value;
-        this.callback(this);
+        this.notifier.notify(this);
     }
     public get isFlagged(): boolean {
         return this._isFlagged && !this.isRevealed;
@@ -101,14 +103,14 @@ export class ShapeState {
     public set isFlagged(value: boolean) {
         if (this.isRevealed) { return; }
         this._isFlagged = value;
-        this.callback(this);
+        this.notifier.notify(this);
     }
     public get hasMine(): boolean {
         return this._hasMine;
     }
     public set hasMine(value: boolean) {
         this._hasMine = value;
-        this.callback(this);
+        this.notifier.notify(this);
     }
     public get isHighlighed(): boolean {
         return this._highlightation.length > 0;
@@ -119,14 +121,14 @@ export class ShapeState {
         } else {
             this._highlightation = this._highlightation.filter((o) => o !== obj);
         }
-        this.callback(this);
+        this.notifier.notify(this);
     }
     public get color(): SpecificColors {
         return this._color;
     }
     public set color(value: SpecificColors) {
         this._color = value;
-        this.callback(this);
+        this.notifier.notify(this);
     }
 
     public get mineKnown() {
@@ -140,12 +142,12 @@ export class ShapeState {
     }
 
     constructor(
-        private _color: SpecificColors = "default",
-        private _hasMine: boolean = false,
-        private _isFlagged: boolean = false,
-        private _isRevealed: boolean = false,
-        private _highlightation: any[] = [],
-        public callback: (info: ShapeState) => void = () => { },
+        protected _color: SpecificColors = "default",
+        protected _hasMine: boolean = false,
+        protected _isFlagged: boolean = false,
+        protected _isRevealed: boolean = false,
+        protected _highlightation: any[] = [],
+        public notifier: Notifier<ShapeState> = new Notifier(),
     ) {
     }
 
@@ -163,11 +165,46 @@ export class ShapeState {
     }
 }
 
+export class SolverState extends ShapeState {
+    constructor(
+        public base: ShapeState,
+        _color: SpecificColors = "default",
+        _hasMine: boolean = false,
+        _isFlagged: boolean = false,
+        _isRevealed: boolean = false,
+        _highlightation: any[] = [],
+        notifier: Notifier<ShapeState> = new Notifier(),
+    ) {
+        super(_color, _hasMine, _isFlagged, _isRevealed, _highlightation, notifier);
+        base.notifier.subscribe((s) => {
+            this._color = s.color;
+            this._hasMine = s.hasMine;
+            this._isFlagged = s.isFlagged;
+            this._isRevealed = s.isRevealed;
+        })
+    }
+
+    public apply() {
+        this.base.color = this._color;
+        this.base.hasMine = this._hasMine;
+        this.base.isFlagged = this._isFlagged;
+        this.base.isRevealed = this._isRevealed;
+    }
+
+    public reset() {
+        this._color = this.base.color;
+        this._hasMine = this.base.hasMine;
+        this._isFlagged = this.base.isFlagged;
+        this._isRevealed = this.base.isRevealed;
+    }
+}
+
 export class Shape extends BasicHint {
     public A_position: Point;
     public A_hexPosition: HexPoint;
     public contacts: Shape[] = [];
-    public readonly shapeState: ShapeState = new ShapeState()
+    public readonly shapeState: ShapeState = new ShapeState();
+    public readonly solverState: SolverState = new SolverState(this.shapeState);
     public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
@@ -179,7 +216,7 @@ export class Shape extends BasicHint {
     constructor(grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         super(grid);
         this.shapeState.hasMine = hasMine;
-        this.shapeState.callback = () => this.shapeStateNotify.notify(this.shapeState);
+        this.shapeState.notifier.subscribe(() => this.shapeStateNotify.notify(this.shapeState));
         this.points.forEach(p => p.shape = this);
         this.getBounds();
         this.id = this.grid.shapeId++;
@@ -244,16 +281,16 @@ export class Shape extends BasicHint {
         return prevContacts.filter(s => !this.contacts.includes(s));
     }
 
-    reveal() {
-        if (this.shapeState.isRevealed) return;
-        this.shapeState.isRevealed = true;
+    reveal(state: StateType = "shapeState") {
+        if (this[state].isRevealed) return;
+        this[state].isRevealed = true;
         if (!this.shapeState.hasMine && this.number === 0) {
-            this.contacts.forEach(s => s.reveal());
+            this.contacts.forEach(s => s.reveal(state));
         }
     }
 
-    flag(bot: boolean = true) {
-        this.shapeState.isFlagged = bot || !this.shapeState.isFlagged;
+    flag(bot: boolean = true, state: StateType = "shapeState") {
+        this[state].isFlagged = bot || !this[state].isFlagged;
     }
 
     isAdjacent(other: Shape) {

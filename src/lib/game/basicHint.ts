@@ -1,6 +1,6 @@
 import type { Point } from '../utils/Vec';
 import type { Grid } from '../game/grid';
-import type { Shape } from './shape';
+import type { Shape, StateType } from './shape';
 import type { Icon } from '../utils/Icon';
 
 export abstract class BasicHint {
@@ -102,12 +102,12 @@ export class Hint {
         return intersections;
     }
 
-    public setShapeState(index: number, state: boolean) {
+    public setShapeState(index: number, state: boolean, stateType: StateType = "shapeState") {
         var shape = this.shapes[index];
         if (state) {
-            shape.flag();
+            shape.flag(true, stateType);
         } else {
-            shape.reveal();
+            shape.reveal(stateType);
         }
     }
 
