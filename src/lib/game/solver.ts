@@ -91,7 +91,6 @@ export class Solver {
             }
             break;
         }
-        console.log(complexity);
     }
 
     private async solveBasic(state: StateType = "shapeState") {

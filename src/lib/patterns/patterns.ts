@@ -239,11 +239,9 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
 
     public generateGrid(grid: Grid, parameters: HexP): void {
         parameters = this.adjust(parameters);
-        console.log(parameters);
         const { Symmetric, Width, BottomHeight, TopHeight } = parameters;
         const height = BottomHeight + TopHeight - 1;
         const fullWidth = Width + (Symmetric ? Math.min(BottomHeight, TopHeight) : BottomHeight) - 1;
-        console.log(fullWidth);
 
         const edge: HexPoint = { q: 0, r: 0, s: 0 };
         for (let y = 0; y < height; y++) {

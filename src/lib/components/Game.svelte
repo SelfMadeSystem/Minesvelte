@@ -15,8 +15,6 @@
     import type { MainMenuNewGameOptions } from "../utils/Events";
     export let options: MainMenuNewGameOptions;
 
-    console.log("options", options);
-
     var grid = options.grid;
 
     var shapes: Sh[] = grid.shapes;

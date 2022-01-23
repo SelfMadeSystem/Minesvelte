@@ -84,7 +84,6 @@
 
     function keyDown(e: KeyboardEvent) {
         if (!hovering) return;
-        console.log("keydown", e.key);
         if (e.key == "Control") {
             shape.contacts.forEach((s) =>
                 s.shapeState.setHighlighed(shape, true)
