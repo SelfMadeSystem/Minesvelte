@@ -110,7 +110,7 @@ export class Solver {
         var found = false;
 
         for (const hint of hints) {
-            if (hint.estimatePossibilityCount() > 32) continue;
+            if (hint.isTooBig()) continue;
             let possibilities = hint.getMinePossibilities();
 
             if (possibilities.length == 1) {
@@ -131,7 +131,7 @@ export class Solver {
         var found = false;
 
         for (const hint of hints) {
-            if (hint.estimatePossibilityCount() > 32) continue;
+            if (hint.isTooBig()) continue;
             let possibilities = hint.getMinePossibilities();
             if (possibilities.length <= 1) continue;
 

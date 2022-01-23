@@ -67,7 +67,8 @@ export class Hint {
         return getPossibilities(this.shapes.length, this.mines).filter(v => this.verifyCombo(v));
     }
 
-    public estimatePossibilityCount(): number { // Uses pascal triangle
+    public isTooBig(): boolean { // Uses pascal triangle
+        if (this.shapes.length > 16) return true;
         function pascal(x: number, y: number) {
             if ((x + 1) == 1 || (y + 1) == 1 || x == y) {
                 return 1;
@@ -77,7 +78,7 @@ export class Hint {
             }
         }
 
-        return pascal(this.shapes.length, this.mines);
+        return pascal(this.shapes.length, this.mines) > 128;
     }
 
     public intersects(other: Hint): boolean {
