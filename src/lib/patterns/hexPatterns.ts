@@ -40,9 +40,12 @@ export const triangle = new HexPattern(
         return a;
     },
     (n): import("./patterns").HexP => {
-        n.TopHeight += 1;
-        n.Width += 1;
-        return n;
+        return {
+            BottomHeight: n.BottomHeight,
+            TopHeight: n.TopHeight + 1,
+            Width: n.Width + 1,
+            Symmetric: n.Symmetric
+        }
     }
 )
 

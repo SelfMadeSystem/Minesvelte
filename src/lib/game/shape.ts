@@ -413,7 +413,6 @@ export class Shape extends BasicHint {
 
     public asHint(): Hint {
         var minesAlreadyKnown = this.contacts.filter(c => c.shapeState.mineKnown);
-        console.log(this.adjacentShapesNumber && this.number > 1)
         var hint: Hint = new Hint(this.contacts.filter(c => c.shapeState.unknown), this.number - this.contacts.reduce((a, c) => a + Number(c.shapeState.mineKnown), 0),
             this.adjacentShapesNumber && this.number > 1 ?
                 this.areAllAdjacent() ?

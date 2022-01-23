@@ -70,18 +70,32 @@ export class Solver {
 
     public async solve(state: StateType = "shapeState") {
         // this.solveIntersections(state)
+        var complexity = 0;
         while (true) {
-            if (await this.solveBasic(state)) continue;
-            if (await this.solveSingleSolution(state)) continue;
-            if (await this.solveMatchingSolutions(state)) continue;
-            if (await this.solveIntersections(state)) continue;
+            if (await this.solveBasic(state)) {
+                complexity = Math.max(complexity, 1);
+                continue;
+            }
+
+            if (await this.solveSingleSolution(state)) {
+                complexity = Math.max(complexity, 2);
+                continue;
+            }
+            if (await this.solveMatchingSolutions(state)) {
+                complexity = Math.max(complexity, 3);
+                continue;
+            }
+            if (await this.solveIntersections(state)) {
+                complexity = Math.max(complexity, 4);
+                continue;
+            }
             break;
         }
+        console.log(complexity);
     }
 
     private async solveBasic(state: StateType = "shapeState") {
         const hints = this.grid.getHints();
-        console.log(hints);
 
         var found = false;
 
