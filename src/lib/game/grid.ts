@@ -7,6 +7,7 @@ import { Notifier, ValueNotifier } from "../utils/Notifier";
 import { strokeColors } from "../utils/Colors";
 import type { SpecificColors } from "../utils/Colors"
 import { Hint } from "./basicHint";
+import { Solver } from "./solver";
 
 export abstract class Grid {
     public shapes: Shape[] = [];
@@ -207,6 +208,35 @@ export abstract class Grid {
             }
         }
         return hints;
+    }
+
+    public async makeSolvable() { // Reveals shapes until it becomes solvable
+        var solver = new Solver(this);
+
+        await solver.solve("solverState", false);
+
+        const isSolved = () => {
+            return this.shapes.every((s) => !s.solverState.unknown || !s.shapeState.unknown);
+        }
+
+        while (!isSolved()) {
+            var shs = this.getShapeHints().filter(a => a.shapes.length > 0);
+            if (shs.length === 0) shs = this.getColorHints().filter(a => a.shapes.length > 0);
+            var sh = shs[Math.floor(Math.random() * shs.length)];
+            var s = sh.shapes[Math.floor(Math.random() * sh.shapes.length)];
+            if (s === undefined) {
+                throw "????"
+            }
+            if (s.shapeState.hasMine) {
+                s.flag()
+            } else {
+                s.reveal();
+            }
+
+            await solver.solve("solverState", false);
+        }
+
+        this.shapes.forEach(s => s.solverState.reset());
     }
 }
 

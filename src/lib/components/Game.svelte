@@ -21,7 +21,7 @@
     var mineLines = grid.mineLines;
     var minesLeft: number = 0;
     // let s3o2 = Math.sqrt(3) / 2;
-    // mineLines.push(new Ml(grid, {x: 0, y: 0}, 45 * Math.PI / 180));
+    // mineLines.push(new Ml(grid, { x: -1, y: 0.5 }, 0));
     // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 1 * (1.5 + s3o2)}, 0));
     // mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 2 * (1.5 + s3o2)}, 0));
     // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 3 * (1.5 + s3o2)}, 0));
@@ -154,6 +154,10 @@
     function solve() {
         new Solver(grid).solve();
     }
+
+    function makeSolvable() {
+        grid.makeSolvable();
+    }
 </script>
 
 <svelte:window
@@ -221,5 +225,11 @@
         class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2"
     >
         Solve
+    </button>
+    <button
+        on:click={makeSolvable}
+        class="text-3xl font-semibold text-white text-center absolute top-0 left-24 z-10 border-2"
+    >
+        Make Solvable
     </button>
 </span>

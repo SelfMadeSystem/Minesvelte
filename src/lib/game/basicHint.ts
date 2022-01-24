@@ -68,7 +68,7 @@ export class Hint {
     }
 
     public isTooBig(): boolean { // Doesn't use pascal triangle
-        return this.shapes.length > 18;
+        return this.shapes.length > 12;
         // function pascal(x: number, y: number) {
         //     if ((x + 1) == 1 || (y + 1) == 1 || x == y) {
         //         return 1;

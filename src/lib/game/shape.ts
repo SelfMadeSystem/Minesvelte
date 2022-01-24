@@ -176,10 +176,11 @@ export class SolverState extends ShapeState {
             this._isFlagged = s.isFlagged;
             this._isRevealed = s.isRevealed;
         })
-        this.apply();
+        this.reset();
     }
 
     public apply() {
+        throw "??";
         this.base.color = this._color;
         this.base.hasMine = this._hasMine;
         this.base.isFlagged = this._isFlagged;
@@ -279,7 +280,7 @@ export class Shape extends BasicHint {
     reveal(state: StateType = "shapeState") {
         if (this[state].isRevealed) return false;
         this[state].isRevealed = true;
-        if (!this.shapeState.hasMine && this.number === 0) {
+        if (!this[state].hasMine && this.number === 0) {
             this.contacts.forEach(s => s.reveal(state));
         }
         return true;
@@ -409,8 +410,8 @@ export class Shape extends BasicHint {
     }
 
     public asHint(): Hint {
-        var minesAlreadyKnown = this.contacts.filter(c => c.shapeState.mineKnown);
-        var hint: Hint = new Hint(this.contacts.filter(c => c.shapeState.unknown), this.number - this.contacts.reduce((a, c) => a + Number(c.shapeState.mineKnown), 0),
+        var minesAlreadyKnown = this.contacts.filter(c => c.solverState.mineKnown);
+        var hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown), this.number - this.contacts.reduce((a, c) => a + Number(c.solverState.mineKnown), 0),
             this.adjacentShapesNumber && this.number > 1 ?
                 this.areAllAdjacent() ?
                     (p) => Hint.defaultVerify(p, hint) && Shape.checkAllAdjacent([...minesAlreadyKnown, ...hint.getShapes(p)]) :

@@ -57,7 +57,12 @@ export class ShapeCollection {
     }
 }
 
-function sleep(ms: number = 250) {
+var sleepTime = 250;
+
+function sleep(ms: number = sleepTime) {
+    if (sleepTime === 0) {
+        return new Promise(resolve => resolve(null));
+    }
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -68,7 +73,12 @@ export class Solver {
         this.grid = grid;
     }
 
-    public async solve(state: StateType = "shapeState") {
+    public async solve(state: StateType = "shapeState", wait = true) {
+        if (wait) {
+            sleepTime = 250;
+        } else {
+            sleepTime = 0;
+        }
         // this.solveIntersections(state)
         var complexity = 0;
         while (true) {
@@ -103,13 +113,13 @@ export class Solver {
             if (hint.mines === 0) {
                 for (const shape of hint.shapes) {
                     if (!shape[state].unknown) continue;
-                    if (shape.reveal()) await sleep();
+                    if (shape.reveal(state)) await sleep();
                 }
                 found = true;
             } else if (hint.mines === hint.shapes.length) {
                 for (const shape of hint.shapes) {
                     if (!shape[state].unknown) continue;
-                    if (shape.flag()) await sleep();
+                    if (shape.flag(true, state)) await sleep();
                 }
                 found = true;
             }

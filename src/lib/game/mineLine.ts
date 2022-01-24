@@ -1,6 +1,6 @@
 import { Vec } from "../utils/Vec";
 import type { Point } from "../utils/Vec";
-import { BasicHint } from "./basicHint";
+import { BasicHint, Hint } from "./basicHint";
 import type { Grid } from "./grid";
 import type { Shape } from "./shape";
 import { Line } from "../utils/Line";
@@ -34,5 +34,9 @@ export class MineLine extends BasicHint {
         this.contacts = this.grid.shapes.filter(shape =>
             shape.lines.some(line => line.intersects(aLine))
         );
+    }
+
+    public asHint(): Hint { // Todo: Implement this pls
+        throw new Error("Method not implemented.");
     }
 }
