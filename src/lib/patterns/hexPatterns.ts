@@ -327,3 +327,10 @@ export const complex1 = new SquarePattern(
         ]),
     ]
 )
+
+lozenges.newGrid = // Todo: Make these HexPatterns instead of SquarePatterns.
+    tetrille1.newGrid =
+    tetrille2.newGrid =
+    tetrille3.newGrid =
+    complex1.newGrid =
+    () => new HexGrid();

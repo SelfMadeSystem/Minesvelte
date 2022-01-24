@@ -185,7 +185,7 @@ export class SquarePattern extends Pattern<[NumberParam, NumberParam]> {
         return shapes;
     }
 
-    public newGrid() {
+    public newGrid(): Grid {
         return new SquareGrid();
     }
 }
@@ -295,7 +295,7 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
         return shapes;
     }
 
-    public newGrid() {
+    public newGrid(): Grid {
         return new HexGrid();
     }
 }
