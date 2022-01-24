@@ -103,15 +103,13 @@ export class Solver {
             if (hint.mines === 0) {
                 for (const shape of hint.shapes) {
                     if (!shape[state].unknown) continue;
-                    shape.reveal();
-                    await sleep();
+                    if (shape.reveal()) await sleep();
                 }
                 found = true;
             } else if (hint.mines === hint.shapes.length) {
                 for (const shape of hint.shapes) {
                     if (!shape[state].unknown) continue;
-                    shape.flag();
-                    await sleep();
+                    if (shape.flag()) await sleep();
                 }
                 found = true;
             }
@@ -131,8 +129,7 @@ export class Solver {
             if (possibilities.length == 1) {
                 for (let i = 0; i < possibilities[0].length; i++) {
                     const p = possibilities[0][i];
-                    hint.setShapeState(i, p, state)
-                    await sleep();
+                    if (hint.setShapeState(i, p, state)) await sleep();
                 }
                 found = true;
             }
@@ -155,8 +152,7 @@ export class Solver {
             for (let i = 0; i < commonalities.length; i++) {
                 const b = commonalities[i];
                 if (b) {
-                    hint.setShapeState(i, possibilities[0][i], state);
-                    await sleep();
+                    if (hint.setShapeState(i, possibilities[0][i], state)) await sleep();
                     found = true;
                 }
             }
@@ -221,8 +217,7 @@ export class Solver {
             for (let i = 0; i < commonalities.length; i++) {
                 const b = commonalities[i];
                 if (b) {
-                    h.setShapeState(i, p0[i], state);
-                    await sleep();
+                    if (h.setShapeState(i, p0[i], state)) await sleep();
                     found = true;
                 }
             }

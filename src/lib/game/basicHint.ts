@@ -105,9 +105,9 @@ export class Hint {
     public setShapeState(index: number, state: boolean, stateType: StateType = "shapeState") {
         var shape = this.shapes[index];
         if (state) {
-            shape.flag(true, stateType);
+            return shape.flag(true, stateType);
         } else {
-            shape.reveal(stateType);
+            return shape.reveal(stateType);
         }
     }
 

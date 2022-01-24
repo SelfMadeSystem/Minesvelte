@@ -282,15 +282,18 @@ export class Shape extends BasicHint {
     }
 
     reveal(state: StateType = "shapeState") {
-        if (this[state].isRevealed) return;
+        if (this[state].isRevealed) return false;
         this[state].isRevealed = true;
         if (!this.shapeState.hasMine && this.number === 0) {
             this.contacts.forEach(s => s.reveal(state));
         }
+        return true;
     }
 
     flag(bot: boolean = true, state: StateType = "shapeState") {
+        if (bot && this[state].isFlagged) return false;
         this[state].isFlagged = bot || !this[state].isFlagged;
+        return true;
     }
 
     isAdjacent(other: Shape) {
