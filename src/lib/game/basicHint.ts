@@ -45,7 +45,7 @@ export class Hint {
     ) {
     }
 
-    public getMinePossibilities(): boolean[][] {
+    public getMinePossibilities(): boolean[][] { // Todo: I can improve this using constraints'n'whatnot
         function getPossibilities(len: number, mines: number): boolean[][] {
             if (mines === 0) {
                 return [new Array(len).fill(false)];
@@ -67,18 +67,18 @@ export class Hint {
         return getPossibilities(this.shapes.length, this.mines).filter(v => this.verifyCombo(v));
     }
 
-    public isTooBig(): boolean { // Uses pascal triangle
-        if (this.shapes.length > 16) return true;
-        function pascal(x: number, y: number) {
-            if ((x + 1) == 1 || (y + 1) == 1 || x == y) {
-                return 1;
-            }
-            else {
-                return pascal(x - 1, y - 1) + pascal(x - 1, y);
-            }
-        }
+    public isTooBig(): boolean { // Doesn't use pascal triangle
+        return this.shapes.length > 18;
+        // function pascal(x: number, y: number) {
+        //     if ((x + 1) == 1 || (y + 1) == 1 || x == y) {
+        //         return 1;
+        //     }
+        //     else {
+        //         return pascal(x - 1, y - 1) + pascal(x - 1, y);
+        //     }
+        // }
 
-        return pascal(this.shapes.length, this.mines) > 128;
+        // return pascal(this.shapes.length, this.mines) > 3600;
     }
 
     public intersects(other: Hint): boolean {

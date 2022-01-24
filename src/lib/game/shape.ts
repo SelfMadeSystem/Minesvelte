@@ -168,20 +168,15 @@ export class ShapeState {
 export class SolverState extends ShapeState {
     constructor(
         public base: ShapeState,
-        _color: SpecificColors = "default",
-        _hasMine: boolean = false,
-        _isFlagged: boolean = false,
-        _isRevealed: boolean = false,
-        _highlightation: any[] = [],
-        notifier: Notifier<ShapeState> = new Notifier(),
     ) {
-        super(_color, _hasMine, _isFlagged, _isRevealed, _highlightation, notifier);
+        super();
         base.notifier.subscribe((s) => {
             this._color = s.color;
             this._hasMine = s.hasMine;
             this._isFlagged = s.isFlagged;
             this._isRevealed = s.isRevealed;
         })
+        this.apply();
     }
 
     public apply() {
