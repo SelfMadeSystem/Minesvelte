@@ -88,6 +88,10 @@
 
     function onMouseWheel(e: WheelEvent) {
         var delta = e.deltaY || e.detail || (e as any).wheelDelta;
+        if (e.ctrlKey) {
+            e.preventDefault();
+            delta *= -4;
+        }
         grid.transformScale.value *= 1 + delta / 1000;
         grid.transformPosition.value = Vec.from(
             grid.transformPosition.value
@@ -99,7 +103,7 @@
         );
     }
 
-    document.addEventListener("wheel", onMouseWheel, false);
+    document.addEventListener("wheel", onMouseWheel, {passive: false});
     document.addEventListener("DOMMouseScroll", onMouseWheel, false);
 
     var scrolling = false;
