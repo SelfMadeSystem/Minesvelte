@@ -65,7 +65,7 @@ export const square = new HexPattern(
     ],
 )
 
-export const lozenges = new SquarePattern(
+export const lozenges = new HexPattern(
     "Lozenges",
     { x: 2, y: 1 },
     { x: 1, y: -1 },
@@ -91,7 +91,7 @@ export const lozenges = new SquarePattern(
     ]
 )
 
-export const tetrille1 = new SquarePattern(
+export const tetrille1 = new HexPattern(
     "Tetrille 1",
     { x: 2, y: 1 },
     { x: 1, y: -1 },
@@ -117,7 +117,7 @@ export const tetrille1 = new SquarePattern(
     ]
 )
 
-export const tetrille2 = new SquarePattern(
+export const tetrille2 = new HexPattern(
     "Tetrille 2",
     { x: 5, y: 4 },
     { x: 1, y: -1 },
@@ -167,7 +167,7 @@ export const tetrille2 = new SquarePattern(
     ]
 )
 
-export const tetrille3 = new SquarePattern(
+export const tetrille3 = new HexPattern(
     "Tetrille 3",
     { x: 5, y: 4 },
     { x: 1, y: -1 },
@@ -265,7 +265,7 @@ export const tetrille3 = new SquarePattern(
     ]
 )
 
-export const complex1 = new SquarePattern(
+export const complex1 = new HexPattern(
     "Complex 1",
     { x: 4, y: 2 },
     { x: 2, y: -2 },
@@ -327,10 +327,3 @@ export const complex1 = new SquarePattern(
         ]),
     ]
 )
-
-lozenges.newGrid = // Todo: Make these HexPatterns instead of SquarePatterns.
-    tetrille1.newGrid =
-    tetrille2.newGrid =
-    tetrille3.newGrid =
-    complex1.newGrid =
-    () => new HexGrid();

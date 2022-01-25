@@ -8,6 +8,7 @@ import { strokeColors } from "../utils/Colors";
 import type { SpecificColors } from "../utils/Colors"
 import { Hint } from "./basicHint";
 import { Solver } from "./solver";
+import { HistoryProcessor } from "./history";
 
 export abstract class Grid {
     public shapes: Shape[] = [];
@@ -18,6 +19,7 @@ export abstract class Grid {
     public transformPositionAdjust: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public notifyShapeStateChange: Notifier<Shape> = new Notifier();
     public shapeId: number = 0;
+    public history: HistoryProcessor = new HistoryProcessor(this);
 
     constructor() {
     }
@@ -49,6 +51,7 @@ export abstract class Grid {
                 this.notifyShapeStateChange.notify(shape);
             });
         });
+        this.history.reset();
     }
 
     public fromMousePos(x: number, y: number): Point {

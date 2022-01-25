@@ -88,6 +88,12 @@ export type ShapeStates = "normal" | "revealed" | "flagged" | "exploded";
 
 export type StateType = "solverState" | "shapeState";
 
+export type ShapeMove = "isRevealed" | "isFlagged"
+
+export type ShapeStateStuffs = ShapeMove | "hasMine" | "isHighlighed" | "color"
+
+export type SSNotify = { changed: ShapeStateStuffs, newState: ShapeState };
+
 export class ShapeState {
     public get isRevealed(): boolean {
         return this._isRevealed;
@@ -95,7 +101,10 @@ export class ShapeState {
     public set isRevealed(value: boolean) {
         if (this.isFlagged) return;
         this._isRevealed = value;
-        this.notifier.notify(this);
+        this.notifier.notify({
+            changed: "isRevealed",
+            newState: this
+        });
     }
     public get isFlagged(): boolean {
         return this._isFlagged && !this.isRevealed;
@@ -103,14 +112,20 @@ export class ShapeState {
     public set isFlagged(value: boolean) {
         if (this.isRevealed) { return; }
         this._isFlagged = value;
-        this.notifier.notify(this);
+        this.notifier.notify({
+            changed: "isFlagged",
+            newState: this
+        });
     }
     public get hasMine(): boolean {
         return this._hasMine;
     }
     public set hasMine(value: boolean) {
         this._hasMine = value;
-        this.notifier.notify(this);
+        this.notifier.notify({
+            changed: "hasMine",
+            newState: this
+        });
     }
     public get isHighlighed(): boolean {
         return this._highlightation.length > 0;
@@ -121,14 +136,20 @@ export class ShapeState {
         } else {
             this._highlightation = this._highlightation.filter((o) => o !== obj);
         }
-        this.notifier.notify(this);
+        this.notifier.notify({
+            changed: "isHighlighed",
+            newState: this
+        });
     }
     public get color(): SpecificColors {
         return this._color;
     }
     public set color(value: SpecificColors) {
         this._color = value;
-        this.notifier.notify(this);
+        this.notifier.notify({
+            changed: "color",
+            newState: this
+        });
     }
 
     public get mineKnown() {
@@ -147,7 +168,7 @@ export class ShapeState {
         protected _isFlagged: boolean = false,
         protected _isRevealed: boolean = false,
         protected _highlightation: any[] = [],
-        public notifier: Notifier<ShapeState> = new Notifier(),
+        public notifier: Notifier<SSNotify> = new Notifier(),
     ) {
     }
 
@@ -170,7 +191,7 @@ export class SolverState extends ShapeState {
         public base: ShapeState,
     ) {
         super();
-        base.notifier.subscribe((s) => {
+        base.notifier.subscribe(({newState: s}) => {
             this._color = s.color;
             this._hasMine = s.hasMine;
             this._isFlagged = s.isFlagged;
@@ -201,10 +222,10 @@ export class Shape extends BasicHint {
     public contacts: Shape[] = [];
     public readonly shapeState: ShapeState = new ShapeState();
     public readonly solverState: SolverState = new SolverState(this.shapeState);
-    public readonly shapeStateNotify: Notifier<ShapeState> = new Notifier();
+    public readonly shapeStateNotify: Notifier<SSNotify> = new Notifier();
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
-    public adjacentShapesNumber: boolean = false;
+    public adjacentShapesNumber: boolean = true;
     public bounds: Rect;
     public id: number;
     public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
@@ -212,7 +233,7 @@ export class Shape extends BasicHint {
     constructor(grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         super(grid);
         this.shapeState.hasMine = hasMine;
-        this.shapeState.notifier.subscribe(() => this.shapeStateNotify.notify(this.shapeState));
+        this.shapeState.notifier.subscribe((s) => this.shapeStateNotify.notify(s));
         this.points.forEach(p => p.shape = this);
         this.getBounds();
         this.id = this.grid.shapeId++;

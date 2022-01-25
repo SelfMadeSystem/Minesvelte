@@ -126,9 +126,16 @@
     }
 
     function onKeyDown(e: KeyboardEvent) {
+        console.log(e.key);
         switch (e.key) {
             case "Escape":
                 paused = !paused;
+                break;
+            case "u":
+                grid.history.undo();
+                break;
+            case "r":
+                grid.history.redo();
                 break;
         }
     }

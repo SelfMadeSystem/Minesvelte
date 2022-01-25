@@ -23,8 +23,8 @@
         text = shape.getText();
     } */
 
-    shape.shapeStateNotify.subscribe((state) => {
-        color = getShapeColorByState(state, hovering);
+    shape.shapeStateNotify.subscribe((s) => {
+        color = getShapeColorByState(s.newState, hovering);
         text = shape.getText();
         icon = shape.getIcon();
     });
