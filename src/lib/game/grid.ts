@@ -224,9 +224,11 @@ export abstract class Grid {
 
         while (!isSolved()) {
             var shs = this.getShapeHints().filter(a => a.shapes.length > 0);
-            if (shs.length === 0) shs = this.getColorHints().filter(a => a.shapes.length > 0);
+            var v = shs.length === 0;
+            if (v) shs = this.getColorHints().filter(a => a.shapes.length > 0);
             var sh = shs[Math.floor(Math.random() * shs.length)];
-            var s = sh.shapes[Math.floor(Math.random() * sh.shapes.length)];
+            var l = v ? sh.shapes.filter(s => !s.shapeState.hasMine) : sh.shapes;
+            var s = l[Math.floor(Math.random() * l.length)];
             if (s === undefined) {
                 throw "????"
             }
