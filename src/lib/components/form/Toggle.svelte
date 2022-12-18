@@ -136,6 +136,7 @@
 
 <input type="hidden" {name} value={state} />
 
+<!-- svelte-ignore a11y-no-noninteractive-tabindex -->
 <span
     class="slider {state} {_class}"
     style="background-color: {color.toString()}; {style}"
@@ -148,6 +149,7 @@
         }
     }}
 >
+    <!-- svelte-ignore a11y-role-has-required-aria-props -->
     <span
         class="slider-handle {state}"
         role="slider"

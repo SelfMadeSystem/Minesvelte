@@ -7,7 +7,7 @@
     import * as squarePatterns from "../../patterns/squarePatterns";
     import * as hexPatterns from "../../patterns/hexPatterns";
     import type { Pattern, PatternParam } from "src/lib/patterns/patterns";
-    import Toggle, { State } from "../form/Toggle.svelte";
+    import Toggle, { type State } from "../form/Toggle.svelte";
     import { HexGrid, SquareGrid } from "../../game/grid";
 
     let type: string = "square";

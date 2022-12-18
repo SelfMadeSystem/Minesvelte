@@ -5,7 +5,7 @@
     import MineLine from "./MineLine.svelte";
     import type { Shape as Sh } from "../game/shape";
     import { MineLine as Ml } from "../game/mineLine";
-    import Vec, { Point } from "../utils/Vec";
+    import Vec, { type Point } from "../utils/Vec";
     import { windowSize } from "../stores";
     import * as squarePatterns from "../patterns/squarePatterns";
     import * as hexPatterns from "../patterns/hexPatterns";
