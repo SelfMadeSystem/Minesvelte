@@ -88,11 +88,11 @@ export type ShapeStates = "normal" | "revealed" | "flagged" | "exploded";
 
 export type StateType = "solverState" | "shapeState";
 
-export type ShapeMove = "isRevealed" | "isFlagged"
+export type ShapeMove = "isRevealed" | "isFlagged";
 
-export type ShapeStateStuffs = ShapeMove | "hasMine" | "isHighlighed" | "color"
+export type ShapeStateStuffs = ShapeMove | "hasMine" | "isHighlighed" | "color";
 
-export type SSNotify = { changed: ShapeStateStuffs, newState: ShapeState };
+export type SSNotify = { changed: ShapeStateStuffs, newState: ShapeState; };
 
 export class ShapeState {
     public get isRevealed(): boolean {
@@ -191,12 +191,12 @@ export class SolverState extends ShapeState {
         public base: ShapeState,
     ) {
         super();
-        base.notifier.subscribe(({newState: s}) => {
+        base.notifier.subscribe(({ newState: s }) => {
             this._color = s.color;
             this._hasMine = s.hasMine;
             this._isFlagged = s.isFlagged;
             this._isRevealed = s.isRevealed;
-        })
+        });
         this.reset();
     }
 
@@ -240,9 +240,9 @@ export class Shape extends BasicHint {
     }
 
     public get lines(): Line[] {
-        var lines: Line[] = [];
-        var first: ShapePoint = this.points[0];
-        var prev: ShapePoint = this.points[0];
+        let lines: Line[] = [];
+        let first: ShapePoint = this.points[0];
+        let prev: ShapePoint = this.points[0];
         for (let i = 1; i < this.points.length; i++) {
             const p = this.points[i];
             if (p.move) {
@@ -261,10 +261,10 @@ export class Shape extends BasicHint {
     }
 
     public getBounds() {
-        var minX = Number.MAX_SAFE_INTEGER;
-        var minY = Number.MAX_SAFE_INTEGER;
-        var maxX = Number.MIN_SAFE_INTEGER;
-        var maxY = Number.MIN_SAFE_INTEGER;
+        let minX = Number.MAX_SAFE_INTEGER;
+        let minY = Number.MAX_SAFE_INTEGER;
+        let maxX = Number.MIN_SAFE_INTEGER;
+        let maxY = Number.MIN_SAFE_INTEGER;
         this.points.forEach(p => {
             if (p.x < minX) minX = p.x;
             if (p.y < minY) minY = p.y;
@@ -286,13 +286,13 @@ export class Shape extends BasicHint {
             return;
         }
         this.uptadingContacts = true;
-        var prevContacts = this._updateContacts();
+        let prevContacts = this._updateContacts();
         new Set([...this.contacts, ...prevContacts]).forEach(s => s._updateContacts());
         this.uptadingContacts = false;
     }
 
     _updateContacts() {
-        var prevContacts = this.contacts;
+        let prevContacts = this.contacts;
         this.contacts = this.grid.shapes.filter(s => s !== this && this.isCorner(s));
         this.notifyContactChange.notify(this.contacts);
         return prevContacts.filter(s => !this.contacts.includes(s));
@@ -337,10 +337,10 @@ export class Shape extends BasicHint {
     }
 
     static checkAllAdjacent(shapes: Shape[]): boolean {
-        var current = shapes.shift();
+        let current = shapes.shift();
 
         while (shapes.length > 0) {
-            var contacts = shapes.filter(s => s.isAdjacent(current));
+            let contacts = shapes.filter(s => s.isAdjacent(current));
             if (contacts.length === 0) {
                 return false;
             } else {
@@ -352,7 +352,7 @@ export class Shape extends BasicHint {
 
     static _areAllAdjacent(shape: Shape, shapes: Shape[]) {
         shapes.splice(shapes.indexOf(shape), 1);
-        var contacts = shapes.filter(s => s.isAdjacent(shape));
+        let contacts = shapes.filter(s => s.isAdjacent(shape));
         if (contacts.length === 0) {
             return;
         }
@@ -371,9 +371,9 @@ export class Shape extends BasicHint {
     }
 
     getTextPosition() {
-        var center = { x: this.points[0].x, y: this.points[0].y }
+        let center = { x: this.points[0].x, y: this.points[0].y };
         for (let i = 1; i < this.points.length; i++) {
-            var p = this.points[i];
+            let p = this.points[i];
             center.x += p.x;
             center.y += p.y;
         }
@@ -395,7 +395,7 @@ export class Shape extends BasicHint {
     }
 
     getTextSize(): number {
-        var size = this.getShapeArea();
+        let size = this.getShapeArea();
         return Math.min(0.5, size * 0.6);
     }
 
@@ -431,8 +431,9 @@ export class Shape extends BasicHint {
     }
 
     public asHint(): Hint {
-        var minesAlreadyKnown = this.contacts.filter(c => c.solverState.mineKnown);
-        var hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown), this.number - this.contacts.reduce((a, c) => a + Number(c.solverState.mineKnown), 0),
+        const minesAlreadyKnown = this.contacts.filter(c => c.solverState.mineKnown);
+        const hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown),
+            this.number - this.contacts.reduce((a, c) => a + Number(c.solverState.mineKnown), 0),
             this.adjacentShapesNumber && this.number > 1 ?
                 this.areAllAdjacent() ?
                     (p) => Hint.defaultVerify(p, hint) && Shape.checkAllAdjacent([...minesAlreadyKnown, ...hint.getShapes(p)]) :

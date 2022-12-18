@@ -11,7 +11,7 @@ export class ShapeCollection {
         this.minMines = Math.max(0, this.minMines);
         this.maxMines = Math.min(this.shapes.length, this.maxMines);
         if (this.minMines > this.maxMines) {
-            var temp = this.minMines;
+            let temp = this.minMines;
             this.minMines = this.maxMines;
             this.maxMines = temp;
         }
@@ -57,7 +57,7 @@ export class ShapeCollection {
     }
 }
 
-var sleepTime = 250;
+let sleepTime = 250;
 
 function sleep(ms: number = sleepTime) {
     if (sleepTime === 0) {
@@ -80,7 +80,7 @@ export class Solver {
             sleepTime = 0;
         }
         // this.solveIntersections(state)
-        var complexity = 0;
+        let complexity = 0;
         while (true) {
             if (await this.solveBasic(state)) {
                 complexity = Math.max(complexity, 1);
@@ -106,7 +106,7 @@ export class Solver {
     private async solveBasic(state: StateType = "shapeState") {
         const hints = this.grid.getHints();
 
-        var found = false;
+        let found = false;
 
         for (const hint of hints) {
             // if (!hint.shapeState.noMineKnown || hint.contacts.every(contact => !contact.shapeState.unknown)) continue;
@@ -130,7 +130,7 @@ export class Solver {
     private async solveSingleSolution(state: StateType = "shapeState") {
         const hints = this.grid.getHints();
 
-        var found = false;
+        let found = false;
 
         for (const hint of hints) {
             if (hint.isTooBig()) continue;
@@ -150,7 +150,7 @@ export class Solver {
     private async solveMatchingSolutions(state: StateType = "shapeState") {
         const hints = this.grid.getHints();
 
-        var found = false;
+        let found = false;
 
         for (const hint of hints) {
             if (hint.isTooBig()) continue;
@@ -191,9 +191,9 @@ export class Solver {
     private async solveIntersections(state: StateType = "shapeState") {
         const intersections = this.getIntersections();
 
-        var found = false;
+        let found = false;
 
-        var possibilities: Map<Hint, boolean[][]> = new Map();
+        let possibilities: Map<Hint, boolean[][]> = new Map();
 
         function getPossibilities(hint: Hint): boolean[][] {
             if (!possibilities.has(hint)) possibilities.set(hint, hint.getMinePossibilities());
@@ -239,7 +239,7 @@ export class Solver {
     private getIntersections(): Map<Hint, Hint[]> {
         const hints = this.grid.getHints();
 
-        var intersections: Map<Hint, Hint[]> = new Map();
+        let intersections: Map<Hint, Hint[]> = new Map();
 
         for (const hint1 of hints) {
             if (hint1.isTooBig()) continue;

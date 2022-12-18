@@ -191,6 +191,7 @@ export abstract class Grid {
         return [
             ...this.getShapeHints(),
             ...this.getColorHints(),
+            ...this.getLineHints(),
         ].filter(a => a.shapes.length > 0);
     }
 
@@ -199,8 +200,8 @@ export abstract class Grid {
     }
 
     private getColorHints(): Hint[] {
-        var hints: Hint[] = [];
-        var sbc = this.shapesByColor();
+        let hints: Hint[] = [];
+        let sbc = this.shapesByColor();
         for (const key in sbc) {
             if (Object.prototype.hasOwnProperty.call(sbc, key)) {
                 let shapes: Shape[] = sbc[key];
@@ -213,8 +214,12 @@ export abstract class Grid {
         return hints;
     }
 
+    private getLineHints(): Hint[] {
+        return this.mineLines.map(l => l.asHint());
+    }
+
     public async makeSolvable() { // Reveals shapes until it becomes solvable
-        var solver = new Solver(this);
+        let solver = new Solver(this);
 
         await solver.solve("solverState", false);
 
@@ -223,12 +228,12 @@ export abstract class Grid {
         }
 
         while (!isSolved()) {
-            var shs = this.getShapeHints().filter(a => a.shapes.length > 0);
-            var v = shs.length === 0;
+            let shs = this.getShapeHints().filter(a => a.shapes.length > 0);
+            let v = shs.length === 0;
             if (v) shs = this.getColorHints().filter(a => a.shapes.length > 0);
-            var sh = shs[Math.floor(Math.random() * shs.length)];
-            var l = v ? sh.shapes.filter(s => !s.shapeState.hasMine) : sh.shapes;
-            var s = l[Math.floor(Math.random() * l.length)];
+            let sh = shs[Math.floor(Math.random() * shs.length)];
+            let l = v ? sh.shapes.filter(s => !s.shapeState.hasMine) : sh.shapes;
+            let s = l[Math.floor(Math.random() * l.length)];
             if (s === undefined) {
                 throw "????"
             }
@@ -344,7 +349,7 @@ export class HexGrid extends Grid {
     }
 
     public fromVector({ x, y }: Point): Vec {
-        var newX = x / sqrt3over2;
+        let newX = x / sqrt3over2;
         return new Vec(newX, -y - newX * 0.5);
     }
 
@@ -415,7 +420,7 @@ export class HexGridFlipped extends HexGrid {
     }
 
     public fromVector({ x, y }: Point): Vec {
-        var newY = y / sqrt3over2;
+        let newY = y / sqrt3over2;
         return new Vec(-x - newY * 0.5, -newY);
     }
 }

@@ -10,6 +10,7 @@ import { Line } from "../utils/Line";
 export class MineLine extends BasicHint {
     public pointRotation: Point;
     public contacts: Shape[] = [];
+    public number: number = 0;
     constructor(grid: Grid, public start: Point, public rotation: number) {
         super(grid);
         this.pointRotation = { x: Math.cos(rotation), y: Math.sin(rotation) };
@@ -20,7 +21,7 @@ export class MineLine extends BasicHint {
     }
 
     public getText(): string {
-        return `${this.contacts.filter(contact => contact.shapeState.hasMine).length}`;
+        return `${this.number}`;
     }
 
     public getLine(length: number): Line {
@@ -34,9 +35,12 @@ export class MineLine extends BasicHint {
         this.contacts = this.grid.shapes.filter(shape =>
             shape.lines.some(line => line.intersects(aLine))
         );
+        this.number = this.contacts.reduce((a, c) => a + Number(c.solverState.hasMine), 0);
     }
 
-    public asHint(): Hint { // Todo: Implement this pls
-        throw new Error("Method not implemented.");
+    public asHint(): Hint {
+        const hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown),
+            this.number - this.contacts.reduce((a, c) => a + Number(c.solverState.mineKnown), 0));
+        return hint;
     }
 }

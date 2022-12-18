@@ -15,13 +15,13 @@
     import type { MainMenuNewGameOptions } from "../utils/Events";
     export let options: MainMenuNewGameOptions;
 
-    var grid = options.grid;
+    let grid = options.grid;
 
-    var shapes: Sh[] = grid.shapes;
-    var mineLines = grid.mineLines;
-    var minesLeft: number = 0;
+    let shapes: Sh[] = grid.shapes;
+    let mineLines = grid.mineLines;
+    let minesLeft: number = 0;
     // let s3o2 = Math.sqrt(3) / 2;
-    // mineLines.push(new Ml(grid, { x: -1, y: 0.5 }, 0));
+    mineLines.push(new Ml(grid, { x: -1, y: 0.5 }, 0));
     // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 1 * (1.5 + s3o2)}, 0));
     // mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 2 * (1.5 + s3o2)}, 0));
     // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 3 * (1.5 + s3o2)}, 0));
@@ -43,19 +43,21 @@
 
     for (let i = 0; i < shapes.length; i++) {
         // Todo: add colour stuffs
-        // shapes[i].shapeState.color =
-        //     strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
-        // let s = shapes[i];
-        // if (s.A_hexPosition.q == 1) {
-        //     s.shapeState.color = strokeColors[1];
-        // }
+        shapes[i].shapeState.color =
+            strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
+        let s = shapes[i];
+        if (s.A_hexPosition) {
+            if (s.A_hexPosition.q == 1) {
+                s.shapeState.color = strokeColors[1];
+            }
+        }
     }
 
-    var shapesByColor = grid.shapesByColor();
+    let shapesByColor = grid.shapesByColor();
 
     grid.notifyShapeStateChange.subscribe(
         (() => {
-            var _ = () => {
+            let _ = () => {
                 minesLeft = grid.getMinesLeft();
                 shapesByColor = grid.shapesByColor();
             };
@@ -68,7 +70,7 @@
         shapes.forEach((s) => s._updateContacts());
     }
 
-    // var mousePoint: Point = {
+    // let mousePoint: Point = {
     //     x: 0,
     //     y: 0,
     // };
@@ -87,26 +89,49 @@
     }
 
     function onMouseWheel(e: WheelEvent) {
-        var delta = e.deltaY || e.detail || (e as any).wheelDelta;
+        let delta = e.deltaY || e.detail || (e as any).wheelDelta;
         if (e.ctrlKey) {
             e.preventDefault();
             delta *= -4;
         }
-        grid.transformScale.value *= 1 + delta / 1000;
-        grid.transformPosition.value = Vec.from(
-            grid.transformPosition.value
-        ).add(
-            new Vec(
-                e.offsetX - windowSize.width / 2,
-                e.offsetY - windowSize.height / 2
-            ).scale(((-delta / 1000) * 1) / grid.transformScale.value)
-        );
+
+        console.log(grid.transformPosition.value);
+
+        const sub = Vec.from({
+            x: window.innerWidth / 2,
+            y: window.innerHeight / 2,
+        }).sub(grid.transformPosition.value);
+
+        const prevMouseVec = Vec.from({
+            x: e.offsetX,
+            y: e.offsetY,
+        })
+            .sub(sub)
+            .scale(-1 / grid.transformScale.value);
+
+        if (delta > 0) {
+            grid.transformScale.value *= 1 + delta / 1000;
+        } else {
+            grid.transformScale.value /= 1 - delta / 1000;
+        }
+
+        const mouseVec = Vec.from({
+            x: e.offsetX,
+            y: e.offsetY,
+        })
+            .sub(sub)
+            .scale(-1 / grid.transformScale.value);
+
+        // TODO: Uncomment when fixed
+        // grid.transformPosition.value = Vec.from(
+        //     grid.transformPosition.value
+        // ).add(prevMouseVec.sub(mouseVec));
     }
 
-    document.addEventListener("wheel", onMouseWheel, {passive: false});
+    document.addEventListener("wheel", onMouseWheel, { passive: false });
     document.addEventListener("DOMMouseScroll", onMouseWheel, false);
 
-    var scrolling = false;
+    let scrolling = false;
     let paused = false;
 
     function onMouseDown(e: MouseEvent) {
