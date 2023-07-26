@@ -1,38 +1,48 @@
 # Minesvelte
 
-[Tametsi](http://www.griptopgames.com) clone made in svelte.
+[Tametsi](http://www.griptopgames.com) remake made in Svelte.
 
 **It's not production ready.**
 
-## How to play now doe???
+## Getting started
 
 ### Get source code
-Do the command (if you have git) `git clone https://github.com/True-cc/Minesvelte.git` to clone onto your machine (if you have git) or click `Code` and `Download ZIP`
+If you have `git` installed, do `git clone https://github.com/True-cc/Minesvelte.git` to clone this respository onto your machine.
+If you do not have `git` installed, you may simply click `Code`, `Download ZIP`, and then extract the zip file somewhere.
 
 ### Get yarn
-Get yarn onto your machine: https://yarnpkg.com/getting-started
+This project uses yarn as its package manager. Install steps are located here: https://yarnpkg.com/getting-started
 
 ### Get dependencies
-Do the command `yarn` to download dependencies
+Do the command `yarn` in a terminal to download the dependencies
 
 ### Run development version
-DO the command `yarn dev` to run the development version. You should be able to connect to it at http://localhost:3000 in a web browser.
+Do the command `yarn dev` to run the development version. You should be able to connect to it at http://localhost:5173 in a web browser.
 
-## But I want more mapsss!!1!!!!11!
+## Playing
 
-Go in `/src/lib/components/Game.svelte` and you should see this
-```ts
-/* import stuff */
+### New game
 
-var grid = new SquareGrid();
+You can click the "New Game" button to create a new game. You can then customize the game to fit your needs.
 
-/* code stuff */
+### Controls
 
-// grid.generateDefaultGrid(5);
-squarePatterns.squareTriangleAndHexagon.generateGrid(grid, { x: 7, y: 7 });
-grid.resetShapes();
-minesLeft = grid.setMineRatio(0.15);
-grid.centerOnScreen();
-```
+Scroll to zoom. Left-click on tiles to reveal them. Right-click to flag them as mines. If a revealed tile has the number of flags around it equal to its number, you can click it to automatically reveal the remaining tiles.
 
-You can change the `SquareGrid` to a `HexGrid` if you want and you can find a list of patterns in `/src/lib/patterns/` (in `hexPatterns.ts` and `squarePatterns.ts`). Please use your brain to figure out how to do this; this isn't a coding tutorial.
+## Unimplemented
+
+Right now, these things exist in the code, but there is no way to access them or customize them:
+- Mine lines (?). Basically, a line with a number that tells you how many mines are in that line.
+- Colors. Different tiles can have different colors. In the top-right, you will see a number for each color. This number tells you how many unrevealed and unflagged tiles of that color are mines.
+
+These things exist in the UI, but do not do anything:
+- Loading/saving games
+- Options
+
+These things are hinted at somewhere in the code, but do not actually exist:
+- Difficulty levels - a comment used to say "I have no idea how to implement this", but after some thought, I think I just need to change the solver algorithm to be more general.
+
+I would like to implement these features if I have time, but I don't know when that will be (if ever):
+- Mobile/touch support
+- Customizable graphics
+- Not use SVG because it's slow (this will require a lot of work)
