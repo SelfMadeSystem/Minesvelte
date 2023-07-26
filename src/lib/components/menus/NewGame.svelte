@@ -63,8 +63,9 @@
         }
     }
 
-    let mineCount: number = 0;
+    let mineCount: number = 20;
     let minePercent: State = "true";
+    let connectedNumber: State = "false";
 
     const dispatch = createEventDispatcher();
 
@@ -84,103 +85,110 @@
             patternSize: selectedParameters,
             mineCount: mineCount,
             minePercent: minePercent === "true",
+            connectedNumber: connectedNumber === "true",
         } as MainMenuNewGameOptions);
     }
 </script>
 
 <div>
-    <select name="type" id="type" class="rounded-t-lg" bind:value={type}>
-        <option value="square">Square Grid</option>
-        <option value="hex">Hex Grid</option>
-    </select>
-
-    <select name="pattern" id="pattern" bind:value={selected}>
-        {#each patternsArr as pattern}
-            <option value={pattern}>{patterns.get(pattern).name}</option>
-        {/each}
-    </select>
-
-    {#if parameters}
-        {#each parameters as parameter}
-            {#if parameter.type == "number"}
-                <label class="number-input"
-                    >{parameter.name}:
-                    <input
-                        type="number"
-                        bind:value={selectedParameters[parameter.name.replaceAll(" ", "")]}
-                        min={parameter.min}
-                        max={parameter.max}
-                        step={parameter.step}
-                        name={parameter.name}
-                    />
-                </label>
-            {:else if parameter.type == "boolean"}
-                <!-- svelte-ignore a11y-label-has-associated-control -->
-                <label class="boolean-input"
-                    >{parameter.name}:
-                    <Toggle
-                        name={parameter.name}
-                        bind:state={selectedParameters[parameter.name.replaceAll(" ", "")]}
-                        _class="ml-4"
-                    />
-                </label>
-            {:else if parameter.type == "select"}
-                <div class="select-input">
-                    <span
+    <div class="flex flex-col align-middle justify-center w-fit h-screen m-auto">
+        <select name="type" id="type" class="rounded-t-lg" bind:value={type}>
+            <option value="square">Square Grid</option>
+            <option value="hex">Hex Grid</option>
+        </select>
+    
+        <select name="pattern" id="pattern" bind:value={selected}>
+            {#each patternsArr as pattern}
+                <option value={pattern}>{patterns.get(pattern).name}</option>
+            {/each}
+        </select>
+    
+        {#if parameters}
+            {#each parameters as parameter}
+                {#if parameter.type == "number"}
+                    <label class="number-input"
                         >{parameter.name}:
-                        <select
-                            name={parameter.name}
-                            style="border-bottom-width: 0;"
+                        <input
+                            type="number"
                             bind:value={selectedParameters[parameter.name.replaceAll(" ", "")]}
-                        >
-                            {#each parameter.options as option}
-                                <option value={option}>{option}</option>
-                            {/each}
-                        </select>
-                    </span>
-                </div>
-            {/if}
-        {/each}
-        <label class="number-input"
-            >Mine Count:
-            <input
-                type="number"
-                bind:value={mineCount}
-                min="1"
-                step="1"
-                name="mineCount"
-            />
-        </label>
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class="boolean-input"
-            >Mine Percent:
-            <Toggle name="minePercent" bind:state={minePercent} _class="ml-4" />
-        </label>
-    {/if}
-
-    <button on:click={() => newGame()} class="new-game rounded-b-lg">
-        New game
-    </button>
-
-    <button
-        on:click={() => window.alert("This is dead button")}
-        class="rounded"
-    >
-        Load game
-    </button>
-
-    <button on:click={() => changeMenu("main")} class="exit rounded">
-        Back
-    </button>
+                            min={parameter.min}
+                            max={parameter.max}
+                            step={parameter.step}
+                            name={parameter.name}
+                        />
+                    </label>
+                {:else if parameter.type == "boolean"}
+                    <!-- svelte-ignore a11y-label-has-associated-control -->
+                    <label class="boolean-input"
+                        >{parameter.name}:
+                        <Toggle
+                            name={parameter.name}
+                            bind:state={selectedParameters[parameter.name.replaceAll(" ", "")]}
+                            _class="ml-4"
+                        />
+                    </label>
+                {:else if parameter.type == "select"}
+                    <div class="select-input">
+                        <span
+                            >{parameter.name}:
+                            <select
+                                name={parameter.name}
+                                style="border-bottom-width: 0;"
+                                bind:value={selectedParameters[parameter.name.replaceAll(" ", "")]}
+                            >
+                                {#each parameter.options as option}
+                                    <option value={option}>{option}</option>
+                                {/each}
+                            </select>
+                        </span>
+                    </div>
+                {/if}
+            {/each}
+            <label class="number-input"
+                >Mine Count:
+                <input
+                    type="number"
+                    bind:value={mineCount}
+                    min="1"
+                    step="1"
+                    name="mineCount"
+                />
+            </label>
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="boolean-input"
+                >Mine Percent:
+                <Toggle name="minePercent" bind:state={minePercent} _class="ml-4" />
+            </label>
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="boolean-input"
+                ><abbr title={`Numbers on mines are either of the form -2- or {2}. \
+    Dashes around means that not all the mines around the tile are touching eachother. \
+    Curly braces means that all the mines around the tile are touching each other.`}
+                >Connected</abbr>:
+                <Toggle name="connectedNumber" bind:state={connectedNumber} _class="ml-4" />
+            </label>
+        {/if}
+    
+        <button on:click={() => newGame()} class="new-game rounded-b-lg">
+            New game
+        </button>
+    
+        <button
+            on:click={() => window.alert("This is dead button")}
+            class="rounded"
+        >
+            Load game
+        </button>
+    
+        <button on:click={() => changeMenu("main")} class="exit rounded">
+            Back
+        </button>
+    </div>
 </div>
 
 <style lang="scss">
     * {
         pointer-events: all;
-    }
-
-    div {
-        @apply flex flex-col align-middle justify-center w-72 h-screen m-auto;
     }
 
     button {

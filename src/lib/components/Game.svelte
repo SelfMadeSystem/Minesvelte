@@ -19,9 +19,9 @@
 
     let shapes: Sh[] = grid.shapes;
     let mineLines = grid.mineLines;
-    let minesLeft: number = 0;
+    let minesLeft: number = 0; // TODO: Customize this too
     // let s3o2 = Math.sqrt(3) / 2;
-    mineLines.push(new Ml(grid, { x: -1, y: 0.5 }, 0));
+    // mineLines.push(new Ml(grid, { x: -1, y: 0.5 }, 0));
     // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 1 * (1.5 + s3o2)}, 0));
     // mineLines.push(new Ml(grid, {x: 0, y: 0.5 + 2 * (1.5 + s3o2)}, 0));
     // mineLines.push(new Ml(grid, {x: -0.5 - s3o2, y: 0.5 + 3 * (1.5 + s3o2)}, 0));
@@ -33,25 +33,23 @@
 
     options.pattern.generateGrid(grid, options.patternSize);
 
-    grid.resetShapes();
-    minesLeft = options.minePercent
-        ? grid.setMineRatio(options.mineCount / 100)
-        : grid.setRandomMines(options.mineCount);
+    grid.resetShapes(options);
+    minesLeft = grid.getMinesLeft();
     grid.centerOnScreen();
 
     mineLines.forEach((ml) => ml.updateContacts());
 
-    for (let i = 0; i < shapes.length; i++) {
-        // Todo: add colour stuffs
-        shapes[i].shapeState.color =
-            strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
-        let s = shapes[i];
-        if (s.A_hexPosition) {
-            if (s.A_hexPosition.q == 1) {
-                s.shapeState.color = strokeColors[1];
-            }
-        }
-    }
+    // for (let i = 0; i < shapes.length; i++) {
+    //     // Todo: add colour stuffs
+    //     shapes[i].shapeState.color =
+    //         strokeColors[Math.floor((i / shapes.length) * strokeColors.length)];
+    //     let s = shapes[i];
+    //     if (s.A_hexPosition) {
+    //         if (s.A_hexPosition.q == 1) {
+    //             s.shapeState.color = strokeColors[1];
+    //         }
+    //     }
+    // }
 
     let shapesByColor = grid.shapesByColor();
 

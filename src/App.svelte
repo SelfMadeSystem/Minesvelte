@@ -10,18 +10,19 @@
   let menu: string = "main";
   let unique: {} = {};
   let options: MainMenuNewGameOptions = {
-    // grid: new SquareGrid(),
-    grid: new HexGrid(),
-    mineCount: 20,
-    minePercent: true,
-    pattern: triangle,
-    patternSize: {
-      Symmetric: true,
-      Width: 0,
-      BottomHeight: 10,
-      TopHeight: 6,
-    },
-    type: "main-menu-new-game",
+      // grid: new SquareGrid(),
+      grid: new HexGrid(),
+      mineCount: 20,
+      minePercent: true,
+      pattern: triangle,
+      patternSize: {
+          Symmetric: true,
+          Width: 0,
+          BottomHeight: 10,
+          TopHeight: 6,
+      },
+      type: "main-menu-new-game",
+      connectedNumber: false
   };
 
   function onMenu(e: CustomEvent<any>) {

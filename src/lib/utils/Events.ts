@@ -56,7 +56,8 @@ export interface MainMenuNewGameOptions extends MainMenuEvent { // Todo: add col
     patternSize: { [key: string]: any }; // Pattern type speific
     mineCount: number;
     minePercent: boolean;
-    difficulty?: number; // I have no idea how to implement this
+    connectedNumber: boolean;
+    difficulty?: number; // I think I know how to implement this. Just change the solver parameters when making the grid possible
 }
 
 export interface PauseMenuEvent {

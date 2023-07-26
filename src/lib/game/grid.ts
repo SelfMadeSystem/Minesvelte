@@ -9,6 +9,7 @@ import type { SpecificColors } from "../utils/Colors"
 import { Hint } from "./basicHint";
 import { Solver } from "./solver";
 import { HistoryProcessor } from "./history";
+import type { MainMenuNewGameOptions } from "../utils/Events";
 
 export abstract class Grid {
     public shapes: Shape[] = [];
@@ -41,8 +42,9 @@ export abstract class Grid {
         return this._shapesByColor = Object.fromEntries(shapes);
     }
 
-    public resetShapes() {
+    public resetShapes(options: MainMenuNewGameOptions) {
         this.shapes.forEach((shape) => {
+            shape.adjacentShapesNumber = options.connectedNumber;
             shape.shapeState.isFlagged = false;
             shape.shapeState.hasMine = false;
             shape.shapeState.isRevealed = false;
@@ -52,6 +54,12 @@ export abstract class Grid {
             });
         });
         this.history.reset();
+
+        if (options.minePercent) {
+            this.setMineRatio(options.mineCount / 100);
+        } else {
+            this.setRandomMines(options.mineCount);
+        }
     }
 
     public fromMousePos(x: number, y: number): Point {
@@ -158,7 +166,7 @@ export abstract class Grid {
 
     public abstract fromVector({ x, y }: Point): Vec;
 
-    public abstract isAdjacent({ x: x1, y: y1 }: Point, { x: x2, y: y2 }: Point): boolean;
+    public abstract isAdjacent(a: Point, b: Point): boolean;
 
     public abstract generateDefaultGrid(size: number): void;
 
