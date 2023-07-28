@@ -90,8 +90,8 @@
     }
 </script>
 
-<div>
-    <div class="flex flex-col align-middle justify-center w-fit h-screen m-auto">
+<div class="overflow-auto h-screen grid">
+    <div class="flex flex-col align-middle w-fit h-fit m-auto">
         <select name="type" id="type" class="rounded-t-lg" bind:value={type}>
             <option value="square">Square Grid</option>
             <option value="hex">Hex Grid</option>
