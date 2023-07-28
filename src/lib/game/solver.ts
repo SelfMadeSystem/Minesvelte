@@ -2,61 +2,6 @@ import type { Shape, StateType } from './shape';
 import type { Grid } from "./grid";
 import type { Hint } from './basicHint';
 
-export class ShapeCollection {
-    constructor(
-        public shapes: Shape[],
-        public minMines: number,
-        public maxMines: number
-    ) {
-        this.minMines = Math.max(0, this.minMines);
-        this.maxMines = Math.min(this.shapes.length, this.maxMines);
-        if (this.minMines > this.maxMines) {
-            let temp = this.minMines;
-            this.minMines = this.maxMines;
-            this.maxMines = temp;
-        }
-    }
-
-    public intersection(other: ShapeCollection | Shape[]): Shape[] {
-        const shapes = (other instanceof ShapeCollection) ? other.shapes : other;
-        return this.shapes.filter(shape => shapes.some(otherShape => shape === otherShape));
-    }
-
-    public union(other: ShapeCollection | Shape[]): Shape[] {
-        const shapes = (other instanceof ShapeCollection) ? other.shapes : other;
-        return [...new Set(this.shapes.concat(shapes))];
-    }
-
-    public difference(other: ShapeCollection | Shape[]): Shape[] {
-        const shapes = (other instanceof ShapeCollection) ? other.shapes : other;
-        return this.shapes.filter(shape => !shapes.some(otherShape => shape === otherShape));
-    }
-
-    public addToShapes() {
-        this.shapes.forEach(contact => {
-            contact.solver_shapeCollections.push(this);
-        });
-    }
-
-    public removeFromShapes() {
-        this.shapes.forEach(contact => {
-            contact.solver_shapeCollections = contact.solver_shapeCollections.filter(shapeCollection => shapeCollection !== this);
-        });
-    }
-
-    public get size() {
-        return this.shapes.length;
-    }
-
-    public get intersectingCollections() {
-        return [...new Set(this.shapes.map(shape => shape.solver_shapeCollections).reduce((a, b) => a.concat(b), []))];
-    }
-
-    public equals(other: ShapeCollection): boolean {
-        return this.shapes.length === other.shapes.length && this.shapes.every(shape => other.shapes.some(otherShape => shape === otherShape));
-    }
-}
-
 let sleepTime = 250;
 
 function sleep(ms: number = sleepTime) {

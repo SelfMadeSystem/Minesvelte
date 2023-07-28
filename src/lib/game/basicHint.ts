@@ -24,11 +24,11 @@ export class Hint {
      * the amount of mines in the hint.
      * @param arr The array of booleans to verify.
      * @param hint The hint to check against the array.
-     * @returns true if its a valid combination of booleans.
+     * @returns true if it's a valid combination of booleans.
      */
     public static defaultVerify(arr: boolean[], hint: Hint): boolean {
         if (arr.length !== hint.shapes.length)
-            throw 'The length of  arr  must be equal to hint.shapes.length';
+            throw 'The length of  arr  must be equal to  hint.shapes.length';
         if (arr.reduce((prev: number, cur: boolean) => prev + Number(cur), 0) !== hint.mines)
             throw 'The number of  true  in arr must be equal to  hint.mines';
         return true;
@@ -85,7 +85,7 @@ export class Hint {
         return this.shapes.some(v => other.shapes.includes(v));
     }
 
-    public getIntersections(other: Hint): Map<Shape, [number, number]> { // [index for this, index for other]
+    public getIntersections(other: Hint): Map<Shape, [self: number, other: number]> { // [index for this, index for other]
         var intersections: Map<Shape, [number, number]> = new Map();
 
         this.shapes.forEach(

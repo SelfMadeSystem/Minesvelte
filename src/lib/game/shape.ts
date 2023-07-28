@@ -1,7 +1,6 @@
 import type { Grid } from "./grid";
 import type { HexPoint, Point } from "../utils/Vec";
 import { Notifier } from "../utils/Notifier";
-import type { ShapeCollection } from "./solver";
 import { Rect } from "../utils/rect";
 import { Line } from "../utils/Line";
 import { BasicHint, Hint } from "./basicHint";
@@ -228,8 +227,6 @@ export class Shape extends BasicHint {
     public adjacentShapesNumber: boolean = true;
     public bounds: Rect;
     public id: number;
-    public solver_shapeCollections: ShapeCollection[] = []; // For solver to use
-    // public solver_selfShapeCollection: ShapeCollection; // For solver to use
     constructor(grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
         super(grid);
         this.shapeState.hasMine = hasMine;
