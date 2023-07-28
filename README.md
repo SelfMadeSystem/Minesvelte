@@ -27,7 +27,25 @@ You can click the "New Game" button to create a new game. You can then customize
 
 ### Controls
 
+#### Basics
+
 Scroll to zoom. Left-click on tiles to reveal them. Right-click to flag them as mines. If a revealed tile has the number of flags around it equal to its number, you can click it to automatically reveal the remaining tiles.
+
+Press "U" to undo. Press "R" to redo.
+
+You can hold down the control key to highlight the tiles considered to be adjacent to the tile the mouse is hovering over. This can be useful as it is not always obvious which tiles are considered adjacent, especially with more complex patterns.
+
+#### Pause menu
+
+Press the escape key to pause the game.
+
+In the pause menu, you can click "New Game" to create a new game with the same settings as the current game. The only other buttons that work are "Resume" and "Exit".
+
+#### Solver
+
+In the top right, you can press the "Solve" button to solve the game. This will reveal all the mines and flags.
+
+You can also press the "Make Solvable" button to make the game solvable (if it is not already). This works by running the solver algorithm and then randomly revealing tiles until the game is solvable. I will make this automatic in the future (along with other features like color, mine lines, actually using logic and not randomness to reveal tiles, etc).
 
 ## Unimplemented
 
@@ -46,3 +64,4 @@ I would like to implement these features if I have time, but I don't know when t
 - Mobile/touch support
 - Customizable graphics
 - Not use SVG because it's slow (this will require a lot of work)
+- Better board generation with automatic make-solvable
