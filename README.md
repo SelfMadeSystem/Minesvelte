@@ -65,3 +65,4 @@ I would like to implement these features if I have time, but I don't know when t
 - Customizable graphics
 - Not use SVG because it's slow (this will require a lot of work)
 - Better board generation with automatic make-solvable
+- Have step-by-step solver
