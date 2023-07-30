@@ -185,8 +185,18 @@
         scale = v;
     });
 
+    const solver = new Solver(grid);
+
     function solve() {
-        new Solver(grid).solve();
+        if (solver.solving) {
+            solver.cancel();
+        } else {
+            solver.solve();
+        }
+    }
+
+    function hint() {
+        solver.hint();
     }
 
     function makeSolvable() {
@@ -254,16 +264,24 @@
                     .length}
         </div>
     {/each}
-    <button
-        on:click={solve}
-        class="text-3xl font-semibold text-white text-center absolute top-0 z-10 border-2"
-    >
-        Solve
-    </button>
-    <button
-        on:click={makeSolvable}
-        class="text-3xl font-semibold text-white text-center absolute top-0 left-24 z-10 border-2"
-    >
-        Make Solvable
-    </button>
+    <div class="absolute flex top-0 left-0 gap-4">
+        <button
+            on:click={solve}
+            class="text-3xl font-semibold text-white text-center z-10 border-2"
+        >
+            Solve
+        </button>
+        <button
+            on:click={hint}
+            class="text-3xl font-semibold text-white text-center z-10 border-2"
+        >
+            Hint
+        </button>
+        <button
+            on:click={makeSolvable}
+            class="text-3xl font-semibold text-white text-center z-10 border-2"
+        >
+            Make Solvable
+        </button>
+    </div>
 </span>
