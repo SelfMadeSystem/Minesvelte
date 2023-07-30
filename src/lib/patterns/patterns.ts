@@ -365,9 +365,9 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
     constructor(
         public readonly name: string,
         public iterateScale: Point,
-        public iterateOffsets: Point[],
-        public finalTiles: FunOrDef<SingleTile[], Point>,
-        public repeatingTiles: FunOrDef<SingleTile[], Point>,
+        public iterateOffsets: FunOrDef<Point[], number>,
+        public finalTiles: FunOrDef<SingleTile[], number>,
+        public repeatingTiles: FunOrDef<SingleTile[], number>,
         ) {
         super(name, [{
             name: "Iterations",
@@ -407,16 +407,17 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
      */
     public generateShapes(grid: Grid, pos: Point, scale: Point, iterations: number): void {
         if (iterations == 0) {
-            grid.shapes.push(...getFunOrDef(pos, scale, this.finalTiles)
+            grid.shapes.push(...getFunOrDef(pos, iterations, this.finalTiles)
                 .map((t) => t.toShape(grid, pos, scale)));
         }
 
-        grid.shapes.push(...getFunOrDef(pos, scale, this.repeatingTiles)
+        grid.shapes.push(...getFunOrDef(pos, iterations, this.repeatingTiles)
             .map((t) => t.toShape(grid, pos, scale)));
 
         if (iterations > 0) {
             const newScale = Vec.from(scale).div(this.iterateScale);
-            for (const offset of this.iterateOffsets) {
+            const offsets = getFunOrDef(pos, iterations - 1, this.iterateOffsets);
+            for (const offset of offsets) {
                 const newPos = Vec.from(pos).add(Vec.from(offset).mul(scale));
                 this.generateShapes(grid, newPos, newScale, iterations - 1);
             }

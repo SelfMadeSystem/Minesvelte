@@ -37,7 +37,7 @@ export const square2x2 = new GrowingFractalPattern(
 
 export const square3x3 = new GrowingFractalPattern(
     "3x3 Square",
-    { x: 3, y: 3},
+    { x: 3, y: 3 },
     [
         new SingleTile([
             moveTo(-0.5, -0.5),
@@ -604,6 +604,334 @@ export const square2x2Checkers = new ShrinkingFractalPattern(
             lineTo(0, -1),
             lineTo(0, 0),
             lineTo(1, 0),
+        ]),
+    ],
+)
+
+export const square4x4Checkers = new ShrinkingFractalPattern(
+    "Square 4x4 Checkers",
+    { x: 2, y: 2 },
+    [
+        { x: 1, y: 1 },
+        { x: -1, y: -1 },
+    ],
+    [
+        new SingleTile([
+            moveTo(-1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(-1, -2),
+            lineTo(0, -2),
+            lineTo(0, -1),
+            lineTo(-1, -1),
+        ]),
+        new SingleTile([
+            moveTo(-2, -1),
+            lineTo(-1, -1),
+            lineTo(-1, 0),
+            lineTo(-2, 0),
+        ]),
+        new SingleTile([
+            moveTo(-2, -2),
+            lineTo(-1, -2),
+            lineTo(-1, -1),
+            lineTo(-2, -1),
+        ]),
+
+        new SingleTile([
+            moveTo(1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, 2),
+            lineTo(0, 2),
+            lineTo(0, 1),
+            lineTo(1, 1),
+        ]),
+        new SingleTile([
+            moveTo(2, 1),
+            lineTo(1, 1),
+            lineTo(1, 0),
+            lineTo(2, 0),
+        ]),
+        new SingleTile([
+            moveTo(2, 2),
+            lineTo(1, 2),
+            lineTo(1, 1),
+            lineTo(2, 1),
+        ]),
+    ],
+    [
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, -2),
+            lineTo(0, -2),
+            lineTo(0, -1),
+            lineTo(1, -1),
+        ]),
+        new SingleTile([
+            moveTo(2, -1),
+            lineTo(1, -1),
+            lineTo(1, 0),
+            lineTo(2, 0),
+        ]),
+        new SingleTile([
+            moveTo(2, -2),
+            lineTo(1, -2),
+            lineTo(1, -1),
+            lineTo(2, -1),
+        ]),
+
+        new SingleTile([
+            moveTo(-1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(-1, 2),
+            lineTo(0, 2),
+            lineTo(0, 1),
+            lineTo(-1, 1),
+        ]),
+        new SingleTile([
+            moveTo(-2, 1),
+            lineTo(-1, 1),
+            lineTo(-1, 0),
+            lineTo(-2, 0),
+        ]),
+        new SingleTile([
+            moveTo(-2, 2),
+            lineTo(-1, 2),
+            lineTo(-1, 1),
+            lineTo(-2, 1),
+        ]),
+    ],
+)
+
+export const square2x2CheckersAlternating = new ShrinkingFractalPattern(
+    "Alternating Square 2x2 Checkers",
+    { x: 2, y: 2 },
+    (_, i) => (i % 2 === 0) ? [
+        { x: 0.5, y: 0.5 },
+        { x: -0.5, y: -0.5 },
+    ] : [
+        { x: -0.5, y: 0.5 },
+        { x: 0.5, y: -0.5 },
+    ],
+    [
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(-1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+    ],
+    (_, i) => (i % 2 === 0) ? [
+        new SingleTile([
+            moveTo(-1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+    ] : [
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(-1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+    ],
+)
+
+export const square4x4CheckersAlternating = new ShrinkingFractalPattern(
+    "Alternating Square 4x4 Checkers",
+    { x: 2, y: 2 },
+    (_, i) => (i % 2 === 0) ? [
+        { x: 1, y: 1 },
+        { x: -1, y: -1 },
+    ] : [
+        { x: -1, y: 1 },
+        { x: 1, y: -1 },
+    ],
+    [
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, -2),
+            lineTo(0, -2),
+            lineTo(0, -1),
+            lineTo(1, -1),
+        ]),
+        new SingleTile([
+            moveTo(2, -1),
+            lineTo(1, -1),
+            lineTo(1, 0),
+            lineTo(2, 0),
+        ]),
+        new SingleTile([
+            moveTo(2, -2),
+            lineTo(1, -2),
+            lineTo(1, -1),
+            lineTo(2, -1),
+        ]),
+
+        new SingleTile([
+            moveTo(-1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(-1, 2),
+            lineTo(0, 2),
+            lineTo(0, 1),
+            lineTo(-1, 1),
+        ]),
+        new SingleTile([
+            moveTo(-2, 1),
+            lineTo(-1, 1),
+            lineTo(-1, 0),
+            lineTo(-2, 0),
+        ]),
+        new SingleTile([
+            moveTo(-2, 2),
+            lineTo(-1, 2),
+            lineTo(-1, 1),
+            lineTo(-2, 1),
+        ]),
+    ],
+    (_, i) => (i % 2 === 0) ? [
+        new SingleTile([
+            moveTo(1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, 2),
+            lineTo(0, 2),
+            lineTo(0, 1),
+            lineTo(1, 1),
+        ]),
+        new SingleTile([
+            moveTo(2, 1),
+            lineTo(1, 1),
+            lineTo(1, 0),
+            lineTo(2, 0),
+        ]),
+        new SingleTile([
+            moveTo(2, 2),
+            lineTo(1, 2),
+            lineTo(1, 1),
+            lineTo(2, 1),
+        ]),
+
+        new SingleTile([
+            moveTo(-1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(-1, -2),
+            lineTo(0, -2),
+            lineTo(0, -1),
+            lineTo(-1, -1),
+        ]),
+        new SingleTile([
+            moveTo(-2, -1),
+            lineTo(-1, -1),
+            lineTo(-1, 0),
+            lineTo(-2, 0),
+        ]),
+        new SingleTile([
+            moveTo(-2, -2),
+            lineTo(-1, -2),
+            lineTo(-1, -1),
+            lineTo(-2, -1),
+        ]),
+    ] : [
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, -2),
+            lineTo(0, -2),
+            lineTo(0, -1),
+            lineTo(1, -1),
+        ]),
+        new SingleTile([
+            moveTo(2, -1),
+            lineTo(1, -1),
+            lineTo(1, 0),
+            lineTo(2, 0),
+        ]),
+        new SingleTile([
+            moveTo(2, -2),
+            lineTo(1, -2),
+            lineTo(1, -1),
+            lineTo(2, -1),
+        ]),
+
+        new SingleTile([
+            moveTo(-1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(-1, 2),
+            lineTo(0, 2),
+            lineTo(0, 1),
+            lineTo(-1, 1),
+        ]),
+        new SingleTile([
+            moveTo(-2, 1),
+            lineTo(-1, 1),
+            lineTo(-1, 0),
+            lineTo(-2, 0),
+        ]),
+        new SingleTile([
+            moveTo(-2, 2),
+            lineTo(-1, 2),
+            lineTo(-1, 1),
+            lineTo(-2, 1),
         ]),
     ],
 )
