@@ -2,7 +2,7 @@ import { lineTo, moveTo } from "../game/shape";
 import { SingleTile, SquarePattern } from "./patterns";
 
 export const basic = new SquarePattern(
-    "Basic",
+    "* Basic",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
     [
@@ -12,33 +12,16 @@ export const basic = new SquarePattern(
             lineTo(1, 1),
             lineTo(0, 1),
         ])
-    ]
-);
-
-export const cross = new SquarePattern(
-    "Cross",
-    { x: 2, y: 2 },
-    { x: 1, y: -1 },
-    [
-        new SingleTile([
-            moveTo(1, 1),
-            lineTo(2, 1),
-            lineTo(2, 2),
-            lineTo(3, 2),
-            lineTo(3, 3),
-            lineTo(2, 3),
-            lineTo(2, 4),
-            lineTo(1, 4),
-            lineTo(1, 3),
-            lineTo(0, 3),
-            lineTo(0, 2),
-            lineTo(1, 2),
-        ]),
     ],
+    [],
+    [],
+    [],
+    [],
+    [15, 15],
 );
 
 export const squareTriangles = new SquarePattern(
-    "Square Triangles",
+    "* Square Triangles",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
     ({ x, y }) => [
@@ -64,11 +47,16 @@ export const squareTriangles = new SquarePattern(
                 lineTo(0, 1),
             ])
         ]),
-    ]
+    ],
+    [],
+    [],
+    [],
+    [],
+    [7, 7],
 );
 
 export const tessellations1 = new SquarePattern(
-    "Tessellations 1",
+    "* Tessellations 1",
     { x: 3, y: 3 },
     { x: 0, y: 0 },
     ({ x, y }) => [
@@ -129,7 +117,7 @@ export const tessellations1 = new SquarePattern(
 const s3o2 = Math.sqrt(3) / 2;
 
 export const squaresAndTriangles = new SquarePattern(
-    "Squares and Triangles",
+    "* Squares and Triangles",
     { x: 1, y: 1 + s3o2 },
     ({ y }) => ({ x: y % 2 * 0.5, y: 0 }),
     ({ y }) => [
@@ -160,7 +148,7 @@ export const squaresAndTriangles = new SquarePattern(
 );
 
 export const rhombitrihexagonal = new SquarePattern(
-    "Rhombitrihexagonal",
+    "* Rhombitrihexagonal",
     { x: 1 + 2 * s3o2, y: 1.5 + s3o2 },
     ({ y }) => ({ x: y % 2 * (-0.5 - s3o2), y: 0 }),
     [
@@ -267,5 +255,6 @@ export const rhombitrihexagonal = new SquarePattern(
             lineTo(1.5 + 2 * s3o2, 1 + s3o2),
         ]),] : []),
     ],
+    [4, 4],
 );
 // (1 + 2 * s3o2)/2 = 0.5 + s3o2

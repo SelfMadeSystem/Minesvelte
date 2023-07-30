@@ -22,7 +22,7 @@ export class SingleTile {
      * @param pos The position to place the shape at.
      * @param scale The scale to apply to the shape. Applied before the position.
      */
-    public toShape(grid: Grid, pos: Point, scale: Point = {x: 1, y: 1}): Shape {
+    public toShape(grid: Grid, pos: Point, scale: Point = { x: 1, y: 1 }): Shape {
         const points: ShapePoint[] = [];
         for (const shape of this.points) {
             const clone = shape.clone();
@@ -122,18 +122,20 @@ export class SquarePattern extends Pattern<[NumberParam, NumberParam]> {
         public topTiles: FunOrDef<SingleTile[], Point> = [],
         public bottomTiles: FunOrDef<SingleTile[], Point> = [],
         public leftTiles: FunOrDef<SingleTile[], Point> = [],
-        public rightTiles: FunOrDef<SingleTile[], Point> = []) {
+        public rightTiles: FunOrDef<SingleTile[], Point> = [],
+        params: [number, number] = [5, 5]
+    ) {
         super(name, [{
             name: "Width",
             type: "number",
-            default: 5,
+            default: params[0],
             min: 1,
             max: 100,
             step: 1
         }, {
             name: "Height",
             type: "number",
-            default: 5,
+            default: params[1],
             min: 1,
             max: 100,
             step: 1
@@ -170,7 +172,7 @@ export class SquarePattern extends Pattern<[NumberParam, NumberParam]> {
         function _(tiles: FunOrDef<SingleTile[], Point>): void {
             for (const shape of getFunOrDef({ x, y }, dimensions, tiles)) {
                 var s = shape.toShape(grid, pos);
-                s.A_position = {x, y};
+                s.A_position = { x, y };
                 shapes.push(s);
             }
         }
@@ -213,29 +215,31 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
         public repeatOffset: Point | ((p: Point) => Point),
         // other param is (for q, r, and s) 1 if is at positive edge, -1 if is at negative edge, 0 if not at edge.
         public readonly tiles: FunOrDef<SingleTile[], HexPoint>,
-        public readonly adjust: (p: HexP) => HexP = (p) => p) {
+        public readonly adjust: (p: HexP) => HexP = (p) => p,
+        params: [boolean, number, number, number] = [false, 5, 5, 5]
+    ) {
         super(name, [{
             name: "Symmetric",
             type: "boolean",
-            default: false
+            default: params[0]
         }, {
             name: "Width",
             type: "number",
-            default: 5,
+            default: params[1],
             min: 1,
             max: 100,
             step: 1
         }, {
             name: "Bottom Height",
             type: "number",
-            default: 5,
+            default: params[2],
             min: 1,
             max: 100,
             step: 1
         }, {
             name: "Top Height",
             type: "number",
-            default: 5,
+            default: params[3],
             min: 1,
             max: 100,
             step: 1
@@ -317,11 +321,12 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
         public iterateScale: Point,
         public initialTiles: FunOrDef<SingleTile[], number>,
         public repeatingTiles: FunOrDef<SingleTile[], Point>,
-        ) {
+        params: [number] = [5]
+    ) {
         super(name, [{
             name: "Iterations",
             type: "number",
-            default: 5,
+            default: params[0],
             min: 1,
             max: 100,
             step: 1
@@ -339,14 +344,14 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
 
         grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, Iterations, this.initialTiles)
             .map((t) => t.toShape(grid, new Vec(0, 0))));
-        
+
         let scale = new Vec(1, 1);
 
         for (let i = 0; i < Iterations; i++) {
             grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, scale, this.repeatingTiles)
                 .map((t) => t.toShape(grid, new Vec(0, 0), scale)));
 
-            scale.mul(this.iterateScale);
+            scale = scale.mul(this.iterateScale);
         }
     }
 
@@ -368,11 +373,12 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
         public iterateOffsets: FunOrDef<Point[], number>,
         public finalTiles: FunOrDef<SingleTile[], number>,
         public repeatingTiles: FunOrDef<SingleTile[], number>,
-        ) {
+        params: [number] = [5]
+    ) {
         super(name, [{
             name: "Iterations",
             type: "number",
-            default: 5,
+            default: params[0],
             min: 1,
             max: 100,
             step: 1
@@ -387,10 +393,10 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
      */
     public generateGrid(grid: Grid, parameters: { Iterations: number }): void {
         const { Iterations } = parameters;
-        
+
         const scale = Vec.from(this.iterateScale).pow(Iterations);
 
-        this.generateShapes(grid, {x: 0, y:0}, scale, Iterations);
+        this.generateShapes(grid, { x: 0, y: 0 }, scale, Iterations);
     }
 
     /**

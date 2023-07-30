@@ -418,7 +418,7 @@ export class Shape extends BasicHint {
 
     getTextSize(): number {
         let size = this.getLargestDistanceOfPoints();
-        return size * 0.4;
+        return size * 0.3;
     }
 
     getText() {

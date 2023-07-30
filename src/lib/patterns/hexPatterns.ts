@@ -1,9 +1,9 @@
-import { HexGrid, HexGridFlipped } from "../game/grid";
+import { HexGridFlipped } from "../game/grid";
 import { lineTo, moveTo } from "../game/shape";
-import { SingleTile, SquarePattern, HexPattern } from "./patterns";
+import { SingleTile, HexPattern } from "./patterns";
 
 export const hex = new HexPattern(
-    "Hex",
+    "* Hex",
     { x: 2, y: 1 },
     { x: 1, y: -1 },
     [
@@ -19,7 +19,7 @@ export const hex = new HexPattern(
 )
 
 export const triangle = new HexPattern(
-    "Triangle",
+    "* Triangle",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
     (_, { q }) => {
@@ -46,7 +46,8 @@ export const triangle = new HexPattern(
             Width: n.Width + 1,
             Symmetric: n.Symmetric
         }
-    }
+    },
+    [false, 3, 3, 3]
 )
 
 triangle.newGrid = () => new HexGridFlipped();
@@ -65,34 +66,8 @@ export const square = new HexPattern(
     ],
 )
 
-export const lozenges = new HexPattern(
-    "Lozenges",
-    { x: 2, y: 1 },
-    { x: 1, y: -1 },
-    [
-        new SingleTile([
-            moveTo(0, 0),
-            lineTo(1, 0),
-            lineTo(0, 1),
-            lineTo(-1, 1),
-        ]),
-        new SingleTile([
-            moveTo(0, 0),
-            lineTo(1, 0),
-            lineTo(1, -1),
-            lineTo(0, -1),
-        ]),
-        new SingleTile([
-            moveTo(0, 0),
-            lineTo(0, -1),
-            lineTo(-1, 0),
-            lineTo(-1, 1),
-        ]),
-    ]
-)
-
 export const tetrille1 = new HexPattern(
-    "Tetrille 1",
+    "* Tetrille 1 / Lozenges",
     { x: 2, y: 1 },
     { x: 1, y: -1 },
     [
@@ -114,7 +89,9 @@ export const tetrille1 = new HexPattern(
             lineTo(-1, 0),
             lineTo(-1, 1),
         ]),
-    ]
+    ],
+    (p) => p,
+    [false, 4, 4, 4]
 )
 
 export const tetrille2 = new HexPattern(
@@ -164,7 +141,9 @@ export const tetrille2 = new HexPattern(
             lineTo(2, -3),
             lineTo(2, -2),
         ]),
-    ]
+    ],
+    (p) => p,
+    [false, 3, 3, 3]
 )
 
 export const tetrille3 = new HexPattern(
@@ -262,11 +241,13 @@ export const tetrille3 = new HexPattern(
             lineTo(2, -3),
             lineTo(2, -2),
         ]),
-    ]
+    ],
+    (p) => p,
+    [false, 3, 3, 3]
 )
 
 export const complex1 = new HexPattern(
-    "Complex 1",
+    "*  Complex 1",
     { x: 4, y: 2 },
     { x: 2, y: -2 },
     [
@@ -325,5 +306,7 @@ export const complex1 = new HexPattern(
             lineTo(0, 2),
             lineTo(0, 1),
         ]),
-    ]
+    ],
+    (p) => p,
+    [false, 3, 3, 3]
 )

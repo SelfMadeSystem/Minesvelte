@@ -313,7 +313,7 @@ function genThiccSquare4x4(dy: number) {
 }
 
 export const square4x4thicc = new GrowingFractalPattern(
-    "Thick 4x4 Square",
+    "* Thick 4x4 Square",
     { x: 3, y: 3 },
     [
         new SingleTile([
@@ -569,10 +569,11 @@ export const square4x4thicc = new GrowingFractalPattern(
             lineTo(6, 2),
         ]),
     ],
+    [3]
 );
 
 export const square2x2Checkers = new ShrinkingFractalPattern(
-    "Square 2x2 Checkers",
+    "*Square 2x2 Checkers",
     { x: 2, y: 2 },
     [
         { x: 0.5, y: 0.5 },
@@ -609,7 +610,7 @@ export const square2x2Checkers = new ShrinkingFractalPattern(
 )
 
 export const square4x4Checkers = new ShrinkingFractalPattern(
-    "Square 4x4 Checkers",
+    "*Square 4x4 Checkers",
     { x: 2, y: 2 },
     [
         { x: 1, y: 1 },
@@ -717,6 +718,7 @@ export const square4x4Checkers = new ShrinkingFractalPattern(
             lineTo(-2, 1),
         ]),
     ],
+    [3]
 )
 
 export const square2x2CheckersAlternating = new ShrinkingFractalPattern(
@@ -773,7 +775,7 @@ export const square2x2CheckersAlternating = new ShrinkingFractalPattern(
 )
 
 export const square4x4CheckersAlternating = new ShrinkingFractalPattern(
-    "Alternating Square 4x4 Checkers",
+    "*Alternating Square 4x4 Checkers",
     { x: 2, y: 2 },
     (_, i) => (i % 2 === 0) ? [
         { x: 1, y: 1 },
@@ -934,4 +936,5 @@ export const square4x4CheckersAlternating = new ShrinkingFractalPattern(
             lineTo(-2, 1),
         ]),
     ],
+    [3]
 )
