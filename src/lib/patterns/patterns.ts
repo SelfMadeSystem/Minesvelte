@@ -26,10 +26,10 @@ export class SingleTile {
         const points: ShapePoint[] = [];
         for (const shape of this.points) {
             const clone = shape.clone();
-            clone.x += pos.x;
-            clone.y += pos.y;
             clone.x *= scale.x;
             clone.y *= scale.y;
+            clone.x += pos.x;
+            clone.y += pos.y;
             points.push(clone);
         }
         return new Shape(grid, points);
@@ -314,9 +314,9 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
 export class GrowingFractalPattern extends Pattern<[NumberParam]> {
     constructor(
         public readonly name: string,
-        public iterateScale: number,
-        public initialTiles: FunOrDef<SingleTile[], {}>,
-        public repeatingTiles: FunOrDef<SingleTile[], number>,
+        public iterateScale: Point,
+        public initialTiles: FunOrDef<SingleTile[], number>,
+        public repeatingTiles: FunOrDef<SingleTile[], Point>,
         ) {
         super(name, [{
             name: "Iterations",
@@ -337,18 +337,89 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
     public generateGrid(grid: Grid, parameters: { Iterations: number }): void {
         const { Iterations } = parameters;
 
-        grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, {}, this.initialTiles)
+        grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, Iterations, this.initialTiles)
             .map((t) => t.toShape(grid, new Vec(0, 0))));
         
-        let scale = 1;
-
-        console.log("parameters", parameters);
+        let scale = new Vec(1, 1);
 
         for (let i = 0; i < Iterations; i++) {
             grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, scale, this.repeatingTiles)
-                .map((t) => t.toShape(grid, new Vec(0, 0), { x: scale, y: scale })));
+                .map((t) => t.toShape(grid, new Vec(0, 0), scale)));
 
-            scale *= this.iterateScale;
+            scale.mul(this.iterateScale);
+        }
+    }
+
+    public newGrid(): Grid {
+        return new SquareGrid();
+    }
+}
+
+/**
+ * A ShrinkingFractalPattern is a pattern where each tile is a smaller version
+ * of the same pattern.
+ * 
+ * It has a single dimension: the number of times to repeat the pattern.
+ */
+export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
+    constructor(
+        public readonly name: string,
+        public iterateScale: Point,
+        public iterateOffsets: Point[],
+        public finalTiles: FunOrDef<SingleTile[], Point>,
+        public repeatingTiles: FunOrDef<SingleTile[], Point>,
+        ) {
+        super(name, [{
+            name: "Iterations",
+            type: "number",
+            default: 5,
+            min: 1,
+            max: 100,
+            step: 1
+        }]);
+    }
+
+    /**
+     * Generates a Grid from this Tile.
+     * 
+     * @param grid The grid to generate the shapes into.
+     * @param parameters The dimensions of the grid to generate.
+     */
+    public generateGrid(grid: Grid, parameters: { Iterations: number }): void {
+        const { Iterations } = parameters;
+        
+        const scale = Vec.from(this.iterateScale).pow(Iterations);
+
+        this.generateShapes(grid, {x: 0, y:0}, scale, Iterations);
+    }
+
+    /**
+     * Generates a single set of shapes from this Tile, and recursively generates
+     * the smaller versions of this tile.
+     * 
+     * When iterations is 0, it also generates the final tiles.
+     * (also, at this point, scale should also be 1)
+     *
+     * @param grid The grid to generate the shapes into.
+     * @param pos The position of the tile.
+     * @param scale The scale of the tile.
+     * @param iterations The number of iterations left to generate.
+     */
+    public generateShapes(grid: Grid, pos: Point, scale: Point, iterations: number): void {
+        if (iterations == 0) {
+            grid.shapes.push(...getFunOrDef(pos, scale, this.finalTiles)
+                .map((t) => t.toShape(grid, pos, scale)));
+        }
+
+        grid.shapes.push(...getFunOrDef(pos, scale, this.repeatingTiles)
+            .map((t) => t.toShape(grid, pos, scale)));
+
+        if (iterations > 0) {
+            const newScale = Vec.from(scale).div(this.iterateScale);
+            for (const offset of this.iterateOffsets) {
+                const newPos = Vec.from(pos).add(Vec.from(offset).mul(scale));
+                this.generateShapes(grid, newPos, newScale, iterations - 1);
+            }
         }
     }
 

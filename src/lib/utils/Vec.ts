@@ -49,6 +49,10 @@ export class Vec implements Point {
         return new Vec(this.x * s, this.y * s);
     }
 
+    public pow(s: number): Vec {
+        return new Vec(Math.pow(this.x, s), Math.pow(this.y, s));
+    }
+
     public normalize(): Vec {
         return this.scale(1 / this.length());
     }

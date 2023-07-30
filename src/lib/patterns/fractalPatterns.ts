@@ -1,9 +1,9 @@
 import { lineTo, moveTo } from "../game/shape";
-import { SingleTile, GrowingFractalPattern } from "./patterns";
+import { SingleTile, GrowingFractalPattern, ShrinkingFractalPattern } from "./patterns";
 
 export const square2x2 = new GrowingFractalPattern(
     "2x2 Square",
-    2,
+    { x: 2, y: 2 },
     [
         new SingleTile([
             moveTo(0, 0),
@@ -37,13 +37,13 @@ export const square2x2 = new GrowingFractalPattern(
 
 export const square3x3 = new GrowingFractalPattern(
     "3x3 Square",
-    3,
+    { x: 3, y: 3},
     [
         new SingleTile([
             moveTo(-0.5, -0.5),
             lineTo(-0.5, 0.5),
-            lineTo(0.5,  0.5),
-            lineTo(0.5,  -0.5),
+            lineTo(0.5, 0.5),
+            lineTo(0.5, -0.5),
         ])
     ],
     [
@@ -102,7 +102,7 @@ export const square3x3 = new GrowingFractalPattern(
 
 export const square4x4 = new GrowingFractalPattern(
     "4x4 Square",
-    2,
+    { x: 2, y: 2 },
     [
         new SingleTile([
             moveTo(0, 0),
@@ -239,8 +239,8 @@ export const square4x4 = new GrowingFractalPattern(
         new SingleTile([
             moveTo(4, -2),
             lineTo(2, -2),
-            lineTo(2,  0),
-            lineTo(4,  0),
+            lineTo(2, 0),
+            lineTo(4, 0),
         ]),
 
         new SingleTile([
@@ -263,10 +263,10 @@ export const square4x4 = new GrowingFractalPattern(
             lineTo(-2, 4),
         ]),
         new SingleTile([
-            moveTo(0,  2),
+            moveTo(0, 2),
             lineTo(-2, 2),
             lineTo(-2, 4),
-            lineTo(0,  4),
+            lineTo(0, 4),
         ]),
         new SingleTile([
             moveTo(2, 2),
@@ -314,7 +314,7 @@ function genThiccSquare4x4(dy: number) {
 
 export const square4x4thicc = new GrowingFractalPattern(
     "Thick 4x4 Square",
-    3,
+    { x: 3, y: 3 },
     [
         new SingleTile([
             moveTo(0, 0),
@@ -430,10 +430,10 @@ export const square4x4thicc = new GrowingFractalPattern(
             lineTo(-2, -4),
         ]),
         new SingleTile([
-            moveTo(0,  -6),
+            moveTo(0, -6),
             lineTo(-2, -6),
             lineTo(-2, -4),
-            lineTo(0,  -4),
+            lineTo(0, -4),
         ]),
         new SingleTile([
             moveTo(2, -6),
@@ -508,10 +508,10 @@ export const square4x4thicc = new GrowingFractalPattern(
             lineTo(-2, 4),
         ]),
         new SingleTile([
-            moveTo(0,  6),
+            moveTo(0, 6),
             lineTo(-2, 6),
             lineTo(-2, 4),
-            lineTo(0,  4),
+            lineTo(0, 4),
         ]),
         new SingleTile([
             moveTo(2, 6),
@@ -545,10 +545,10 @@ export const square4x4thicc = new GrowingFractalPattern(
             lineTo(-2, 2),
         ]),
         new SingleTile([
-            moveTo(0,  4),
+            moveTo(0, 4),
             lineTo(-2, 4),
             lineTo(-2, 2),
-            lineTo(0,  2),
+            lineTo(0, 2),
         ]),
         new SingleTile([
             moveTo(2, 4),
@@ -570,3 +570,40 @@ export const square4x4thicc = new GrowingFractalPattern(
         ]),
     ],
 );
+
+export const square2x2Checkers = new ShrinkingFractalPattern(
+    "Square 2x2 Checkers",
+    { x: 2, y: 2 },
+    [
+        { x: 0.5, y: 0.5 },
+        { x: -0.5, y: -0.5 },
+    ],
+    [
+        new SingleTile([
+            moveTo(-1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+    ],
+    [
+        new SingleTile([
+            moveTo(-1, 1),
+            lineTo(0, 1),
+            lineTo(0, 0),
+            lineTo(-1, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(0, -1),
+            lineTo(0, 0),
+            lineTo(1, 0),
+        ]),
+    ],
+)
