@@ -22,7 +22,8 @@
           TopHeight: 6,
       },
       type: "main-menu-new-game",
-      connectedNumber: false
+      connectedNumber: false,
+      includeCorners: true
   };
 
   function onMenu(e: CustomEvent<any>) {

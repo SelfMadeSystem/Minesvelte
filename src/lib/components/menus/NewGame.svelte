@@ -6,6 +6,7 @@
     } from "../../utils/Events";
     import * as squarePatterns from "../../patterns/squarePatterns";
     import * as hexPatterns from "../../patterns/hexPatterns";
+    import * as fractalPatterns from "../../patterns/fractalPatterns";
     import type { Pattern, PatternParam } from "src/lib/patterns/patterns";
     import Toggle, { type State } from "../form/Toggle.svelte";
     import { HexGrid, SquareGrid } from "../../game/grid";
@@ -16,31 +17,30 @@
 
     $: if (type) {
         patterns.clear();
+        let ppp: any;
         switch (type) {
             default:
             case "square":
-                for (const key in squarePatterns) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(
-                            squarePatterns,
-                            key
-                        )
-                    ) {
-                        const element = squarePatterns[key];
-                        patterns.set(key, element);
-                    }
-                }
+                ppp = squarePatterns;
                 break;
             case "hex":
-                for (const key in hexPatterns) {
-                    if (
-                        Object.prototype.hasOwnProperty.call(hexPatterns, key)
-                    ) {
-                        const element = hexPatterns[key];
-                        patterns.set(key, element);
-                    }
-                }
+                ppp = hexPatterns;
                 break;
+            case "fractal":
+                ppp = fractalPatterns;
+                break;
+        }
+
+        for (const key in ppp) {
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    ppp,
+                    key
+                )
+            ) {
+                const element = ppp[key];
+                patterns.set(key, element);
+            }
         }
         patternsArr = Array.from(patterns.keys());
     }
@@ -100,6 +100,7 @@
             <select name="type" id="type" bind:value={type}>
                 <option value="square">Square Grid</option>
                 <option value="hex">Hex Grid</option>
+                <option value="fractal">Fractal Grid</option>
             </select>
             <select name="pattern" id="pattern" bind:value={selected}>
                 {#each patternsArr as pattern}

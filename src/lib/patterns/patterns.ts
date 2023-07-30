@@ -3,6 +3,8 @@ import { Shape, ShapePoint } from '../game/shape';
 import { Vec } from '../utils/Vec';
 import type { HexPoint, Point } from '../utils/Vec';
 
+// TODO: Remove duplicate shapes to make generation easier to read and make for the user.
+
 /**
  * A SingleTile is an abstract shape that can be transformed into a Shape.
  */
@@ -18,13 +20,16 @@ export class SingleTile {
      * 
      * @param grid The grid to generate the shape into.
      * @param pos The position to place the shape at.
+     * @param scale The scale to apply to the shape. Applied before the position.
      */
-    public toShape(grid: Grid, pos: Point): Shape {
+    public toShape(grid: Grid, pos: Point, scale: Point = {x: 1, y: 1}): Shape {
         const points: ShapePoint[] = [];
         for (const shape of this.points) {
             const clone = shape.clone();
             clone.x += pos.x;
             clone.y += pos.y;
+            clone.x *= scale.x;
+            clone.y *= scale.y;
             points.push(clone);
         }
         return new Shape(grid, points);
@@ -297,5 +302,57 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
 
     public newGrid(): Grid {
         return new HexGrid();
+    }
+}
+
+/**
+ * A GrowingFractalPattern is a pattern where each tile is a larger version
+ * of the same pattern.
+ * 
+ * It has a single dimension: the number of times to repeat the pattern.
+ */
+export class GrowingFractalPattern extends Pattern<[NumberParam]> {
+    constructor(
+        public readonly name: string,
+        public iterateScale: number,
+        public initialTiles: FunOrDef<SingleTile[], {}>,
+        public repeatingTiles: FunOrDef<SingleTile[], number>,
+        ) {
+        super(name, [{
+            name: "Iterations",
+            type: "number",
+            default: 5,
+            min: 1,
+            max: 100,
+            step: 1
+        }]);
+    }
+
+    /**
+     * Generates a Grid from this Tile.
+     * 
+     * @param grid The grid to generate the shapes into.
+     * @param parameters The dimensions of the grid to generate.
+     */
+    public generateGrid(grid: Grid, parameters: { Iterations: number }): void {
+        const { Iterations } = parameters;
+
+        grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, {}, this.initialTiles)
+            .map((t) => t.toShape(grid, new Vec(0, 0))));
+        
+        let scale = 1;
+
+        console.log("parameters", parameters);
+
+        for (let i = 0; i < Iterations; i++) {
+            grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, scale, this.repeatingTiles)
+                .map((t) => t.toShape(grid, new Vec(0, 0), { x: scale, y: scale })));
+
+            scale *= this.iterateScale;
+        }
+    }
+
+    public newGrid(): Grid {
+        return new SquareGrid();
     }
 }

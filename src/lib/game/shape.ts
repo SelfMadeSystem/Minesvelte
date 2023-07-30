@@ -39,6 +39,10 @@ export abstract class ShapePoint implements Point {
         this._y = y;
     }
 
+    public distanceSqr(point: Point) {
+        return (this.x - point.x) ** 2 + (this.y - point.y) ** 2;
+    }
+
     public abstract toString(grid: Grid): string;
     public abstract clone(): ShapePoint;
 }
@@ -332,7 +336,9 @@ export class Shape extends BasicHint {
     }
 
     private _isCorner(other: Shape) { // includes adjacent
-        return this.lines.some(l => other.points.some(p => l.isBetween(p)));
+        return this.lines.some(l => other.lines.some(ol => 
+            l.isBetween(ol.p1) || l.isBetween(ol.p2) ||
+            ol.isBetween(l.p1) || ol.isBetween(l.p2)));
     }
 
     areAllConnected(): boolean {
@@ -397,9 +403,22 @@ export class Shape extends BasicHint {
         return area = Math.abs(area) / 2;
     }
 
+    private getLargestDistanceOfPoints() {
+        let maxDistance = 0;
+        for (let i = 0; i < this.points.length - 1; ++i) {
+            for (let j = i + 1; j < this.points.length; ++j) {
+                let distance = this.points[i].distanceSqr(this.points[j]);
+                if (distance > maxDistance) {
+                    maxDistance = distance;
+                }
+            }
+        }
+        return Math.sqrt(maxDistance);
+    }
+
     getTextSize(): number {
-        let size = this.getShapeArea();
-        return Math.min(0.5, size * 0.6);
+        let size = this.getLargestDistanceOfPoints();
+        return size * 0.4;
     }
 
     getText() {
