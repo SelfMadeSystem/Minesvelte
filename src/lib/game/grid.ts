@@ -20,6 +20,7 @@ export abstract class Grid {
     public transformPositionAdjust: ValueNotifier<Point> = new ValueNotifier(new Vec());
     public notifyShapeStateChange: Notifier<Shape> = new Notifier();
     public shapeId: number = 0;
+    public includeCorners: boolean = true;
     public history: HistoryProcessor = new HistoryProcessor(this);
 
     constructor() {
@@ -42,9 +43,11 @@ export abstract class Grid {
         return this._shapesByColor = Object.fromEntries(shapes);
     }
 
-    public resetShapes(options: MainMenuNewGameOptions) {
+    public reset(options: MainMenuNewGameOptions) {
+        this.includeCorners = options.includeCorners;
+
         this.shapes.forEach((shape) => {
-            shape.adjacentShapesNumber = options.connectedNumber;
+            shape.connectedNumber = options.connectedNumber;
             shape.shapeState.isFlagged = false;
             shape.shapeState.hasMine = false;
             shape.shapeState.isRevealed = false;

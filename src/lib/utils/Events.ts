@@ -57,6 +57,7 @@ export interface MainMenuNewGameOptions extends MainMenuEvent { // Todo: add col
     mineCount: number;
     minePercent: boolean;
     connectedNumber: boolean;
+    includeCorners: boolean;
     difficulty?: number; // I think I know how to implement this. Just change the solver parameters when making the grid possible
 }
 

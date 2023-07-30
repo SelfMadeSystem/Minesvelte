@@ -33,7 +33,7 @@
 
     options.pattern.generateGrid(grid, options.patternSize);
 
-    grid.resetShapes(options);
+    grid.reset(options);
     minesLeft = grid.getMinesLeft();
     grid.centerOnScreen();
 

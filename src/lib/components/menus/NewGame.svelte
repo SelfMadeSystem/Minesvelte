@@ -66,6 +66,7 @@
     let mineCount: number = 20;
     let minePercent: State = "true";
     let connectedNumber: State = "false";
+    let includeCorners: State = "true";
 
     const dispatch = createEventDispatcher();
 
@@ -86,6 +87,7 @@
             mineCount: mineCount,
             minePercent: minePercent === "true",
             connectedNumber: connectedNumber === "true",
+            includeCorners: includeCorners === "true",
         } as MainMenuNewGameOptions);
     }
 </script>
@@ -182,6 +184,15 @@
                 <Toggle
                     name="connectedNumber"
                     bind:state={connectedNumber}
+                    _class="ml-4"
+                />
+            </label>
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="boolean-input"
+                >Corners:
+                <Toggle
+                    name="includeCorners"
+                    bind:state={includeCorners}
                     _class="ml-4"
                 />
             </label>

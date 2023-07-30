@@ -224,7 +224,7 @@ export class Shape extends BasicHint {
     public readonly shapeStateNotify: Notifier<SSNotify> = new Notifier();
     public readonly notifyContactChange: Notifier<Shape[]> = new Notifier();
     hasChanged = true;
-    public adjacentShapesNumber: boolean = true;
+    public connectedNumber: boolean = true;
     public bounds: Rect;
     public id: number;
     constructor(grid: Grid, public readonly points: ShapePoint[], hasMine: boolean = false) {
@@ -290,7 +290,7 @@ export class Shape extends BasicHint {
 
     _updateContacts() {
         let prevContacts = this.contacts;
-        this.contacts = this.grid.shapes.filter(s => s !== this && this.isCorner(s));
+        this.contacts = this.grid.shapes.filter(s => s !== this && this.isAdjacent(s));
         this.notifyContactChange.notify(this.contacts);
         return prevContacts.filter(s => !this.contacts.includes(s));
     }
@@ -311,13 +311,19 @@ export class Shape extends BasicHint {
     }
 
     isAdjacent(other: Shape) {
-        return this._isAdjacent(other);
+        if (this.grid.includeCorners) {
+            return this._isCorner(other);
+        } else {
+            return this._isAdjacent(other);
+        }
     }
 
     private _isAdjacent(other: Shape) {
         return this.lines.some(l => other.lines.some(ol => {
             if (l.isParallel(ol)) {
-                return l.isBetweenExclusive(ol.p1) || l.isBetweenExclusive(ol.p2) || (
+                return l.isBetweenExclusive(ol.p1) || l.isBetweenExclusive(ol.p2) ||
+                    ol.isBetweenExclusive(l.p1) || ol.isBetweenExclusive(l.p2) ||
+                (
                     l.isBetween(ol.p1) && l.isBetween(ol.p2)
                 );
             }
@@ -325,19 +331,19 @@ export class Shape extends BasicHint {
         }));
     }
 
-    isCorner(other: Shape) { // includes adjacent
+    private _isCorner(other: Shape) { // includes adjacent
         return this.lines.some(l => other.points.some(p => l.isBetween(p)));
     }
 
-    areAllAdjacent(): boolean {
-        return Shape.checkAllAdjacent([...this.contacts].filter(s => s.shapeState.hasMine));
+    areAllConnected(): boolean {
+        return Shape.checkAllConnected([...this.contacts].filter(s => s.shapeState.hasMine));
     }
 
-    static checkAllAdjacent(shapes: Shape[]): boolean {
+    static checkAllConnected(shapes: Shape[]): boolean {
         let current = shapes.shift();
 
         while (shapes.length > 0) {
-            let contacts = shapes.filter(s => s.isAdjacent(current));
+            let contacts = shapes.filter(s => s._isAdjacent(current)); // must be adjacent, not corner
             if (contacts.length === 0) {
                 return false;
             } else {
@@ -349,7 +355,7 @@ export class Shape extends BasicHint {
 
     static _areAllAdjacent(shape: Shape, shapes: Shape[]) {
         shapes.splice(shapes.indexOf(shape), 1);
-        let contacts = shapes.filter(s => s.isAdjacent(shape));
+        let contacts = shapes.filter(s => s._isAdjacent(shape));
         if (contacts.length === 0) {
             return;
         }
@@ -357,8 +363,8 @@ export class Shape extends BasicHint {
     }
 
     getNumText() {
-        if (this.adjacentShapesNumber && this.number > 1) {
-            if (this.areAllAdjacent()) {
+        if (this.connectedNumber && this.number > 1) {
+            if (this.areAllConnected()) {
                 return `{${this.number}}`;
             } else {
                 return `-${this.number}-`;
@@ -431,10 +437,10 @@ export class Shape extends BasicHint {
         const minesAlreadyKnown = this.contacts.filter(c => c.solverState.mineKnown);
         const hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown),
             this.number - this.contacts.reduce((a, c) => a + Number(c.solverState.mineKnown), 0),
-            this.adjacentShapesNumber && this.number > 1 ?
-                this.areAllAdjacent() ?
-                    (p) => Hint.defaultVerify(p, hint) && Shape.checkAllAdjacent([...minesAlreadyKnown, ...hint.getShapes(p)]) :
-                    (p) => Hint.defaultVerify(p, hint) && !Shape.checkAllAdjacent([...minesAlreadyKnown, ...hint.getShapes(p)]) :
+            this.connectedNumber && this.number > 1 ?
+                this.areAllConnected() ?
+                    (p) => Hint.defaultVerify(p, hint) && Shape.checkAllConnected([...minesAlreadyKnown, ...hint.getShapes(p)]) :
+                    (p) => Hint.defaultVerify(p, hint) && !Shape.checkAllConnected([...minesAlreadyKnown, ...hint.getShapes(p)]) :
                 (p) => Hint.defaultVerify(p, hint));
         return hint;
     }
