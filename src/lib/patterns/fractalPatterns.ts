@@ -1,8 +1,8 @@
 import { lineTo, moveTo } from "../game/shape";
 import { SingleTile, GrowingFractalPattern, ShrinkingFractalPattern } from "./patterns";
 
-export const square2x2 = new GrowingFractalPattern(
-    "2x2 Square",
+export const square2x2Inward = new GrowingFractalPattern(
+    "2x2 Square Inward",
     { x: 2, y: 2 },
     [
         new SingleTile([
@@ -35,8 +35,8 @@ export const square2x2 = new GrowingFractalPattern(
     ],
 );
 
-export const square3x3 = new GrowingFractalPattern(
-    "3x3 Square",
+export const square3x3Inward = new GrowingFractalPattern(
+    "3x3 Square Inward",
     { x: 3, y: 3 },
     [
         new SingleTile([
@@ -100,8 +100,8 @@ export const square3x3 = new GrowingFractalPattern(
     ],
 );
 
-export const square4x4 = new GrowingFractalPattern(
-    "4x4 Square",
+export const square4x4Inward = new GrowingFractalPattern(
+    "4x4 Square Inward",
     { x: 2, y: 2 },
     [
         new SingleTile([
@@ -572,8 +572,8 @@ export const square4x4thicc = new GrowingFractalPattern(
     [3]
 );
 
-export const square2x2Checkers = new ShrinkingFractalPattern(
-    "*Square 2x2 Checkers",
+export const square2x2Corners = new ShrinkingFractalPattern(
+    "* Square 2x2 Corners",
     { x: 2, y: 2 },
     [
         { x: 0.5, y: 0.5 },
@@ -609,8 +609,8 @@ export const square2x2Checkers = new ShrinkingFractalPattern(
     ],
 )
 
-export const square4x4Checkers = new ShrinkingFractalPattern(
-    "*Square 4x4 Checkers",
+export const square4x4Corners = new ShrinkingFractalPattern(
+    "*Square 4x4 Corners",
     { x: 2, y: 2 },
     [
         { x: 1, y: 1 },
@@ -721,8 +721,8 @@ export const square4x4Checkers = new ShrinkingFractalPattern(
     [3]
 )
 
-export const square2x2CheckersAlternating = new ShrinkingFractalPattern(
-    "Alternating Square 2x2 Checkers",
+export const square2x2CornersAlternating = new ShrinkingFractalPattern(
+    "Alternating Square 2x2 Corners",
     { x: 2, y: 2 },
     (_, i) => (i % 2 === 0) ? [
         { x: 0.5, y: 0.5 },
@@ -774,8 +774,8 @@ export const square2x2CheckersAlternating = new ShrinkingFractalPattern(
     ],
 )
 
-export const square4x4CheckersAlternating = new ShrinkingFractalPattern(
-    "*Alternating Square 4x4 Checkers",
+export const square4x4CornersAlternating = new ShrinkingFractalPattern(
+    "* Alternating Square 4x4 Corners",
     { x: 2, y: 2 },
     (_, i) => (i % 2 === 0) ? [
         { x: 1, y: 1 },
@@ -937,4 +937,145 @@ export const square4x4CheckersAlternating = new ShrinkingFractalPattern(
         ]),
     ],
     [3]
+)
+
+export const square3x3Checkers = new ShrinkingFractalPattern(
+    "* Square 3x3 Checkers",
+    { x: 3, y: 3 },
+    [
+        { x: 1, y: 0 },
+        { x: 0, y: 1 },
+        { x: -1, y: 0 },
+        { x: 0, y: -1 },
+    ],
+    [
+        new SingleTile([
+            moveTo(-0.5, 1.5),
+            lineTo(-0.5, 0.5),
+            lineTo(0.5, 0.5),
+            lineTo(0.5, 1.5),
+        ]),
+        new SingleTile([
+            moveTo(1.5, -0.5),
+            lineTo(0.5, -0.5),
+            lineTo(0.5, 0.5),
+            lineTo(1.5, 0.5),
+        ]),
+        new SingleTile([
+            moveTo(-0.5, -1.5),
+            lineTo(-0.5, -0.5),
+            lineTo(0.5, -0.5),
+            lineTo(0.5, -1.5),
+        ]),
+        new SingleTile([
+            moveTo(-1.5, -0.5),
+            lineTo(-0.5, -0.5),
+            lineTo(-0.5, 0.5),
+            lineTo(-1.5, 0.5),
+        ]),
+    ],
+    [
+        new SingleTile([
+            moveTo( 0.5, -0.5),
+            lineTo(-0.5, -0.5),
+            lineTo(-0.5,  0.5),
+            lineTo( 0.5,  0.5),
+        ]),
+        new SingleTile([
+            moveTo(1.5, 0.5),
+            lineTo(0.5, 0.5),
+            lineTo(0.5, 1.5),
+            lineTo(1.5, 1.5),
+        ]),
+        new SingleTile([
+            moveTo(-1.5, 0.5),
+            lineTo(-0.5, 0.5),
+            lineTo(-0.5, 1.5),
+            lineTo(-1.5, 1.5),
+        ]),
+        new SingleTile([
+            moveTo(1.5, -0.5),
+            lineTo(0.5, -0.5),
+            lineTo(0.5, -1.5),
+            lineTo(1.5, -1.5),
+        ]),
+        new SingleTile([
+            moveTo(-1.5, -0.5),
+            lineTo(-0.5, -0.5),
+            lineTo(-0.5, -1.5),
+            lineTo(-1.5, -1.5),
+        ]),
+    ],
+    [3]
+)
+
+export const square3x3CheckersAltenate = new ShrinkingFractalPattern(
+    "* Alternate Square 3x3 Checkers",
+    { x: 3, y: 3 },
+    [
+        { x: 0, y: 0 },
+        { x: -1, y: 1 },
+        { x: -1, y: -1 },
+        { x: 1, y: -1 },
+        { x: 1, y: 1 },
+    ],
+    [
+        new SingleTile([
+            moveTo( 0.5, -0.5),
+            lineTo(-0.5, -0.5),
+            lineTo(-0.5,  0.5),
+            lineTo( 0.5,  0.5),
+        ]),
+        new SingleTile([
+            moveTo(1.5, 0.5),
+            lineTo(0.5, 0.5),
+            lineTo(0.5, 1.5),
+            lineTo(1.5, 1.5),
+        ]),
+        new SingleTile([
+            moveTo(-1.5, 0.5),
+            lineTo(-0.5, 0.5),
+            lineTo(-0.5, 1.5),
+            lineTo(-1.5, 1.5),
+        ]),
+        new SingleTile([
+            moveTo(1.5, -0.5),
+            lineTo(0.5, -0.5),
+            lineTo(0.5, -1.5),
+            lineTo(1.5, -1.5),
+        ]),
+        new SingleTile([
+            moveTo(-1.5, -0.5),
+            lineTo(-0.5, -0.5),
+            lineTo(-0.5, -1.5),
+            lineTo(-1.5, -1.5),
+        ]),
+    ],
+    [
+        new SingleTile([
+            moveTo(-0.5, 1.5),
+            lineTo(-0.5, 0.5),
+            lineTo(0.5, 0.5),
+            lineTo(0.5, 1.5),
+        ]),
+        new SingleTile([
+            moveTo(1.5, -0.5),
+            lineTo(0.5, -0.5),
+            lineTo(0.5, 0.5),
+            lineTo(1.5, 0.5),
+        ]),
+        new SingleTile([
+            moveTo(-0.5, -1.5),
+            lineTo(-0.5, -0.5),
+            lineTo(0.5, -0.5),
+            lineTo(0.5, -1.5),
+        ]),
+        new SingleTile([
+            moveTo(-1.5, -0.5),
+            lineTo(-0.5, -0.5),
+            lineTo(-0.5, 0.5),
+            lineTo(-1.5, 0.5),
+        ]),
+    ],
+    [2]
 )
