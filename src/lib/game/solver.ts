@@ -39,6 +39,21 @@ export class Solver {
     }
 
     public hint() {
+        // If there are any incorrectly flagged tiles, remove them.
+
+        const shapes = this.grid.shapes;
+
+        let found = false;
+
+        for (const shape of shapes) {
+            if (shape.shapeState.isFlagged && !shape.shapeState.hasMine) {
+                shape.flag(false);
+                found = true;
+            }
+        }
+
+        if (found) return;
+
         this.solve();
         this.cancel();
     }

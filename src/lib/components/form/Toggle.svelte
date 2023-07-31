@@ -27,7 +27,7 @@
         }
     }
     export function toggle() {
-        setState((state === "true" || state === true) ? "false" : "true");
+        setState(state === "true" || state === true ? "false" : "true");
     }
 
     let slider: HTMLSpanElement;
@@ -160,6 +160,8 @@
 <style lang="scss">
     .slider {
         position: relative;
+        display: inline-block;
+        vertical-align: middle;
         width: 4rem;
         height: 2rem;
         margin-top: 10px;
