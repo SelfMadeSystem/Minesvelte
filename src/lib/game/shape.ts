@@ -327,16 +327,16 @@ export class Shape extends BasicHint {
             if (l.isParallel(ol)) {
                 return l.isBetweenExclusive(ol.p1) || l.isBetweenExclusive(ol.p2) ||
                     ol.isBetweenExclusive(l.p1) || ol.isBetweenExclusive(l.p2) ||
-                (
-                    l.isBetween(ol.p1) && l.isBetween(ol.p2)
-                );
+                    (
+                        l.isBetween(ol.p1) && l.isBetween(ol.p2)
+                    );
             }
             return false;
         }));
     }
 
     private _isCorner(other: Shape) { // includes adjacent
-        return this.lines.some(l => other.lines.some(ol => 
+        return this.lines.some(l => other.lines.some(ol =>
             l.isBetween(ol.p1) || l.isBetween(ol.p2) ||
             ol.isBetween(l.p1) || ol.isBetween(l.p2)));
     }
@@ -379,7 +379,7 @@ export class Shape extends BasicHint {
         return this.number.toString();
     }
 
-    getTextPosition() {
+    private getCenter() {
         let center = { x: this.points[0].x, y: this.points[0].y };
         for (let i = 1; i < this.points.length; i++) {
             let p = this.points[i];
@@ -391,34 +391,25 @@ export class Shape extends BasicHint {
         return center;
     }
 
-    private getShapeArea() {
-        let area = 0;
-
-        for (let i = 0; i < this.points.length - 1; ++i) {
-            area += this.points[i].x * this.points[i + 1].y - this.points[i + 1].x * this.points[i].y;
-        }
-
-        area += this.points[this.points.length - 1].x * this.points[0].y - this.points[0].x * this.points[this.points.length - 1].y;
-
-        return area = Math.abs(area) / 2;
+    getTextPosition() {
+        return this.getCenter();
     }
 
-    private getLargestDistanceOfPoints() {
-        let maxDistance = 0;
-        for (let i = 0; i < this.points.length - 1; ++i) {
-            for (let j = i + 1; j < this.points.length; ++j) {
-                let distance = this.points[i].distanceSqr(this.points[j]);
-                if (distance > maxDistance) {
-                    maxDistance = distance;
-                }
+    private getSmallestDistanceToCenter() {
+        let center = this.getCenter();
+        let smallestDistance = Number.MAX_SAFE_INTEGER;
+        this.lines.forEach(l => {
+            let distance = l.distanceTo(center);
+            if (distance < smallestDistance) {
+                smallestDistance = distance;
             }
-        }
-        return Math.sqrt(maxDistance);
+        });
+        return smallestDistance;
     }
 
     getTextSize(): number {
-        let size = this.getLargestDistanceOfPoints();
-        return size * 0.3;
+        let size = this.getSmallestDistanceToCenter(); // TODO: This breaks in a hexagonal grid
+        return size * 0.8;
     }
 
     getText() {

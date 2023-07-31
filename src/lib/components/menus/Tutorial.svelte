@@ -88,6 +88,19 @@
     </p>
 
     <p>
+        In the top right, you can press the "Solve" button to solve the game.
+        This will reveal all the mines and flags.
+    </p>
+
+    <p>
+        You can also press the "Make Solvable" button to make the game solvable
+        (if it is not already). This works by running the solver algorithm and
+        then randomly revealing tiles until the game is solvable. I will make
+        this automatic in the future (along with other features like color, mine
+        lines, actually using logic and not randomness to reveal tiles, etc).
+    </p>
+    
+    <p>
         That's all for now! If you have any questions, comments, or suggestions,
         please feel free to open an issue on the <a
             href="https://github.com/SelfMadeSystem/Minesvelte/issues"

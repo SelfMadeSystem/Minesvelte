@@ -81,6 +81,20 @@ export class Line {
     public intersects(other: Line): boolean {
         return doIntersect(this.p1, this.p2, other.p1, other.p2);
     }
+
+    public distanceTo(point: Point): number {
+        var dx = this.v1.x - this.v2.x;
+        var dy = this.v1.y - this.v2.y;
+        var l2 = dx * dx + dy * dy;
+
+        if (l2 == 0)
+            return this.v2.distance(point);
+
+        var t = ((point.x - this.v2.x) * dx + (point.y - this.v2.y) * dy) / l2;
+        t = Math.max(0, Math.min(1, t));
+
+        return Vec.from(point).distance({ x: this.v2.x + t * dx, y: this.v2.y + t * dy });
+    }
 }
 
 // Given three collinear points p, q, r, the function checks if
