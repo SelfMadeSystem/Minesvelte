@@ -1,6 +1,6 @@
 <script lang="ts">
     import Canvas from "./Canvas.svelte";
-    import { HexGrid, SquareGrid } from "../game/grid";
+    import { SquareGrid } from "../game/grid";
     import Shape from "./Shape.svelte";
     import MineLine from "./MineLine.svelte";
     import type { Shape as Sh } from "../game/shape";

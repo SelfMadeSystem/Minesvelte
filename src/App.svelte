@@ -3,15 +3,14 @@
   import MainMenu from "./lib/components/menus/MainMenu.svelte";
   import NewGame from "./lib/components/menus/NewGame.svelte";
   import Options from "./lib/components/menus/Options.svelte";
-  import { HexGrid, SquareGrid } from "./lib/game/grid";
+  import { SquareGrid } from "./lib/game/grid";
   import { square, hex, triangle } from "./lib/patterns/hexPatterns";
   import type { MainMenuNewGameOptions } from "./lib/utils/Events";
 
   let menu: string = "main";
   let unique: {} = {};
   let options: MainMenuNewGameOptions = {
-      // grid: new SquareGrid(),
-      grid: new HexGrid(),
+      grid: new SquareGrid(),
       mineCount: 20,
       minePercent: true,
       pattern: triangle,

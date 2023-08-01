@@ -9,7 +9,6 @@
     import * as fractalPatterns from "../../patterns/fractalPatterns";
     import type { Pattern, PatternParam } from "src/lib/patterns/patterns";
     import Toggle, { type State } from "../form/Toggle.svelte";
-    import { HexGrid, SquareGrid } from "../../game/grid";
 
     let type: string = "square";
     let patterns: Map<string, Pattern<any>> = new Map<string, Pattern<any>>();

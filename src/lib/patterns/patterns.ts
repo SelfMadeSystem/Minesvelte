@@ -1,4 +1,4 @@
-import { Grid, HexGrid, SquareGrid } from '../game/grid';
+import { Grid, SquareGrid } from '../game/grid';
 import { Shape, ShapePoint } from '../game/shape';
 import { Vec } from '../utils/Vec';
 import type { HexPoint, Point } from '../utils/Vec';
@@ -21,8 +21,9 @@ export class SingleTile {
      * @param grid The grid to generate the shape into.
      * @param pos The position to place the shape at.
      * @param scale The scale to apply to the shape. Applied before the position.
+     * @param hex Whether or not the grid is hexagonal.
      */
-    public toShape(grid: Grid, pos: Point, scale: Point = { x: 1, y: 1 }): Shape {
+    public toShape(grid: Grid, pos: Point, scale: Point = { x: 1, y: 1 }, hex: boolean = false): Shape {
         const points: ShapePoint[] = [];
         for (const shape of this.points) {
             const clone = shape.clone();
@@ -30,6 +31,11 @@ export class SingleTile {
             clone.y *= scale.y;
             clone.x += pos.x;
             clone.y += pos.y;
+            if (hex) {
+                const { x, y } = clone;
+                clone.x *= Math.sqrt(3) / 2;
+                clone.y = -y - x * 0.5;
+            }
             points.push(clone);
         }
         return new Shape(grid, points);
@@ -103,9 +109,37 @@ export abstract class Pattern<P extends PatternParam[]> {
         return null;
     }
 
+    /**
+     * Generates the shapes on a grid for this pattern.
+     * @param grid The grid to generate the shapes into.
+     * @param parameters The parameters to use to generate the shapes.
+     */
     public abstract generateGrid(grid: Grid, parameters: unknown): void;
 
+    /**
+     * Creates a new grid for this pattern.
+     */
     public abstract newGrid(): Grid;
+
+    /**
+     * Removes duplicate shapes from the given grid.
+     * To be called after generation.
+     */
+    public removeDuplicates(grid: Grid): void {
+        const shapes: Shape[] = [];
+        for (const shape of grid.shapes) {
+            let duplicate = false;
+            for (const other of shapes) {
+                if (shape.equals(other)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) shapes.push(shape);
+        }
+        grid.shapes.length = 0;
+        grid.shapes.push(...shapes);
+    }
 }
 
 /**
@@ -156,6 +190,8 @@ export class SquarePattern extends Pattern<[NumberParam, NumberParam]> {
                 grid.shapes.push(...this.generateShapes(grid, x, y, dimensions));
             }
         }
+
+        this.removeDuplicates(grid);
     }
 
     /**
@@ -283,6 +319,8 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
                 grid.shapes.push(...this.generateShapes(grid, x, y, { q: edge.q, r: edge.r, s: edge.s }));
             }
         }
+
+        this.removeDuplicates(grid);
     }
 
     /**
@@ -297,7 +335,7 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
         const shapes: Shape[] = [];
         const pos: Point = new Vec(x, y).mul(this.repeatDimensions).add(getFunOrDef({ x, y }, edge, this.repeatOffset, (p, { }, v) => new Vec(p.y, p.x).mul(v)));
         for (const shape of getFunOrDef({ x, y }, edge, this.tiles)) {
-            let s = shape.toShape(grid, pos);
+            let s = shape.toShape(grid, pos, { x: 1, y: 1 }, true);
             s.A_hexPosition = edge;
             shapes.push(s);
         }
@@ -305,7 +343,7 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
     }
 
     public newGrid(): Grid {
-        return new HexGrid();
+        return new SquareGrid();
     }
 }
 
@@ -353,6 +391,8 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
 
             scale = scale.mul(this.iterateScale);
         }
+
+        this.removeDuplicates(grid);
     }
 
     public newGrid(): Grid {
@@ -397,6 +437,8 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
         const scale = Vec.from(this.iterateScale).pow(Iterations);
 
         this.generateShapes(grid, { x: 0, y: 0 }, scale, Iterations);
+
+        this.removeDuplicates(grid);
     }
 
     /**

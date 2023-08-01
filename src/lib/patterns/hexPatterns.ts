@@ -1,4 +1,3 @@
-import { HexGridFlipped } from "../game/grid";
 import { lineTo, moveTo } from "../game/shape";
 import { SingleTile, HexPattern } from "./patterns";
 
@@ -22,35 +21,41 @@ export const triangle = new HexPattern(
     "* Triangle",
     { x: 1, y: 1 },
     { x: 0, y: 0 },
-    (_, { q }) => {
-        let a = [
-            new SingleTile([
-                moveTo(0, 0),
-                lineTo(1, 0),
-                lineTo(0, 1),
-            ]),
-            new SingleTile([
-                moveTo(1, 0),
-                lineTo(1, 1),
-                lineTo(0, 1),
-            ])
-        ];
-        if (q == 1) a.pop();
-        if (q == -1) a.shift();
-        return a;
-    },
-    (n): import("./patterns").HexP => {
-        return {
-            BottomHeight: n.BottomHeight,
-            TopHeight: n.TopHeight + 1,
-            Width: n.Width + 1,
-            Symmetric: n.Symmetric
-        }
-    },
+    [
+        new SingleTile([
+            moveTo(0, 0),
+            lineTo(1, 0),
+            lineTo(0, 1),
+        ]),
+        new SingleTile([
+            moveTo(1, 0),
+            lineTo(1, 1),
+            lineTo(0, 1),
+        ]),
+        new SingleTile([
+            moveTo(1, 0),
+            lineTo(2, 0),
+            lineTo(1, 1),
+        ]),
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(1, 0),
+            lineTo(0, 0),
+        ]),
+        new SingleTile([
+            moveTo(1, -1),
+            lineTo(2, -1),
+            lineTo(1, 0),
+        ]),
+        new SingleTile([
+            moveTo(2, -1),
+            lineTo(2, 0),
+            lineTo(1, 0),
+        ]),
+    ],
+    (p) => p,
     [false, 3, 3, 3]
 )
-
-triangle.newGrid = () => new HexGridFlipped();
 
 export const square = new HexPattern(
     "Square",

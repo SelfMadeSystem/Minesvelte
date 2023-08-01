@@ -45,6 +45,10 @@ export abstract class ShapePoint implements Point {
 
     public abstract toString(grid: Grid): string;
     public abstract clone(): ShapePoint;
+    
+    public equals(point: Point) {
+        return this.x === point.x && this.y === point.y;
+    }
 }
 
 // LineToPoint
@@ -439,10 +443,6 @@ export class Shape extends BasicHint {
         return null;
     }
 
-    toString() {
-        return this.points.map(p => p.toString(this.grid)).join(' ').slice(2) + ' z';
-    }
-
     public asHint(): Hint {
         const minesAlreadyKnown = this.contacts.filter(c => c.solverState.mineKnown);
         const hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown),
@@ -453,5 +453,17 @@ export class Shape extends BasicHint {
                     (p) => Hint.defaultVerify(p, hint) && !Shape.checkAllConnected([...minesAlreadyKnown, ...hint.getShapes(p)]) :
                 (p) => Hint.defaultVerify(p, hint));
         return hint;
+    }
+
+    toString() {
+        return this.points.map(p => p.toString(this.grid)).join(' ').slice(2) + ' z';
+    }
+
+    public equals(other: Shape): boolean {
+        if (this.points.length !== other.points.length) return false;
+        for (let i = 0; i < this.points.length; i++) {
+            if (!this.points[i].equals(other.points[i])) return false;
+        }
+        return true;
     }
 }
