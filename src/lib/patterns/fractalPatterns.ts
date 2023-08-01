@@ -572,132 +572,6 @@ export const square4x4thicc = new GrowingFractalPattern(
     [3]
 );
 
-const s3o4 = Math.sqrt(3) / 4;
-
-const l = Math.sqrt(3) / 12;
-
-export const triangleInward = new GrowingFractalPattern(
-    "* Triangle Inward",
-    { x: 2, y: -2 },
-    [
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(-0.5, l - s3o4),
-            lineTo(0.5, l - s3o4),
-        ]),
-    ],
-    [
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(-0.5, l - s3o4),
-            lineTo(-1.0, l + s3o4),
-        ]),
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(0.5, l - s3o4),
-            lineTo(1.0, l + s3o4),
-        ]),
-        new SingleTile([
-            moveTo(-0.5, l - s3o4),
-            lineTo(0.5, l - s3o4),
-            lineTo(0, l - s3o4 * 3),
-        ]),
-    ],
-    [20]
-);
-
-export const triangle3Inward = new GrowingFractalPattern(
-    "* 3 Triangles Inward",
-    { x: 2, y: -2 },
-    [
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(-0.5, l - s3o4),
-            lineTo(0.5, l - s3o4),
-        ]),
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(-0.5, l - s3o4),
-            lineTo(-1.0, l + s3o4),
-        ]),
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(0.5, l - s3o4),
-            lineTo(1.0, l + s3o4),
-        ]),
-        new SingleTile([
-            moveTo(-0.5, l - s3o4),
-            lineTo(0.5, l - s3o4),
-            lineTo(0, l - s3o4 * 3),
-        ]),
-    ],
-    [
-        new SingleTile([
-            moveTo(1, l - s3o4 * 3),
-            lineTo(0.5, l - s3o4),
-            lineTo(1.5, l - s3o4),
-        ]),
-        new SingleTile([
-            moveTo(1, l - s3o4 * 3),
-            lineTo(0.5, l - s3o4),
-            lineTo(0.0, l - s3o4 * 3),
-        ]),
-        new SingleTile([
-            moveTo(1, l - s3o4 * 3),
-            lineTo(1.5, l - s3o4),
-            lineTo(2.0, l - s3o4 * 3),
-        ]),
-        new SingleTile([
-            moveTo(0.5, l - s3o4),
-            lineTo(1.5, l - s3o4),
-            lineTo(1.0, l + s3o4),
-        ]),
-
-        new SingleTile([
-            moveTo(-1, l - s3o4 * 3),
-            lineTo(-0.5, l - s3o4),
-            lineTo(-1.5, l - s3o4),
-        ]),
-        new SingleTile([
-            moveTo(-1, l - s3o4 * 3),
-            lineTo(-0.5, l - s3o4),
-            lineTo(-0.0, l - s3o4 * 3),
-        ]),
-        new SingleTile([
-            moveTo(-1, l - s3o4 * 3),
-            lineTo(-1.5, l - s3o4),
-            lineTo(-2.0, l - s3o4 * 3),
-        ]),
-        new SingleTile([
-            moveTo(-0.5, l - s3o4),
-            lineTo(-1.5, l - s3o4),
-            lineTo(-1.0, l + s3o4),
-        ]),
-
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(0.5, l + s3o4 * 3),
-            lineTo(-0.5, l + s3o4 * 3),
-        ]),
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(0.5, l + s3o4 * 3),
-            lineTo(1.0, l + s3o4),
-        ]),
-        new SingleTile([
-            moveTo(0, l + s3o4),
-            lineTo(-0.5, l + s3o4 * 3),
-            lineTo(-1.0, l + s3o4),
-        ]),
-        new SingleTile([
-            moveTo(0.5, l + s3o4 * 3),
-            lineTo(-0.5, l + s3o4 * 3),
-            lineTo(0.0, l + s3o4 * 5),
-        ]),
-    ],
-    [6]
-);
-
 
 
 
@@ -1208,3 +1082,168 @@ export const square3x3CheckersAltenate = new ShrinkingFractalPattern(
     ],
     [2]
 )
+
+
+
+
+
+const s3o4 = Math.sqrt(3) / 4;
+
+const l = Math.sqrt(3) / 12;
+
+export const triangleInward = new GrowingFractalPattern(
+    "* Triangle Inward",
+    { x: 2, y: -2 },
+    [
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(-0.5, l - s3o4),
+            lineTo(0.5, l - s3o4),
+        ]),
+    ],
+    [
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(-0.5, l - s3o4),
+            lineTo(-1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(0.5, l - s3o4),
+            lineTo(1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(-0.5, l - s3o4),
+            lineTo(0.5, l - s3o4),
+            lineTo(0, l - s3o4 * 3),
+        ]),
+    ],
+    [20]
+);
+
+export const triangle3Inward = new GrowingFractalPattern(
+    "* 3 Triangles Inward",
+    { x: 2, y: -2 },
+    [
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(-0.5, l - s3o4),
+            lineTo(0.5, l - s3o4),
+        ]),
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(-0.5, l - s3o4),
+            lineTo(-1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(0.5, l - s3o4),
+            lineTo(1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(-0.5, l - s3o4),
+            lineTo(0.5, l - s3o4),
+            lineTo(0, l - s3o4 * 3),
+        ]),
+    ],
+    [
+        new SingleTile([
+            moveTo(1, l - s3o4 * 3),
+            lineTo(0.5, l - s3o4),
+            lineTo(1.5, l - s3o4),
+        ]),
+        new SingleTile([
+            moveTo(1, l - s3o4 * 3),
+            lineTo(0.5, l - s3o4),
+            lineTo(0.0, l - s3o4 * 3),
+        ]),
+        new SingleTile([
+            moveTo(1, l - s3o4 * 3),
+            lineTo(1.5, l - s3o4),
+            lineTo(2.0, l - s3o4 * 3),
+        ]),
+        new SingleTile([
+            moveTo(0.5, l - s3o4),
+            lineTo(1.5, l - s3o4),
+            lineTo(1.0, l + s3o4),
+        ]),
+
+        new SingleTile([
+            moveTo(-1, l - s3o4 * 3),
+            lineTo(-0.5, l - s3o4),
+            lineTo(-1.5, l - s3o4),
+        ]),
+        new SingleTile([
+            moveTo(-1, l - s3o4 * 3),
+            lineTo(-0.5, l - s3o4),
+            lineTo(-0.0, l - s3o4 * 3),
+        ]),
+        new SingleTile([
+            moveTo(-1, l - s3o4 * 3),
+            lineTo(-1.5, l - s3o4),
+            lineTo(-2.0, l - s3o4 * 3),
+        ]),
+        new SingleTile([
+            moveTo(-0.5, l - s3o4),
+            lineTo(-1.5, l - s3o4),
+            lineTo(-1.0, l + s3o4),
+        ]),
+
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(0.5, l + s3o4 * 3),
+            lineTo(-0.5, l + s3o4 * 3),
+        ]),
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(0.5, l + s3o4 * 3),
+            lineTo(1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(-0.5, l + s3o4 * 3),
+            lineTo(-1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(0.5, l + s3o4 * 3),
+            lineTo(-0.5, l + s3o4 * 3),
+            lineTo(0.0, l + s3o4 * 5),
+        ]),
+    ],
+    [6]
+);
+
+export const triangleOutward = new ShrinkingFractalPattern(
+    "* Triangle Outward",
+    { x: 2, y: 2 },
+    [
+        { x: 0, y: -l - s3o4 },
+        { x: 0.5, y: s3o4 - l },
+        { x: -0.5, y: s3o4 - l },
+    ],
+    [
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(-0.5, l - s3o4),
+            lineTo(-1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(0.5, l - s3o4),
+            lineTo(1.0, l + s3o4),
+        ]),
+        new SingleTile([
+            moveTo(-0.5, l - s3o4),
+            lineTo(0.5, l - s3o4),
+            lineTo(0, l - s3o4 * 3),
+        ]),
+    ],
+    [
+        new SingleTile([
+            moveTo(0, l + s3o4),
+            lineTo(-0.5, l - s3o4),
+            lineTo(0.5, l - s3o4),
+        ]),
+    ],
+    [4]
+);
