@@ -320,7 +320,7 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
         public readonly name: string,
         public iterateScale: Point,
         public initialTiles: FunOrDef<SingleTile[], number>,
-        public repeatingTiles: FunOrDef<SingleTile[], Point>,
+        public repeatingTiles: FunOrDef<SingleTile[], number>,
         params: [number] = [5]
     ) {
         super(name, [{
@@ -348,7 +348,7 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
         let scale = new Vec(1, 1);
 
         for (let i = 0; i < Iterations; i++) {
-            grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, scale, this.repeatingTiles)
+            grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, i, this.repeatingTiles)
                 .map((t) => t.toShape(grid, new Vec(0, 0), scale)));
 
             scale = scale.mul(this.iterateScale);
