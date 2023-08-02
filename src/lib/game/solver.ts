@@ -1,18 +1,18 @@
 import type { StateType } from './shape';
 import type { Grid } from "./grid";
-import type { Hint } from './basicHint';
+import type { BasicHint, Hint } from './basicHint';
 
 export class Solver {
     private sleepTime = 250;
     private grid: Grid;
     public solving = false;
-    public timeout: NodeJS.Timeout | number | null = null;
+    public timeout: number | null = null;
     public currentRejection: ((reason?: any) => void) | null = null;
 
     constructor(grid: Grid) {
         this.grid = grid;
     }
-    
+
     private sleep(ms: number = this.sleepTime) {
         if (!this.solving) {
             return Promise.reject("cancelled");
@@ -29,7 +29,7 @@ export class Solver {
     public cancel() {
         this.solving = false;
         if (this.timeout !== null) {
-            clearTimeout(this.timeout as NodeJS.Timeout);
+            clearTimeout(this.timeout);
             this.timeout = null;
         }
         if (this.currentRejection !== null) {
@@ -58,7 +58,15 @@ export class Solver {
         this.cancel();
     }
 
-    public async solve(state: StateType = "shapeState", wait = true) {
+    /**
+     * Solves the grid.
+     * 
+     * @param state 
+     * @param wait 
+     * @param complexAndMinimize Reverse the order of the solving functions. Also tries to solve using the hints already used.
+     * @returns 
+     */
+    public async solve(state: StateType = "shapeState", wait = true, complexAndMinimize = false) {
         if (this.solving) return;
         this.solving = true;
         if (wait) {
@@ -66,29 +74,56 @@ export class Solver {
         } else {
             this.sleepTime = 0;
         }
-        // this.solveIntersections(state)
-        let complexity = 0;
+        let hintsUsed: BasicHint[] = [];
+
+        let order = [
+            this.solveBasic,
+            this.solveSingleSolution,
+            this.solveMatchingSolutions,
+            this.solveIntersections
+        ]
+
+        if (complexAndMinimize) {
+            order = order.reverse();
+        }
+
         while (true) {
-            if (!this.solving) return; // cancelled
+            if (!this.solving) break; // cancelled
 
             try {
-                if (await this.solveBasic(state)) {
-                    complexity = Math.max(complexity, 1);
-                    continue;
+                let used: Hint[] = [];
+
+                if (complexAndMinimize) { // Try to solve using the hints already used.
+                    let found = false;
+                    for (const func of order) {
+                        used = await func.call(this, state, hintsUsed.filter(h => h != undefined).map(h => h.asHint()));
+                        if (used.length > 0) {
+                            // Check to see if any of the hints used are not in hintsUsed.
+                            // This should never happen. Print a warning if it does.
+                            for (const hint of used) {
+                                if (!hintsUsed.includes(hint.basicHint)) {
+                                    console.warn("Hint used that was not in hintsUsed.");
+                                    console.warn(hint);
+                                }
+                            }
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (found) continue;
                 }
 
-                if (await this.solveSingleSolution(state)) {
-                    complexity = Math.max(complexity, 2);
-                    continue;
+                for (const func of order) {
+                    used = await func.call(this, state, undefined, complexAndMinimize);
+                    if (used.length > 0) {
+                        hintsUsed.push(...used.map(h => h.basicHint).filter(h => h != undefined));
+                        hintsUsed = [...new Set(hintsUsed)]
+                        break;
+                    }
                 }
-                if (await this.solveMatchingSolutions(state)) {
-                    complexity = Math.max(complexity, 3);
-                    continue;
-                }
-                if (await this.solveIntersections(state)) {
-                    complexity = Math.max(complexity, 4);
-                    continue;
-                }
+
+                if (used.length > 0) continue;
             } catch (e) {
                 if (e === "cancelled") return;
                 throw e;
@@ -97,39 +132,50 @@ export class Solver {
         }
 
         this.solving = false;
+
+        return { hintsUsed };
     }
 
-    private async solveBasic(state: StateType = "shapeState") {
-        const hints = this.grid.getHints();
+    private async solveBasic(state: StateType = "shapeState", hints: Hint[] = undefined, shuffle = false) {
+        if (hints === undefined) hints = this.grid.getHints();
 
-        let found = false;
+        if (shuffle) {
+            hints = hints.sort(() => Math.random() - 0.5);
+        }
+
+        let used: Hint[] = [];
 
         for (const hint of hints) {
-            // if (!hint.shapeState.noMineKnown || hint.contacts.every(contact => !contact.shapeState.unknown)) continue;
+            if (hint.shapes.length === 0) continue;
             if (hint.mines === 0) {
                 for (const shape of hint.shapes) {
                     if (!shape[state].unknown) continue;
                     if (shape.reveal(state)) await this.sleep();
                 }
-                found = true;
+                used.push(hint);
             } else if (hint.mines === hint.shapes.length) {
                 for (const shape of hint.shapes) {
                     if (!shape[state].unknown) continue;
                     if (shape.flag(true, state)) await this.sleep();
                 }
-                found = true;
+                used.push(hint);
             }
         }
-        return found;
+        return used;
     }
 
-    private async solveSingleSolution(state: StateType = "shapeState") {
-        const hints = this.grid.getHints();
+    private async solveSingleSolution(state: StateType = "shapeState", hints: Hint[] = undefined, shuffle = false) {
+        if (hints === undefined) hints = this.grid.getHints();
 
-        let found = false;
+        if (shuffle) {
+            hints = hints.sort(() => Math.random() - 0.5);
+        }
+
+        let used: Hint[] = [];
 
         for (const hint of hints) {
             if (hint.isTooBig()) continue;
+            if (hint.shapes.length === 0) continue;
             let possibilities = hint.getMinePossibilities();
 
             if (possibilities.length == 1) {
@@ -137,19 +183,24 @@ export class Solver {
                     const p = possibilities[0][i];
                     if (hint.setShapeState(i, p, state)) await this.sleep();
                 }
-                found = true;
+                used.push(hint);
             }
         }
-        return found;
+        return used;
     }
 
-    private async solveMatchingSolutions(state: StateType = "shapeState") {
-        const hints = this.grid.getHints();
+    private async solveMatchingSolutions(state: StateType = "shapeState", hints: Hint[] = undefined, shuffle = false) {
+        if (hints === undefined) hints = this.grid.getHints();
 
-        let found = false;
+        if (shuffle) {
+            hints = hints.sort(() => Math.random() - 0.5);
+        }
+
+        let used: Hint[] = [];
 
         for (const hint of hints) {
             if (hint.isTooBig()) continue;
+            if (hint.shapes.length === 0) continue;
             let possibilities = hint.getMinePossibilities();
             if (possibilities.length <= 1) continue;
 
@@ -159,11 +210,11 @@ export class Solver {
                 const b = commonalities[i];
                 if (b) {
                     if (hint.setShapeState(i, possibilities[0][i], state)) await this.sleep();
-                    found = true;
+                    used.push(hint);
                 }
             }
         }
-        return found;
+        return used;
     }
 
     private static getCommonalities(possibilities: boolean[][]): boolean[] {
@@ -184,15 +235,17 @@ export class Solver {
         return matching;
     }
 
-    private async solveIntersections(state: StateType = "shapeState") {
-        const intersections = this.getIntersections();
+    private async solveIntersections(state: StateType = "shapeState", hints: Hint[] = undefined, shuffle = false) {
+        if (hints === undefined) hints = this.grid.getHints();
 
-        let found = false;
+        const intersections = this.getIntersections(hints, shuffle);
 
-        let possibilities: Map<Hint, boolean[][]> = new Map();
+        let used: Hint[] = [];
 
-        function getPossibilities(hint: Hint): boolean[][] {
-            if (!possibilities.has(hint)) possibilities.set(hint, hint.getMinePossibilities());
+        let possibilities: Map<Hint, [Hint[], boolean[][]]> = new Map();
+
+        function getPossibilities(hint: Hint): [Hint[], boolean[][]] {
+            if (!possibilities.has(hint)) possibilities.set(hint, [[], hint.getMinePossibilities()]);
             return possibilities.get(hint);
         }
 
@@ -203,10 +256,11 @@ export class Solver {
 
                 let p2 = getPossibilities(h2);
 
-                p1 = p1.filter(p => p2.some(pp => {
+                p1[1] = p1[1].filter(p => p2[1].some(pp => {
                     for (const [_, n] of i) {
                         if (p[n[0]] !== pp[n[1]]) return false;
                     }
+                    p1[0].push(h2);
                     return true;
                 }))
 
@@ -215,32 +269,40 @@ export class Solver {
         }
 
         for (const [h, p] of possibilities) {
-            if (p.length === 0) continue;
-            let commonalities = Solver.getCommonalities(p);
+            let p1 = p[1];
+            if (p1.length === 0) continue;
+            let commonalities = Solver.getCommonalities(p1);
 
-            let p0 = p[0];
+            let p10 = p1[0];
 
             for (let i = 0; i < commonalities.length; i++) {
                 const b = commonalities[i];
                 if (b) {
-                    if (h.setShapeState(i, p0[i], state)) await this.sleep();
-                    found = true;
+                    if (h.setShapeState(i, p10[i], state)) await this.sleep();
+                    used.push(h);
+                    used.push(...p[0]);
                 }
             }
         }
 
-        return found;
+        return used;
     }
 
-    private getIntersections(): Map<Hint, Hint[]> {
-        const hints = this.grid.getHints();
+    private getIntersections(hints: Hint[] = undefined, shuffle = false): Map<Hint, Hint[]> {
+        if (hints === undefined) hints = this.grid.getHints();
+
+        if (shuffle) {
+            hints = hints.sort(() => Math.random() - 0.5);
+        }
 
         let intersections: Map<Hint, Hint[]> = new Map();
 
         for (const hint1 of hints) {
             if (hint1.isTooBig()) continue;
+            if (hint1.shapes.length === 0) continue;
             for (const hint2 of hints) {
                 if (hint1 === hint2 || hint2.isTooBig()) continue;
+                if (hint2.shapes.length === 0) continue;
                 if (hint1.intersects(hint2)) {
                     if (!intersections.has(hint1)) intersections.set(hint1, []);
                     intersections.set(hint1, [...intersections.get(hint1), hint2]);

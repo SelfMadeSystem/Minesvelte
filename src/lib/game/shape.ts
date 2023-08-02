@@ -93,7 +93,7 @@ export type StateType = "solverState" | "shapeState";
 
 export type ShapeMove = "isRevealed" | "isFlagged";
 
-export type ShapeStateStuffs = ShapeMove | "hasMine" | "isHighlighed" | "color";
+export type ShapeStateStuffs = ShapeMove | "isNeverKnown" | "hasMine" | "isHighlighed" | "color";
 
 export type SSNotify = { changed: ShapeStateStuffs, newState: ShapeState; };
 
@@ -109,6 +109,7 @@ export class ShapeState {
             newState: this
         });
     }
+
     public get isFlagged(): boolean {
         return this._isFlagged && !this.isRevealed;
     }
@@ -120,6 +121,18 @@ export class ShapeState {
             newState: this
         });
     }
+
+    public get isNeverKnown(): boolean { // displays "?" instead of number
+        return this._isNeverKnown;
+    }
+    public set isNeverKnown(value: boolean) {
+        this._isNeverKnown = value;
+        this.notifier.notify({
+            changed: "isNeverKnown",
+            newState: this
+        });
+    }
+
     public get hasMine(): boolean {
         return this._hasMine;
     }
@@ -130,6 +143,7 @@ export class ShapeState {
             newState: this
         });
     }
+
     public get isHighlighed(): boolean {
         return this._highlightation.length > 0;
     }
@@ -144,6 +158,7 @@ export class ShapeState {
             newState: this
         });
     }
+
     public get color(): SpecificColors {
         return this._color;
     }
@@ -170,6 +185,7 @@ export class ShapeState {
         protected _hasMine: boolean = false,
         protected _isFlagged: boolean = false,
         protected _isRevealed: boolean = false,
+        protected _isNeverKnown: boolean = false,
         protected _highlightation: any[] = [],
         public notifier: Notifier<SSNotify> = new Notifier(),
     ) {
@@ -199,6 +215,7 @@ export class SolverState extends ShapeState {
             this._hasMine = s.hasMine;
             this._isFlagged = s.isFlagged;
             this._isRevealed = s.isRevealed;
+            this._isNeverKnown = s.isNeverKnown;
         });
         this.reset();
     }
@@ -209,6 +226,7 @@ export class SolverState extends ShapeState {
         this.base.hasMine = this._hasMine;
         this.base.isFlagged = this._isFlagged;
         this.base.isRevealed = this._isRevealed;
+        this.base.isNeverKnown = this._isNeverKnown;
     }
 
     public reset() {
@@ -216,6 +234,7 @@ export class SolverState extends ShapeState {
         this._hasMine = this.base.hasMine;
         this._isFlagged = this.base.isFlagged;
         this._isRevealed = this.base.isRevealed;
+        this._isNeverKnown = this.base.isNeverKnown;
     }
 }
 
@@ -302,8 +321,10 @@ export class Shape extends BasicHint {
     reveal(state: StateType = "shapeState") {
         if (this[state].isRevealed) return false;
         this[state].isRevealed = true;
-        if (!this[state].hasMine && this.number === 0) {
-            this.contacts.forEach(s => s.reveal(state));
+        if (state === "shapeState") {
+            if (!this[state].isNeverKnown && !this[state].hasMine && this.number === 0) {
+                this.contacts.forEach(s => s.reveal(state));
+            }
         }
         return true;
     }
@@ -369,6 +390,7 @@ export class Shape extends BasicHint {
     }
 
     getNumText() {
+        if (this.shapeState.isNeverKnown) return "?";
         if (this.connectedNumber && this.number > 1) {
             if (this.areAllConnected()) {
                 return `{${this.number}}`;
@@ -414,7 +436,7 @@ export class Shape extends BasicHint {
 
     getText() {
         if (this.shapeState.isRevealed && !this.shapeState.hasMine) {
-            return this.number === 0 ? "" : this.getNumText();
+            return (this.number === 0 && !this.shapeState.isNeverKnown) ? "" : this.getNumText();
         }
         return "";
     }
@@ -440,6 +462,8 @@ export class Shape extends BasicHint {
     }
 
     public asHint(): Hint {
+        if (this.shapeState.isNeverKnown) return new Hint([], 0, () => false);
+
         const minesAlreadyKnown = this.contacts.filter(c => c.solverState.mineKnown);
         const hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown),
             this.number - this.contacts.reduce((a, c) => a + Number(c.solverState.mineKnown), 0),
@@ -448,6 +472,7 @@ export class Shape extends BasicHint {
                     (p) => Hint.defaultVerify(p, hint) && Shape.checkAllConnected([...minesAlreadyKnown, ...hint.getShapes(p)]) :
                     (p) => Hint.defaultVerify(p, hint) && !Shape.checkAllConnected([...minesAlreadyKnown, ...hint.getShapes(p)]) :
                 (p) => Hint.defaultVerify(p, hint));
+        hint.basicHint = this;
         return hint;
     }
 

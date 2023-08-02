@@ -17,6 +17,11 @@ export abstract class BasicHint {
 
 export class Hint {
     /**
+     * The BasicHint that this Hint is based on.
+     */
+    public basicHint: BasicHint | null = null;
+
+    /**
      * Default verification implementation.
      * 
      * Throws if the length of the array is not equal to the length of the

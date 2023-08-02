@@ -6,7 +6,7 @@ import type { MineLine } from "./mineLine";
 import { Notifier, ValueNotifier } from "../utils/Notifier";
 import { strokeColors } from "../utils/Colors";
 import type { SpecificColors } from "../utils/Colors"
-import { Hint } from "./basicHint";
+import { BasicHint, Hint } from "./basicHint";
 import { Solver } from "./solver";
 import { HistoryProcessor } from "./history";
 import type { MainMenuNewGameOptions } from "../utils/Events";
@@ -43,7 +43,7 @@ export abstract class Grid {
         return this._shapesByColor = Object.fromEntries(shapes);
     }
 
-    public reset(options: MainMenuNewGameOptions) {
+    public async reset(options: MainMenuNewGameOptions) {
         this.includeCorners = options.includeCorners;
 
         this.shapes.forEach((shape) => {
@@ -62,6 +62,18 @@ export abstract class Grid {
             this.setMineRatio(options.mineCount / 100);
         } else {
             this.setRandomMines(options.mineCount);
+        }
+
+        if (options.autoGenerate) {
+            const hintsUsed = await this.makeSolvable();
+            if (hintsUsed.length > 0) {
+                const shapesUsed = [...new Set(hintsUsed.filter(hint => hint instanceof Shape))];
+                const shapesNotUsed = this.shapes.filter(shape => !shapesUsed.includes(shape));
+
+                for (const shape of shapesNotUsed) {
+                    shape.shapeState.isNeverKnown = true;
+                }
+            }
         }
     }
 
@@ -229,7 +241,14 @@ export abstract class Grid {
         return this.mineLines.map(l => l.asHint());
     }
 
-    public async makeSolvable() { // Reveals shapes until it becomes solvable
+    /**
+     * Reveals shapes until it becomes solvable.
+     * 
+     * @returns The hints that were used by the solver.
+     */
+    public async makeSolvable() {
+        const hintsUsed: BasicHint[] = [];
+
         let solver = new Solver(this);
 
         await solver.solve("solverState", false);
@@ -254,10 +273,12 @@ export abstract class Grid {
                 s.reveal();
             }
 
-            await solver.solve("solverState", false);
+            hintsUsed.push(...(await solver.solve("solverState", false, true)).hintsUsed);
         }
 
         this.shapes.forEach(s => s.solverState.reset());
+
+        return hintsUsed;
     }
 }
 

@@ -31,12 +31,7 @@
         }
 
         for (const key in ppp) {
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    ppp,
-                    key
-                )
-            ) {
+            if (Object.prototype.hasOwnProperty.call(ppp, key)) {
                 const element = ppp[key];
                 patterns.set(key, element);
             }
@@ -64,8 +59,10 @@
 
     let mineCount: number = 20;
     let minePercent: State = "true";
-    let connectedNumber: State = "false";
+    let connectedNumber: State = "true"; // I like this so I'm making it default
     let includeCorners: State = "true";
+
+    let autoGenerate: State = "true";
 
     const dispatch = createEventDispatcher();
 
@@ -87,6 +84,7 @@
             minePercent: minePercent === "true",
             connectedNumber: connectedNumber === "true",
             includeCorners: includeCorners === "true",
+            autoGenerate: autoGenerate === "true",
         } as MainMenuNewGameOptions);
     }
 </script>
@@ -103,7 +101,8 @@
             </select>
             <select name="pattern" id="pattern" bind:value={selected}>
                 {#each patternsArr as pattern}
-                    <option value={pattern}>{patterns.get(pattern).name}</option>
+                    <option value={pattern}>{patterns.get(pattern).name}</option
+                    >
                 {/each}
             </select>
             {#if parameters}
@@ -171,7 +170,11 @@
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label class="boolean-input"
                 >Mine Percent:
-                <Toggle name="minePercent" bind:state={minePercent} _class="ml-4" />
+                <Toggle
+                    name="minePercent"
+                    bind:state={minePercent}
+                    _class="ml-4"
+                />
             </label>
             <!-- svelte-ignore a11y-label-has-associated-control -->
             <label class="boolean-input"
@@ -193,6 +196,15 @@
                 <Toggle
                     name="includeCorners"
                     bind:state={includeCorners}
+                    _class="ml-4"
+                />
+            </label>
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="boolean-input"
+                >Auto Generate:
+                <Toggle
+                    name="autoGenerate"
+                    bind:state={autoGenerate}
                     _class="ml-4"
                 />
             </label>

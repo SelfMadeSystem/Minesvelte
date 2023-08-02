@@ -41,6 +41,7 @@ export class MineLine extends BasicHint {
     public asHint(): Hint {
         const hint: Hint = new Hint(this.contacts.filter(c => c.solverState.unknown),
             this.number - this.contacts.reduce((a, c) => a + Number(c.solverState.mineKnown), 0));
+        hint.basicHint = this;
         return hint;
     }
 }

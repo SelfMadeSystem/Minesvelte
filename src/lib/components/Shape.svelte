@@ -36,7 +36,7 @@
                     shape.shapeState.hasMine = !shape.shapeState.hasMine;
                     break;
                 }
-                if (shape.shapeState.isRevealed && !shape.shapeState.hasMine) {
+                if (shape.shapeState.isRevealed && !shape.shapeState.hasMine && !shape.shapeState.isNeverKnown) {
                     let a = shape.contacts.filter(
                         (c) =>
                             c.shapeState.isFlagged ||
