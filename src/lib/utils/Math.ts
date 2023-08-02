@@ -1,3 +1,5 @@
+export const EPSILON = 0.00001;
+
 export function gcd(a: number, b: number): number {
   if (b === 0) {
     return a;

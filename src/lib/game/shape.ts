@@ -1,5 +1,5 @@
 import type { Grid } from "./grid";
-import type { HexPoint, Point } from "../utils/Vec";
+import { Vec, type HexPoint, type Point } from "../utils/Vec";
 import { Notifier } from "../utils/Notifier";
 import { Rect } from "../utils/rect";
 import { Line } from "../utils/Line";
@@ -45,10 +45,6 @@ export abstract class ShapePoint implements Point {
 
     public abstract toString(grid: Grid): string;
     public abstract clone(): ShapePoint;
-    
-    public equals(point: Point) {
-        return this.x === point.x && this.y === point.y;
-    }
 }
 
 // LineToPoint
@@ -459,11 +455,13 @@ export class Shape extends BasicHint {
         return this.points.map(p => p.toString(this.grid)).join(' ').slice(2) + ' z';
     }
 
-    public equals(other: Shape): boolean {
+    /**
+     * Returns true if the two shapes are loosely equal (same points, but not necessarily in the same order)
+     * @param other The other shape to compare to
+     * @returns True if the two shapes are loosely equal
+     */
+    public looseEquals(other: Shape): boolean {
         if (this.points.length !== other.points.length) return false;
-        for (let i = 0; i < this.points.length; i++) {
-            if (!this.points[i].equals(other.points[i])) return false;
-        }
-        return true;
+        return this.points.every(p => other.points.some(op => Vec.equals(p, op)));
     }
 }

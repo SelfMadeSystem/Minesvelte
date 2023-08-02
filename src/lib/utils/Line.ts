@@ -1,8 +1,6 @@
-import { approx, toDeg, wrapAngle } from "./Math";
+import { EPSILON, approx, toDeg, wrapAngle } from "./Math";
 import { Vec } from "./Vec";
 import type { Point } from "./Vec";
-
-const EPSILON = 0.00001;
 
 export class Line {
     public readonly v1: Vec;

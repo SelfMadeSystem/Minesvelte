@@ -127,15 +127,15 @@ export abstract class Pattern<P extends PatternParam[]> {
      */
     public removeDuplicates(grid: Grid): void {
         const shapes: Shape[] = [];
+        dontAdd: // idk if I want a label, but it's here now. The only label in the entire project resides at this location. :P
         for (const shape of grid.shapes) {
-            let duplicate = false;
             for (const other of shapes) {
-                if (shape.equals(other)) {
-                    duplicate = true;
-                    break;
+                if (shape.looseEquals(other)) {
+                    console.log(shape.points, other.points)
+                    continue dontAdd;
                 }
             }
-            if (!duplicate) shapes.push(shape);
+            shapes.push(shape);
         }
         grid.shapes.length = 0;
         grid.shapes.push(...shapes);
@@ -252,7 +252,8 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
         // other param is (for q, r, and s) 1 if is at positive edge, -1 if is at negative edge, 0 if not at edge.
         public readonly tiles: FunOrDef<SingleTile[], HexPoint>,
         public readonly adjust: (p: HexP) => HexP = (p) => p,
-        params: [boolean, number, number, number] = [false, 5, 5, 5]
+        params: [boolean, number, number, number] = [false, 5, 5, 5],
+        public readonly hexGrid: boolean = true
     ) {
         super(name, [{
             name: "Symmetric",
@@ -335,7 +336,7 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
         const shapes: Shape[] = [];
         const pos: Point = new Vec(x, y).mul(this.repeatDimensions).add(getFunOrDef({ x, y }, edge, this.repeatOffset, (p, { }, v) => new Vec(p.y, p.x).mul(v)));
         for (const shape of getFunOrDef({ x, y }, edge, this.tiles)) {
-            let s = shape.toShape(grid, pos, { x: 1, y: 1 }, true);
+            let s = shape.toShape(grid, pos, { x: 1, y: 1 }, this.hexGrid);
             s.A_hexPosition = edge;
             shapes.push(s);
         }

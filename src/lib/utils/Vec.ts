@@ -1,3 +1,5 @@
+import { EPSILON } from "./Math";
+
 export interface Point {
     x: number;
     y: number;
@@ -19,6 +21,10 @@ export class Vec implements Point {
 
     public static fromAngle(rad: number): Vec {
         return new Vec(Math.cos(rad), Math.sin(rad));
+    }
+
+    public static equals(a: Point, b: Point): boolean {
+        return Math.abs(a.x - b.x) < EPSILON && Math.abs(a.y - b.y) < EPSILON;
     }
 
     public lengthSq(): number {
