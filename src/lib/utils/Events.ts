@@ -56,6 +56,7 @@ export interface MainMenuNewGameOptions extends MainMenuEvent { // Todo: add col
     patternSize: { [key: string]: any }; // Pattern type speific
     mineCount: number;
     minePercent: boolean;
+    colors: number;
     connectedNumber: boolean;
     includeCorners: boolean;
     autoGenerate: boolean;

@@ -64,6 +64,23 @@ export abstract class Grid {
             this.setRandomMines(options.mineCount);
         }
 
+        if (options.colors > 1) {
+            // for now, just randomly apply colors an equal amount of times
+
+            const colors = strokeColors.slice(0, options.colors);
+
+            const shapes = this.shapes.slice();
+
+            const colorNumber = Math.floor(shapes.length / colors.length);
+
+            for (const color of colors) {
+                for (let i = 0; i < colorNumber; i++) {
+                    const shape = shapes.splice(Math.floor(Math.random() * shapes.length), 1)[0];
+                    shape.shapeState.color = color;
+                }
+            }
+        }
+
         if (options.autoGenerate) {
             const hintsUsed = await this.makeSolvable();
             if (hintsUsed.length > 0) {

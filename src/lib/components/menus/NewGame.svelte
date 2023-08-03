@@ -61,6 +61,7 @@
     let minePercent: State = "true";
     let connectedNumber: State = "true"; // I like this so I'm making it default
     let includeCorners: State = "true";
+    let colors: number = 1;
 
     let autoGenerate: State = "true";
 
@@ -82,6 +83,7 @@
             patternSize: selectedParameters,
             mineCount: mineCount,
             minePercent: minePercent === "true",
+            colors,
             connectedNumber: connectedNumber === "true",
             includeCorners: includeCorners === "true",
             autoGenerate: autoGenerate === "true",
@@ -174,6 +176,17 @@
                     name="minePercent"
                     bind:state={minePercent}
                     _class="ml-4"
+                />
+            </label>
+            <label class="number-input"
+                >Colors:
+                <input
+                    type="number"
+                    bind:value={colors}
+                    min="1"
+                    max="7"
+                    step="1"
+                    name="colors"
                 />
             </label>
             <!-- svelte-ignore a11y-label-has-associated-control -->

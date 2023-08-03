@@ -253,17 +253,20 @@
     >
         {minesLeft}
     </div>
-    {#each Object.keys(shapesByColor) as color, i}
-        <div
-            class="text-3xl font-semibold right-4 font-mono bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
-            style="top: {(i + 1) * 3 + 0.5}rem;
-        color: {specifics[color].normal};"
-        >
-            {shapesByColor[color].filter((s) => s.shapeState.hasMine).length -
-                shapesByColor[color].filter((s) => s.shapeState.mineKnown)
-                    .length}
-        </div>
-    {/each}
+    {#if Object.keys(shapesByColor).length > 1}
+        {#each Object.keys(shapesByColor) as color, i}
+            <div
+                class="text-3xl font-semibold right-4 font-mono bg-[#0007] border-x-8 border-y-2 rounded border-transparent z-10 absolute"
+                style="top: {(i + 1) * 3 + 0.5}rem;
+            color: {specifics[color].normal};"
+            >
+                {shapesByColor[color].filter((s) => s.shapeState.hasMine)
+                    .length -
+                    shapesByColor[color].filter((s) => s.shapeState.mineKnown)
+                        .length}
+            </div>
+        {/each}
+    {/if}
     <div class="absolute flex top-0 left-0 gap-4">
         <button
             on:click={solve}
