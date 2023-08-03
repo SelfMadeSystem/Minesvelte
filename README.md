@@ -29,7 +29,7 @@ You can click the "New Game" button to create a new game. You can then customize
 
 #### Basics
 
-Scroll to zoom. Left-click on tiles to reveal them. Right-click to flag them as mines. If a revealed tile has the number of flags around it equal to its number, you can click it to automatically reveal the remaining tiles.
+Scroll to zoom. Left-click on tiles to reveal them. Right-click to flag them as mines. If a revealed tile has the number of flags around it equal to its number, you can left-click it to automatically reveal the remaining tiles. Similarly, if the number of unrevealed tiles around a revealed tile is exactly enough to satisfy its number, you can right-click the tile to flag the tiles around it.
 
 Press "U" to undo. Press "R" to redo.
 

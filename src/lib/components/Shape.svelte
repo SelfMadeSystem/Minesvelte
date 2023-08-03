@@ -36,24 +36,28 @@
                     shape.shapeState.hasMine = !shape.shapeState.hasMine;
                     break;
                 }
-                if (shape.shapeState.isRevealed && !shape.shapeState.hasMine && !shape.shapeState.isNeverKnown) {
-                    let a = shape.contacts.filter(
+                if (
+                    shape.shapeState.noMineKnown &&
+                    !shape.shapeState.isNeverKnown
+                ) { // If the shape is known to have no mine and isn't a `?`...
+                    let mines = shape.contacts.filter(
                         (c) =>
                             c.shapeState.isFlagged ||
                             (c.shapeState.hasMine && c.shapeState.isRevealed)
-                    );
-                    if (a.length == shape.number) {
+                    ).length;
+                    // get the # of miness.
+                    // This is done by getting all the contacts that are flagged
+                    // or have a mine and are revealed
+
+                    // if the number of contacts is equal to the number of mines...
+                    // i.e. the number of mines is satisfied
+                    if (mines == shape.number) {
                         shape.contacts
                             .filter(
-                                (c) =>
-                                    !(
-                                        c.shapeState.isFlagged ||
-                                        (c.shapeState.hasMine &&
-                                            c.shapeState.isRevealed)
-                                    )
+                                (c) => c.shapeState.unknown
                             )
                             .forEach((c) => {
-                                c.reveal();
+                                c.reveal(); // reveal all the contacts that are currently unknown
                             });
                     }
                     return;
@@ -61,7 +65,34 @@
                 if (shape.shapeState.getState() == "normal") shape.reveal();
                 break;
             case 2:
-                shape.flag(false);
+                if (
+                    shape.shapeState.noMineKnown &&
+                    !shape.shapeState.isNeverKnown
+                ) { // If the shape is known to have no mine and isn't a `?`...
+                    let mines = shape.contacts.filter(
+                        (c) =>
+                            c.shapeState.isFlagged ||
+                            (c.shapeState.hasMine && c.shapeState.isRevealed)
+                    ).length;
+                    // get the # of miness.
+                    // This is done by getting all the contacts that are flagged
+                    // or have a mine and are revealed
+
+                    let unrevealed = shape.contacts.filter(
+                        (c) => c.shapeState.unknown
+                    )
+                    // get the # of unrevealed contacts
+                    // This is done by getting all the contacts that are unknown (i.e. not revealed or flagged)
+
+                    if ((mines + unrevealed.length) == shape.number) {
+                        // if the number of mines + unrevealed contacts is equal to the number of mines...
+                        unrevealed.forEach((c) => {
+                                c.flag(); // flag all the contacts that are currently unknown
+                            });
+                    }
+                } else {
+                    shape.flag(false);
+                }
                 break;
             case 1:
                 shape.shapeState.hasMine = !shape.shapeState.hasMine;
