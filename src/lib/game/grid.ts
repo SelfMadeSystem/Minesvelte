@@ -52,7 +52,10 @@ export abstract class Grid {
             shape.shapeState.hasMine = false;
             shape.shapeState.isRevealed = false;
             shape.shapeStateNotify.unsubscribeAll();
-            shape.shapeStateNotify.subscribe(() => {
+            shape.shapeStateNotify.subscribe((a) => {
+                if (a.changed === "color") {
+                    this._shapesByColor = undefined;
+                }
                 this.notifyShapeStateChange.notify(shape);
             });
         });

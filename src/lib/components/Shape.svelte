@@ -32,14 +32,11 @@
     function onMouseDown(e: MouseEvent) {
         switch (e.button) {
             case 0:
-                if (e.shiftKey) {
-                    shape.shapeState.hasMine = !shape.shapeState.hasMine;
-                    break;
-                }
                 if (
                     shape.shapeState.noMineKnown &&
                     !shape.shapeState.isNeverKnown
-                ) { // If the shape is known to have no mine and isn't a `?`...
+                ) {
+                    // If the shape is known to have no mine and isn't a `?`...
                     let mines = shape.contacts.filter(
                         (c) =>
                             c.shapeState.isFlagged ||
@@ -53,9 +50,7 @@
                     // i.e. the number of mines is satisfied
                     if (mines == shape.number) {
                         shape.contacts
-                            .filter(
-                                (c) => c.shapeState.unknown
-                            )
+                            .filter((c) => c.shapeState.unknown)
                             .forEach((c) => {
                                 c.reveal(); // reveal all the contacts that are currently unknown
                             });
@@ -68,7 +63,8 @@
                 if (
                     shape.shapeState.noMineKnown &&
                     !shape.shapeState.isNeverKnown
-                ) { // If the shape is known to have no mine and isn't a `?`...
+                ) {
+                    // If the shape is known to have no mine and isn't a `?`...
                     let mines = shape.contacts.filter(
                         (c) =>
                             c.shapeState.isFlagged ||
@@ -80,22 +76,53 @@
 
                     let unrevealed = shape.contacts.filter(
                         (c) => c.shapeState.unknown
-                    )
+                    );
                     // get the # of unrevealed contacts
                     // This is done by getting all the contacts that are unknown (i.e. not revealed or flagged)
 
-                    if ((mines + unrevealed.length) == shape.number) {
+                    if (mines + unrevealed.length == shape.number) {
                         // if the number of mines + unrevealed contacts is equal to the number of mines...
                         unrevealed.forEach((c) => {
-                                c.flag(); // flag all the contacts that are currently unknown
-                            });
+                            c.flag(); // flag all the contacts that are currently unknown
+                        });
                     }
                 } else {
                     shape.flag(false);
                 }
                 break;
             case 1:
-                shape.shapeState.hasMine = !shape.shapeState.hasMine;
+                if (e.shiftKey) {
+                    switch (shape.shapeState.color) {
+                        default:
+                        case "default":
+                            shape.shapeState.color = "red";
+                            break;
+                        case "red":
+                            shape.shapeState.color = "green";
+                            break;
+                        case "green":
+                            shape.shapeState.color = "blue";
+                            break;
+                        case "blue":
+                            shape.shapeState.color = "yellow";
+                            break;
+                        case "yellow":
+                            shape.shapeState.color = "cyan";
+                            break;
+                        case "cyan":
+                            shape.shapeState.color = "magenta";
+                            break;
+                        case "magenta":
+                            shape.shapeState.color = "default";
+                            break;
+                    }
+                    break;
+                } else if (e.altKey) {
+                    shape.shapeState.isNeverKnown =
+                        !shape.shapeState.isNeverKnown;
+                } else {
+                    shape.shapeState.hasMine = !shape.shapeState.hasMine;
+                }
                 break;
         }
     }
