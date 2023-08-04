@@ -267,11 +267,11 @@ export abstract class Grid {
      * @returns The hints that were used by the solver.
      */
     public async makeSolvable() {
-        const hintsUsed: BasicHint[] = [];
+        let hintsUsed: BasicHint[] = [];
 
         let solver = new Solver(this);
 
-        await solver.solve("solverState", false);
+        hintsUsed.push(...((await solver.solve("solverState", false)).hintsUsed));
 
         const isSolved = () => {
             return this.shapes.every((s) => !s.solverState.unknown || !s.shapeState.unknown);
@@ -293,7 +293,9 @@ export abstract class Grid {
                 s.reveal();
             }
 
-            hintsUsed.push(...(await solver.solve("solverState", false, true)).hintsUsed);
+            hintsUsed.push(...(await solver.solve("solverState", false, true, hintsUsed)).hintsUsed);
+
+            hintsUsed = [...new Set(hintsUsed)]
         }
 
         this.shapes.forEach(s => s.solverState.reset());

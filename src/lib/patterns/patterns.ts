@@ -1,5 +1,6 @@
 import { Grid, SquareGrid } from '../game/grid';
 import { Shape, ShapePoint } from '../game/shape';
+import { strokeColors } from '../utils/Colors';
 import { Vec } from '../utils/Vec';
 import type { HexPoint, Point } from '../utils/Vec';
 
@@ -131,7 +132,7 @@ export abstract class Pattern<P extends PatternParam[]> {
         for (const shape of grid.shapes) {
             for (const other of shapes) {
                 if (shape.looseEquals(other)) {
-                    console.log(shape.points, other.points)
+                    // console.log(shape.points, other.points)
                     continue dontAdd;
                 }
             }
@@ -353,8 +354,11 @@ export class HexPattern extends Pattern<[BooleanParam, NumberParam, NumberParam,
  * of the same pattern.
  * 
  * It has a single dimension: the number of times to repeat the pattern.
+ * 
+ * It also has a boolean parameter to determine whether or not to set each
+ * iteration to be a different color.
  */
-export class GrowingFractalPattern extends Pattern<[NumberParam]> {
+export class GrowingFractalPattern extends Pattern<[NumberParam, BooleanParam]> {
     constructor(
         public readonly name: string,
         public iterateScale: Point,
@@ -369,6 +373,11 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
             min: 1,
             max: 100,
             step: 1
+        },
+        {
+            name: "Color",
+            type: "boolean",
+            default: false
         }]);
     }
 
@@ -378,8 +387,8 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
      * @param grid The grid to generate the shapes into.
      * @param parameters The dimensions of the grid to generate.
      */
-    public generateGrid(grid: Grid, parameters: { Iterations: number }): void {
-        const { Iterations } = parameters;
+    public generateGrid(grid: Grid, parameters: { Iterations: number, Color: boolean }): void {
+        const { Iterations, Color } = parameters;
 
         grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, Iterations, this.initialTiles)
             .map((t) => t.toShape(grid, new Vec(0, 0))));
@@ -388,7 +397,13 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
 
         for (let i = 0; i < Iterations; i++) {
             grid.shapes.push(...getFunOrDef({ x: 0, y: 0 }, i, this.repeatingTiles)
-                .map((t) => t.toShape(grid, new Vec(0, 0), scale)));
+                .map((t) => {
+                    const shape = t.toShape(grid, new Vec(0, 0), scale);
+                    if (Color) {
+                        shape.shapeState.color = strokeColors[i % (strokeColors.length - 1) + 1];
+                    }
+                    return shape;
+                }));
 
             scale = scale.mul(this.iterateScale);
         }
@@ -406,8 +421,11 @@ export class GrowingFractalPattern extends Pattern<[NumberParam]> {
  * of the same pattern.
  * 
  * It has a single dimension: the number of times to repeat the pattern.
+ * 
+ * It also has a boolean parameter to determine whether or not to set each
+ * iteration to be a different color.
  */
-export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
+export class ShrinkingFractalPattern extends Pattern<[NumberParam, BooleanParam]> {
     constructor(
         public readonly name: string,
         public iterateScale: Point,
@@ -423,6 +441,11 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
             min: 1,
             max: 100,
             step: 1
+        },
+        {
+            name: "Color",
+            type: "boolean",
+            default: true
         }]);
     }
 
@@ -432,12 +455,12 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
      * @param grid The grid to generate the shapes into.
      * @param parameters The dimensions of the grid to generate.
      */
-    public generateGrid(grid: Grid, parameters: { Iterations: number }): void {
-        const { Iterations } = parameters;
+    public generateGrid(grid: Grid, parameters: { Iterations: number, Color: boolean }): void {
+        const { Iterations, Color } = parameters;
 
         const scale = Vec.from(this.iterateScale).pow(Iterations);
 
-        this.generateShapes(grid, { x: 0, y: 0 }, scale, Iterations);
+        this.generateShapes(grid, { x: 0, y: 0 }, scale, Iterations, Color);
 
         this.removeDuplicates(grid);
     }
@@ -453,22 +476,29 @@ export class ShrinkingFractalPattern extends Pattern<[NumberParam]> {
      * @param pos The position of the tile.
      * @param scale The scale of the tile.
      * @param iterations The number of iterations left to generate.
+     * @param color Whether or not to color the tiles.
      */
-    public generateShapes(grid: Grid, pos: Point, scale: Point, iterations: number): void {
+    public generateShapes(grid: Grid, pos: Point, scale: Point, iterations: number, color: boolean): void {
         if (iterations == 0) {
             grid.shapes.push(...getFunOrDef(pos, iterations, this.finalTiles)
                 .map((t) => t.toShape(grid, pos, scale)));
         }
 
         grid.shapes.push(...getFunOrDef(pos, iterations, this.repeatingTiles)
-            .map((t) => t.toShape(grid, pos, scale)));
+            .map((t) => {
+                const shape = t.toShape(grid, pos, scale);
+                if (color) {
+                    shape.shapeState.color = strokeColors[iterations % (strokeColors.length - 1) + 1];
+                }
+                return shape;
+            }));
 
         if (iterations > 0) {
             const newScale = Vec.from(scale).div(this.iterateScale);
             const offsets = getFunOrDef(pos, iterations - 1, this.iterateOffsets);
             for (const offset of offsets) {
                 const newPos = Vec.from(pos).add(Vec.from(offset).mul(scale));
-                this.generateShapes(grid, newPos, newScale, iterations - 1);
+                this.generateShapes(grid, newPos, newScale, iterations - 1, color);
             }
         }
     }

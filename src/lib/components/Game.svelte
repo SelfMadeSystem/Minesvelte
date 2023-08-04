@@ -76,8 +76,8 @@
     function onMouseMove(e: MouseEvent) {
         const { offsetX, offsetY, movementX, movementY } = e;
         // mousePoint = getMousePoint(clientX, clientY, grid);
-        if (e.ctrlKey)
-            console.log(offsetX, offsetY, grid.fromMousePos(offsetX, offsetY));
+        // if (e.ctrlKey)
+        //     console.log(offsetX, offsetY, grid.fromMousePos(offsetX, offsetY));
         if (!scrolling) return;
         grid.transformPosition.value = Vec.from(
             grid.transformPosition.value
@@ -93,7 +93,7 @@
             delta *= -4;
         }
 
-        console.log(grid.transformPosition.value);
+        // console.log(grid.transformPosition.value);
 
         const sub = Vec.from({
             x: window.innerWidth / 2,
@@ -153,7 +153,7 @@
     }
 
     function onKeyDown(e: KeyboardEvent) {
-        console.log(e.key);
+        // console.log(e.key);
         switch (e.key) {
             case "Escape":
                 paused = !paused;

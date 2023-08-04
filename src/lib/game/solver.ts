@@ -66,7 +66,7 @@ export class Solver {
      * @param complexAndMinimize Reverse the order of the solving functions. Also tries to solve using the hints already used.
      * @returns 
      */
-    public async solve(state: StateType = "shapeState", wait = true, complexAndMinimize = false) {
+    public async solve(state: StateType = "shapeState", wait = true, complexAndMinimize = false, hintsUsed: BasicHint[] = []) {
         if (this.solving) return;
         this.solving = true;
         if (wait) {
@@ -74,7 +74,6 @@ export class Solver {
         } else {
             this.sleepTime = 0;
         }
-        let hintsUsed: BasicHint[] = [];
 
         let order = [
             this.solveBasic,
@@ -95,8 +94,9 @@ export class Solver {
 
                 if (complexAndMinimize) { // Try to solve using the hints already used.
                     let found = false;
+                    const stuff = [... new Set(hintsUsed.map(h => h.asHint()))];
                     for (const func of order) {
-                        used = await func.call(this, state, hintsUsed.filter(h => h != undefined).map(h => h.asHint()));
+                        used = await func.call(this, state, stuff);
                         if (used.length > 0) {
                             // Check to see if any of the hints used are not in hintsUsed.
                             // This should never happen. Print a warning if it does.
@@ -118,20 +118,27 @@ export class Solver {
                     used = await func.call(this, state, undefined, complexAndMinimize);
                     if (used.length > 0) {
                         hintsUsed.push(...used.map(h => h.basicHint).filter(h => h != undefined));
-                        hintsUsed = [...new Set(hintsUsed)]
+                        // console.log(func.name, used, used.map(h => h.basicHint).filter(h => h != undefined), hintsUsed);
                         break;
                     }
                 }
 
                 if (used.length > 0) continue;
             } catch (e) {
-                if (e === "cancelled") return;
+                if (e === "cancelled") {
+                    console.log("cancelled");
+                    return;
+                }
                 throw e;
             }
             break;
         }
 
         this.solving = false;
+
+        console.log("hintsUsed", hintsUsed);
+
+        hintsUsed = [...new Set(hintsUsed)];
 
         return { hintsUsed };
     }
@@ -256,13 +263,21 @@ export class Solver {
 
                 let p2 = getPossibilities(h2);
 
+                let did = false;
+
                 p1[1] = p1[1].filter(p => p2[1].some(pp => {
                     for (const [_, n] of i) {
-                        if (p[n[0]] !== pp[n[1]]) return false;
+                        if (p[n[0]] !== pp[n[1]]) {
+                            did = true;
+                            return false;
+                        }
                     }
-                    p1[0].push(h2);
                     return true;
-                }))
+                }));
+
+                if (did) {
+                    p1[0].push(h2);
+                }
 
                 possibilities.set(h1, p1);
             }
@@ -305,7 +320,7 @@ export class Solver {
                 if (hint2.shapes.length === 0) continue;
                 if (hint1.intersects(hint2)) {
                     if (!intersections.has(hint1)) intersections.set(hint1, []);
-                    intersections.set(hint1, [...intersections.get(hint1), hint2]);
+                    intersections.get(hint1).push(hint2);
                 }
             }
         }
