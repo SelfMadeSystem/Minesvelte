@@ -13,6 +13,7 @@
     import { specifics, strokeColors } from "../utils/Colors";
     import PauseMenu from "./menus/PauseMenu.svelte";
     import type { MainMenuNewGameOptions } from "../utils/Events";
+    import { onDestroy, onMount } from "svelte";
     export let options: MainMenuNewGameOptions;
 
     let grid = options.grid;
@@ -202,6 +203,18 @@
     function makeSolvable() {
         grid.makeSolvable();
     }
+
+    const cancel = (e: Event) => {
+        e.preventDefault();
+    };
+
+    onMount(() => {
+        window.addEventListener("wheel", cancel, { passive: false });
+    })
+    
+    onDestroy(() => {
+        window.removeEventListener("wheel", cancel);
+    })
 </script>
 
 <svelte:window
