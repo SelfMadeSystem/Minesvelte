@@ -70,7 +70,7 @@ export class Solver {
         if (this.solving) return;
         this.solving = true;
         if (wait) {
-            this.sleepTime = 250;
+            this.sleepTime = 50;
         } else {
             this.sleepTime = 0;
         }
@@ -118,7 +118,6 @@ export class Solver {
                     used = await func.call(this, state, undefined, complexAndMinimize);
                     if (used.length > 0) {
                         hintsUsed.push(...used.map(h => h.basicHint).filter(h => h != undefined));
-                        // console.log(func.name, used, used.map(h => h.basicHint).filter(h => h != undefined), hintsUsed);
                         break;
                     }
                 }
@@ -136,7 +135,7 @@ export class Solver {
 
         this.solving = false;
 
-        console.log("hintsUsed", hintsUsed);
+        // console.log("hintsUsed", hintsUsed);
 
         hintsUsed = [...new Set(hintsUsed)];
 
@@ -258,6 +257,7 @@ export class Solver {
 
         for (const [h1, v] of intersections) {
             let p1 = getPossibilities(h1);
+            let anyDid = false;
             for (const h2 of v) {
                 let i = h1.getIntersections(h2);
 
@@ -268,7 +268,7 @@ export class Solver {
                 p1[1] = p1[1].filter(p => p2[1].some(pp => {
                     for (const [_, n] of i) {
                         if (p[n[0]] !== pp[n[1]]) {
-                            did = true;
+                            did = anyDid = true;
                             return false;
                         }
                     }
@@ -280,6 +280,10 @@ export class Solver {
                 }
 
                 possibilities.set(h1, p1);
+            }
+
+            if (!anyDid && shuffle) { // we only want the complex stuff :)
+                possibilities.delete(h1);
             }
         }
 

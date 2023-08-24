@@ -57,9 +57,9 @@
         }
     }
 
-    let mineCount: number = 20;
+    let mineCount: number = 35;
     let minePercent: State = "true";
-    let connectedNumber: State = "true"; // I like this so I'm making it default
+    let connectedNumber: State = "true"; 
     let includeCorners: State = "true";
     let colors: number = 1;
 
